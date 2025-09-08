@@ -406,52 +406,114 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
             end;
         end);
     else
-        local Dragging, DraggingInput, DraggingStart, StartPosition;
+        local UserInputService = game:GetService("UserInputService")
 
-        InputService.TouchStarted:Connect(function(Input)
-            if IsMainWindow == true and Library.CantDragForced == true then
+local Dragging, DraggingInput, DraggingStart, StartPosition
+
+-- Função para checar se esse Instance é a camada mais alta sob o mouse/toque
+local function IsTopMost(instance, input, Library)
+    for _, gui in ipairs(instance.Parent:GetChildren()) do
+        if gui:IsA("GuiObject") and gui ~= instance then
+            if gui.ZIndex > instance.ZIndex and Library:MouseIsOverFrame(gui, input) then
+                return false -- existe algo acima cobrindo
+            end
+        end
+    end
+    return true
+end
+
+local function EnableDrag(instance, IsMainWindow, Library, Cutoff)
+    UserInputService.TouchStarted:Connect(function(input)
+        if IsMainWindow and Library.CantDragForced then
+            Dragging = false
+            return
+        end
+
+        if not Dragging and Library:MouseIsOverFrame(instance, input) 
+            and (IsMainWindow and (Library.CanDrag and Library.Window.Holder.Visible) or true) then
+
+            -- Checa se é o topo
+            if not IsTopMost(instance, input, Library) then
+                return
+            end
+
+            DraggingInput = input
+            DraggingStart = input.Position
+            StartPosition = instance.Position
+
+            local OffsetPos = input.Position - DraggingStart
+            if OffsetPos.Y > (Cutoff or 40) then
                 Dragging = false
-                return;
+                return
             end
 
-            if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
-                DraggingInput = Input;
-                DraggingStart = Input.Position;
-                StartPosition = Instance.Position;
+            Dragging = true
+        end
+    end)
 
-                local OffsetPos = Input.Position - DraggingStart;
-                if OffsetPos.Y > (Cutoff or 40) then
-                    Dragging = false;
-                    return;
-                end;
+    UserInputService.TouchMoved:Connect(function(input)
+        if IsMainWindow and Library.CantDragForced then
+            Dragging = false
+            return
+        end
 
-                Dragging = true;
-            end;
-        end);
-        InputService.TouchMoved:Connect(function(Input)
-            if IsMainWindow == true and Library.CantDragForced == true then
-                Dragging = false;
-                return;
+        if input == DraggingInput and Dragging 
+            and (IsMainWindow and (Library.CanDrag and Library.Window.Holder.Visible) or true) then
+
+            local OffsetPos = input.Position - DraggingStart
+
+            instance.Position = UDim2.new(
+                StartPosition.X.Scale,
+                StartPosition.X.Offset + OffsetPos.X,
+                StartPosition.Y.Scale,
+                StartPosition.Y.Offset + OffsetPos.Y
+            )
+        end
+    end)
+
+    UserInputService.TouchEnded:Connect(function(input)
+        if input == DraggingInput then
+            Dragging = false
+        end
+    end)
+
+    -- Mouse (PC)
+    instance.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if not Dragging and Library:MouseIsOverFrame(instance, input) then
+
+                -- Checa se é o topo
+                if not IsTopMost(instance, input, Library) then
+                    return
+                end
+
+                Dragging = true
+                DraggingInput = input
+                DraggingStart = input.Position
+                StartPosition = instance.Position
             end
+        end
+    end)
 
-            if Input == DraggingInput and Dragging and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
-                local OffsetPos = Input.Position - DraggingStart;
+    instance.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement and input == DraggingInput and Dragging then
+            local OffsetPos = input.Position - DraggingStart
 
-                Instance.Position = UDim2.new(
-                    StartPosition.X.Scale,
-                    StartPosition.X.Offset + OffsetPos.X,
-                    StartPosition.Y.Scale,
-                    StartPosition.Y.Offset + OffsetPos.Y
-                );
-            end;
-        end);
-        InputService.TouchEnded:Connect(function(Input)
-            if Input == DraggingInput then 
-                Dragging = false;
-            end;
-        end);
-    end;
-end;
+            instance.Position = UDim2.new(
+                StartPosition.X.Scale,
+                StartPosition.X.Offset + OffsetPos.X,
+                StartPosition.Y.Scale,
+                StartPosition.Y.Offset + OffsetPos.Y
+            )
+        end
+    end)
+
+    instance.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and input == DraggingInput then
+            Dragging = false
+        end
+    end)
+end
 
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
     Instance.Active = true;
