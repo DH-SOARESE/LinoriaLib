@@ -3057,10 +3057,10 @@ do
 
     Groupbox:AddBlank(2);
 
-    -- Container do Divider
+    -- Container do Divider (altura maior p/ caber texto com folga)
     local DividerOuter = Library:Create('Frame', {
         BackgroundTransparency = 1;
-        Size = UDim2.new(1, -4, 0, 15); -- altura maior p/ caber texto
+        Size = UDim2.new(1, -4, 0, 25); -- aumentei de 15 → 25
         ZIndex = 5;
         Parent = Container;
     });
@@ -3069,7 +3069,7 @@ do
     local LeftLine = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
         BorderColor3 = Library.OutlineColor;
-        Size = UDim2.new(0.45, -2, 0, 1); -- ocupa 45% antes do texto
+        Size = UDim2.new(0.45, -4, 0, 1);
         Position = UDim2.new(0, 0, 0.5, 0);
         AnchorPoint = Vector2.new(0, 0.5);
         ZIndex = 6;
@@ -3082,8 +3082,8 @@ do
         Text = Name or "";
         Font = Library.Font;
         TextColor3 = Library.FontColor;
-        TextSize = 13;
-        Size = UDim2.new(0.1, 0, 1, 0);
+        TextSize = 14; -- pode aumentar um pouco o texto tbm
+        Size = UDim2.new(0, 100, 1, 0); -- largura fixa melhor p/ não deformar
         Position = UDim2.new(0.5, 0, 0.5, 0);
         AnchorPoint = Vector2.new(0.5, 0.5);
         ZIndex = 6;
@@ -3094,7 +3094,7 @@ do
     local RightLine = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
         BorderColor3 = Library.OutlineColor;
-        Size = UDim2.new(0.45, -2, 0, 1); -- ocupa 45% depois do texto
+        Size = UDim2.new(0.45, -4, 0, 1);
         Position = UDim2.new(1, 0, 0.5, 0);
         AnchorPoint = Vector2.new(1, 0.5);
         ZIndex = 6;
