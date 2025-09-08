@@ -3046,76 +3046,78 @@ do
         return Button;
     end;
 
-    function BaseGroupboxFuncs:AddDivider(name)
-    local Groupbox = self
-    local Container = self.Container
+    function BaseGroupboxFuncs:AddDivider(Name)
+    local Groupbox = self;
+    local Container = self.Container;
 
     local Divider = {
         Type = 'Divider',
-    }
+        Text = Name
+    };
 
-    Groupbox:AddBlank(2)
+    Groupbox:AddBlank(2);
 
-    -- Outer container do divider
+    -- Container do Divider
     local DividerOuter = Library:Create('Frame', {
-        BackgroundColor3 = Color3.new(0, 0, 0),
-        BorderColor3 = Color3.new(0, 0, 0),
-        Size = UDim2.new(1, -4, 0, 20), -- altura maior pra caber o texto
-        ZIndex = 5,
-        Parent = Container,
-    })
+        BackgroundTransparency = 1;
+        Size = UDim2.new(1, -4, 0, 15); -- altura maior p/ caber texto
+        ZIndex = 5;
+        Parent = Container;
+    });
 
-    -- Linha da esquerda
+    -- Linha esquerda
     local LeftLine = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        BorderMode = Enum.BorderMode.Inset,
-        Size = UDim2.new(0.45, 0, 0, 2),
-        Position = UDim2.new(0, 0, 0.5, -1),
-        ZIndex = 6,
-        Parent = DividerOuter,
-    })
+        BackgroundColor3 = Library.MainColor;
+        BorderColor3 = Library.OutlineColor;
+        Size = UDim2.new(0.45, -2, 0, 1); -- ocupa 45% antes do texto
+        Position = UDim2.new(0, 0, 0.5, 0);
+        AnchorPoint = Vector2.new(0, 0.5);
+        ZIndex = 6;
+        Parent = DividerOuter;
+    });
 
-    -- Linha da direita
-    local RightLine = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        BorderMode = Enum.BorderMode.Inset,
-        Size = UDim2.new(0.45, 0, 0, 2),
-        Position = UDim2.new(0.55, 0, 0.5, -1),
-        ZIndex = 6,
-        Parent = DividerOuter,
-    })
-
-    -- Label centralizada com o nome
+    -- Texto central
     local Label = Library:Create('TextLabel', {
-        Text = " " .. (name or "") .. " ",
-        TextColor3 = Library.FontColor,
-        BackgroundTransparency = 1,
-        Font = Library.Font,
-        TextSize = 14,
-        Size = UDim2.new(0, 0, 1, 0),
-        ZIndex = 7,
-        Parent = DividerOuter,
-    })
+        BackgroundTransparency = 1;
+        Text = Name or "";
+        Font = Library.Font;
+        TextColor3 = Library.FontColor;
+        TextSize = 13;
+        Size = UDim2.new(0.1, 0, 1, 0);
+        Position = UDim2.new(0.5, 0, 0.5, 0);
+        AnchorPoint = Vector2.new(0.5, 0.5);
+        ZIndex = 6;
+        Parent = DividerOuter;
+    });
 
-    Label.Size = UDim2.new(0, Label.TextBounds.X, 1, 0)
-    Label.Position = UDim2.new(0.5, -Label.Size.X.Offset / 2, 0, 0)
+    -- Linha direita
+    local RightLine = Library:Create('Frame', {
+        BackgroundColor3 = Library.MainColor;
+        BorderColor3 = Library.OutlineColor;
+        Size = UDim2.new(0.45, -2, 0, 1); -- ocupa 45% depois do texto
+        Position = UDim2.new(1, 0, 0.5, 0);
+        AnchorPoint = Vector2.new(1, 0.5);
+        ZIndex = 6;
+        Parent = DividerOuter;
+    });
 
-    Library:AddToRegistry(DividerOuter, {
-        BorderColor3 = 'Black',
-    })
+    -- Registry (para atualizar com o tema)
     Library:AddToRegistry(LeftLine, {
-        BackgroundColor3 = 'MainColor',
-        BorderColor3 = 'OutlineColor',
-    })
-    Library:AddToRegistry(RightLine, {
-        BackgroundColor3 = 'MainColor',
-        BorderColor3 = 'OutlineColor',
-    })
+        BackgroundColor3 = 'MainColor';
+        BorderColor3 = 'OutlineColor';
+    });
 
-    Groupbox:AddBlank(9)
-    Groupbox:Resize()
+    Library:AddToRegistry(RightLine, {
+        BackgroundColor3 = 'MainColor';
+        BorderColor3 = 'OutlineColor';
+    });
+
+    Library:AddToRegistry(Label, {
+        TextColor3 = 'FontColor';
+    });
+
+    Groupbox:AddBlank(9);
+    Groupbox:Resize();
 end
 
     function BaseGroupboxFuncs:AddInput(Idx, Info)
