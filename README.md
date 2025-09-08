@@ -327,7 +327,8 @@ Options.MenuKeybind = Library.MenuKeybind or Library:AddKeyPicker('MenuKeybind',
 Library:Notify('Mensagem de sucesso!')
 
 -- Notificação com ícone e duração
-Library:Notify('Erro detectado!', nil, 5) -- 5 segundos
+Library:Notify('Erro detectado!', nil, 4590657391) -- Message, Time, SOUND_ID 
+Library:Notify('Erro detectado!', 10, 4590657391) 
 ```
 
 ## 🎯 Acessando Valores
