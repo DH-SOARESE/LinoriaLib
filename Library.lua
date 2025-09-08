@@ -3046,79 +3046,44 @@ do
         return Button;
     end;
 
-    function BaseGroupboxFuncs:AddDivider(Name)
-    local Groupbox = self;
-    local Container = self.Container;
+    function BaseGroupboxFuncs:AddDivider()
+        local Groupbox = self;
+        local Container = self.Container
 
-    local Divider = {
-        Type = 'Divider',
-        Text = Name
-    };
+        local Divider = {
+            Type = 'Divider',
+        }
 
-    Groupbox:AddBlank(2);
+        Groupbox:AddBlank(2);
+        local DividerOuter = Library:Create('Frame', {
+            BackgroundColor3 = Color3.new(0, 0, 0);
+            BorderColor3 = Color3.new(0, 0, 0);
+            Size = UDim2.new(1, -4, 0, 5);
+            ZIndex = 5;
+            Parent = Container;
+        });
 
-    -- Container do Divider (altura maior p/ caber texto com folga)
-    local DividerOuter = Library:Create('Frame', {
-        BackgroundTransparency = 1;
-        Size = UDim2.new(1, -4, 0, 25); -- aumentei de 15 → 25
-        ZIndex = 5;
-        Parent = Container;
-    });
+        local DividerInner = Library:Create('Frame', {
+            BackgroundColor3 = Library.MainColor;
+            BorderColor3 = Library.OutlineColor;
+            BorderMode = Enum.BorderMode.Inset;
+            Size = UDim2.new(1, 0, 1, 0);
+            ZIndex = 6;
+            Parent = DividerOuter;
+        });
 
-    -- Linha esquerda
-    local LeftLine = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor;
-        BorderColor3 = Library.OutlineColor;
-        Size = UDim2.new(0.45, -4, 0, 1);
-        Position = UDim2.new(0, 0, 0.5, 0);
-        AnchorPoint = Vector2.new(0, 0.5);
-        ZIndex = 6;
-        Parent = DividerOuter;
-    });
+        Library:AddToRegistry(DividerOuter, {
+            BorderColor3 = 'Black';
+        });
 
-    -- Texto central
-    local Label = Library:Create('TextLabel', {
-        BackgroundTransparency = 1;
-        Text = Name or "";
-        Font = Library.Font;
-        TextColor3 = Library.FontColor;
-        TextSize = 14; -- pode aumentar um pouco o texto tbm
-        Size = UDim2.new(0, 100, 1, 0); -- largura fixa melhor p/ não deformar
-        Position = UDim2.new(0.5, 0, 0.5, 0);
-        AnchorPoint = Vector2.new(0.5, 0.5);
-        ZIndex = 6;
-        Parent = DividerOuter;
-    });
+        Library:AddToRegistry(DividerInner, {
+            BackgroundColor3 = 'MainColor';
+            BorderColor3 = 'OutlineColor';
+        });
 
-    -- Linha direita
-    local RightLine = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor;
-        BorderColor3 = Library.OutlineColor;
-        Size = UDim2.new(0.45, -4, 0, 1);
-        Position = UDim2.new(1, 0, 0.5, 0);
-        AnchorPoint = Vector2.new(1, 0.5);
-        ZIndex = 6;
-        Parent = DividerOuter;
-    });
-
-    -- Registry (para atualizar com o tema)
-    Library:AddToRegistry(LeftLine, {
-        BackgroundColor3 = 'MainColor';
-        BorderColor3 = 'OutlineColor';
-    });
-
-    Library:AddToRegistry(RightLine, {
-        BackgroundColor3 = 'MainColor';
-        BorderColor3 = 'OutlineColor';
-    });
-
-    Library:AddToRegistry(Label, {
-        TextColor3 = 'FontColor';
-    });
-
-    Groupbox:AddBlank(9);
-    Groupbox:Resize();
-end
+        Groupbox:AddBlank(9);
+        Groupbox:Resize();
+    end
 
     function BaseGroupboxFuncs:AddInput(Idx, Info)
         assert(Info.Text, string.format('AddInput (IDX: %s): Missing `Text` string.', tostring(Idx)));
