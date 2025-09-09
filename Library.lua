@@ -6539,14 +6539,6 @@ local uiVisible = true
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
     Library:Toggle()           -- Mostra/oculta a UI
-
-    if Library.CantDragForced == false and uiVisible == false then
-        Library.CantDragForced = true
-    end
-    if Library.CantDragForced == false and uiVisible == true then
-        Library.CantDragForced = false 
-    end
-
     ToggleUIButton.Text = uiVisible and "Hide UI" or "Show UI"
 end)
 
