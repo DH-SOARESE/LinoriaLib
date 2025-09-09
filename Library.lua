@@ -6534,12 +6534,18 @@ function Library:CreateWindow(...)
 
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
+-- Toggle da UI
 local uiVisible = true 
 
 ToggleUIButton.MouseButton1Down:Connect(function()
-    uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
-    Library:Toggle()           -- Mostra/oculta a UI
-    Library.CantDragForced = not uiVisible -- Trava quando fechado, destrava quando aberto
+    uiVisible = not uiVisible              -- Atualiza estado
+    Library:Toggle()                       -- Mostra/oculta a UI
+
+    if not uiVisible then                  -- Se a UI for fechada, tranca
+        Library.CantDragForced = true
+        LockUIButton.Text = "Unlock UI"    -- Atualiza texto do lock
+    end
+
     ToggleUIButton.Text = uiVisible and "Hide UI" or "Show UI"
 end)
 
@@ -6609,10 +6615,11 @@ end)
     
         Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
         
-        LockUIButton.MouseButton1Down:Connect(function()
-            Library.CantDragForced = not Library.CantDragForced;
-            LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI";
-        end)
+        -- Lock UI manual
+LockUIButton.MouseButton1Down:Connect(function()
+    Library.CantDragForced = not Library.CantDragForced
+    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+end)
     end;
 
     if Config.AutoShow then task.spawn(Library.Toggle) end
@@ -6649,7 +6656,6 @@ local function OnTeamChange()
         end;
     end;
 end;
-
 Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange));
 Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
 
