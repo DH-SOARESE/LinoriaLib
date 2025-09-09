@@ -6537,8 +6537,9 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 local uiVisible = true 
 
 ToggleUIButton.MouseButton1Down:Connect(function()
-    Library:Toggle()
-    uiVisible = not uiVisible
+    uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
+    Library:Toggle()           -- Mostra/oculta a UI
+    Library.CantDragForced = not uiVisible -- Trava quando fechado, destrava quando aberto
     ToggleUIButton.Text = uiVisible and "Hide UI" or "Show UI"
 end)
 
