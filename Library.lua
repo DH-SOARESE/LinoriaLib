@@ -945,9 +945,34 @@ do
             Parent = ScreenGui,
         });
 
-        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-            PickerFrameOuter.Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18);
-        end)
+        local function updatePickerPosition()
+    local screenX, screenY = DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18
+    local pickerWidth, pickerHeight = PickerFrameOuter.AbsoluteSize.X, PickerFrameOuter.AbsoluteSize.Y
+    local screenWidth, screenHeight = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
+
+    -- Ajusta horizontal
+    if screenX + pickerWidth > screenWidth then
+        screenX = screenWidth - pickerWidth - 5 -- 5px de folga
+    end
+    if screenX < 0 then
+        screenX = 5
+    end
+
+    -- Ajusta vertical
+    if screenY + pickerHeight > screenHeight then
+        screenY = DisplayFrame.AbsolutePosition.Y - pickerHeight - 5 -- mostra acima do DisplayFrame se não couber embaixo
+    end
+    if screenY < 0 then
+        screenY = 5
+    end
+
+    PickerFrameOuter.Position = UDim2.fromOffset(screenX, screenY)
+end
+
+DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updatePickerPosition)
+PickerFrameOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(updatePickerPosition)
+
+updatePickerPosition() 
 
         local PickerFrameInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
