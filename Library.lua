@@ -1,3 +1,4 @@
+
 local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
 local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
 local TextService: TextService = cloneref(game:GetService('TextService'));
@@ -57,12 +58,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 1400;
+ScreenGui.DisplayOrder = 999;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder 1400;
+ModalScreenGui.DisplayOrder = 999;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
@@ -3401,7 +3402,7 @@ do
 
     local ToggleRegion = Library:Create('Frame', {  
         BackgroundTransparency = 1;  
-        Size = UDim2.new(0.3, 170, 1, 0);  
+        Size = UDim2.new(0.3, 170, 1, 0);
         ZIndex = 8;  
         Parent = ToggleOuter;  
     });  
