@@ -57,7 +57,7 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 99999999;
+ScreenGui.DisplayOrder = 999999;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
@@ -74,12 +74,6 @@ ModalElement.Text = ""
 ModalElement.ZIndex = -999
 ModalElement.Parent = ModalScreenGui
 
---[[
-    You can access Toggles & Options through (I'm planning to remove **a** option):
-        a) getgenv().Toggles, getgenv().Options (IY will break this getgenv)
-        b) getgenv().Linoria.Toggles, getgenv().Linoria.Options
-        c) Library.Toggles, Library.Options
---]]
 
 local Toggles = {};
 local Options = {};
@@ -289,30 +283,6 @@ function Library:SafeCallback(Func, ...)
 
     return table.unpack(Result, 2, Result.n);
 end;
-
---[[function Library:SafeCallback(Func, ...)
-    if not (Func and typeof(Func) == "function") then
-        return
-    end
-
-    local run = function(func, ...)
-        local Success, Response = pcall(func, ...)
-        if Success then
-            return Response
-        end
-    
-        local Traceback = debug.traceback():gsub("\n", " ")
-        local _, i = Traceback:find(":%d+ ")
-        Traceback = Traceback:sub(i + 1):gsub(" :", ":")
-    
-        task.defer(error, Response .. " - " .. Traceback)
-        if Library.NotifyOnError then
-            Library:Notify(Response)
-        end
-    end;
-
-    task.spawn(run, Func, ...);
-end;--]]
 
 function Library:AttemptSave()
     if (not Library.SaveManager) then return end;
