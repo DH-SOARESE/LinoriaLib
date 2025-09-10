@@ -6505,88 +6505,93 @@ function Library:CreateWindow(...)
 
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
--- Estado inicial
-local uiVisible = true
+local uiVisible = true 
 
--- Toggle UI (Hide/Show)
 ToggleUIButton.MouseButton1Down:Connect(function()
-    uiVisible = not uiVisible
-    Library:Toggle() -- Mostra/oculta a UI
+    uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
+    Library:Toggle()           -- Mostra/oculta a UI
     ToggleUIButton.Text = uiVisible and "Hide UI" or "Show UI"
 end)
 
--- Lock UI
-local LockUIOuter = Library:Create('Frame', {
-    BorderColor3 = Color3.new(0, 0, 0),
-    Position = UDim2.new(0.008, 0, 0.075, 0),
-    Size = UDim2.new(0, 77, 0, 30),
-    ZIndex = 200,
-    Visible = true,
-    Parent = ScreenGui,
-})
+        -- Lock
+        local LockUIOuter = Library:Create('Frame', {
+            BorderColor3 = Color3.new(0, 0, 0);
+            Position = UDim2.new(0.008, 0, 0.075, 0);
+            Size = UDim2.new(0, 77, 0, 30);
+            ZIndex = 200;
+            Visible = true;
+            Parent = ScreenGui;
+        });
+    
+        local LockUIInner = Library:Create('Frame', {
+            BackgroundColor3 = Library.MainColor;
+            BorderColor3 = Library.AccentColor;
+            BorderMode = Enum.BorderMode.Inset;
+            Size = UDim2.new(1, 0, 1, 0);
+            ZIndex = 201;
+            Parent = LockUIOuter;
+        });
+    
+        Library:AddToRegistry(LockUIInner, {
+            BorderColor3 = 'AccentColor';
+        });
+    
+        local LockUIInnerFrame = Library:Create('Frame', {
+            BackgroundColor3 = Color3.new(1, 1, 1);
+            BorderSizePixel = 0;
+            Position = UDim2.new(0, 1, 0, 1);
+            Size = UDim2.new(1, -2, 1, -2);
+            ZIndex = 202;
+            Parent = LockUIInner;
+        });
+    
+        local LockUIGradient = Library:Create('UIGradient', {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
+                ColorSequenceKeypoint.new(1, Library.MainColor),
+            });
+            Rotation = -90;
+            Parent = LockUIInnerFrame;
+        });
+    
+        Library:AddToRegistry(LockUIGradient, {
+            Color = function()
+                return ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
+                    ColorSequenceKeypoint.new(1, Library.MainColor),
+                });
+            end
+        });
+    
+        local LockUIButton = Library:Create('TextButton', {
+            Position = UDim2.new(0, 5, 0, 0);
+            Size = UDim2.new(1, -4, 1, 0);
+            BackgroundTransparency = 1;
+            Font = Library.Font;
+            Text = "Lock UI";
+            TextColor3 = Library.FontColor;
+            TextSize = 14;
+            TextXAlignment = Enum.TextXAlignment.Left;
+            TextStrokeTransparency = 0;
+            ZIndex = 203;
+            Parent = LockUIInnerFrame;
+        });
+    
+        Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
+        
+        LockUIButton.MouseButton1Down:Connect(function()
+            Library.CantDragForced = not Library.CantDragForced;
+            LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI";
+        end)
+    end;
 
-local LockUIInner = Library:Create('Frame', {
-    BackgroundColor3 = Library.MainColor,
-    BorderColor3 = Library.AccentColor,
-    BorderMode = Enum.BorderMode.Inset,
-    Size = UDim2.new(1, 0, 1, 0),
-    ZIndex = 201,
-    Parent = LockUIOuter,
-})
+    if Config.AutoShow then task.spawn(Library.Toggle) end
 
-Library:AddToRegistry(LockUIInner, { BorderColor3 = 'AccentColor' })
+    Window.Holder = Outer;
+    Library.Window = Window;
 
-local LockUIInnerFrame = Library:Create('Frame', {
-    BackgroundColor3 = Color3.new(1, 1, 1),
-    BorderSizePixel = 0,
-    Position = UDim2.new(0, 1, 0, 1),
-    Size = UDim2.new(1, -2, 1, -2),
-    ZIndex = 202,
-    Parent = LockUIInner,
-})
-
-local LockUIGradient = Library:Create('UIGradient', {
-    Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-        ColorSequenceKeypoint.new(1, Library.MainColor),
-    }),
-    Rotation = -90,
-    Parent = LockUIInnerFrame,
-})
-
-Library:AddToRegistry(LockUIGradient, {
-    Color = function()
-        return ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-            ColorSequenceKeypoint.new(1, Library.MainColor),
-        })
-    end
-})
-
-local LockUIButton = Library:Create('TextButton', {
-    Position = UDim2.new(0, 5, 0, 0),
-    Size = UDim2.new(1, -4, 1, 0),
-    BackgroundTransparency = 1,
-    Font = Library.Font,
-    Text = "Lock UI",
-    TextColor3 = Library.FontColor,
-    TextSize = 14,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    TextStrokeTransparency = 0,
-    ZIndex = 203,
-    Parent = LockUIInnerFrame,
-})
-
-Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
-
--- Estado inicial do Lock
-local uiLocked = false
-
-LockUIButton.MouseButton1Down:Connect(function()
-    uiLocked = not uiLocked
-    Library.CantDragForced = uiLocked -- agora fica sincronizado
-    LockUIButton.Text = uiLocked and "Unlock UI" or "Lock UI"
-end)
+    return Window;
+end;
 
 local function OnPlayerChange()
     local PlayerList, ExcludedPlayerList = GetPlayers(false, true), GetPlayers(true, true);
