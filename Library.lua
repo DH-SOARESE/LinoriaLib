@@ -57,12 +57,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 999;
+ScreenGui.DisplayOrder = 1400;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 999;
+ModalScreenGui.DisplayOrder 1400;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
@@ -3401,7 +3401,7 @@ do
 
     local ToggleRegion = Library:Create('Frame', {  
         BackgroundTransparency = 1;  
-        Size = UDim2.new(0, 170, 1, 0);  
+        Size = UDim2.new(0.3, 170, 1, 0);  
         ZIndex = 8;  
         Parent = ToggleOuter;  
     });  
