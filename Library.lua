@@ -6511,8 +6511,16 @@ ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
     Library:Toggle()           -- Mostra/oculta a UI
     ToggleUIButton.Text = uiVisible and "Hide UI" or "Show UI"
-end)
 
+    -- Controle do arrasto
+    if not uiVisible then
+        -- Menu fechado → sempre trava
+        Library.CantDrag = true
+    else
+        -- Menu aberto → só libera se não estiver trancado
+        Library.CantDrag = Library.CantDragForced
+    end
+end)
         -- Lock
         local LockUIOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
@@ -6580,9 +6588,14 @@ end)
         Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
         
         LockUIButton.MouseButton1Down:Connect(function()
-            Library.CantDragForced = not Library.CantDragForced;
-            LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI";
-        end)
+    Library.CantDragForced = not Library.CantDragForced
+    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+
+    -- Se a UI estiver aberta, reflete o estado do Lock
+    if uiVisible then
+        Library.CantDrag = Library.CantDragForced
+    end
+end)
     end;
 
     if Config.AutoShow then task.spawn(Library.Toggle) end
