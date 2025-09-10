@@ -1,3 +1,4 @@
+
 local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
 local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
 local TextService: TextService = cloneref(game:GetService('TextService'));
@@ -57,12 +58,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 99999999;
+ScreenGui.DisplayOrder = 999;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 999999;
+ModalScreenGui.DisplayOrder = 999;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
@@ -3041,45 +3042,92 @@ do
         return Button;
     end;
 
-    function BaseGroupboxFuncs:AddDivider()
-        local Groupbox = self;
-        local Container = self.Container
+    function BaseGroupboxFuncs:AddDivider(labelText)
+    local Groupbox = self
+    local Container = self.Container
 
-        local Divider = {
-            Type = 'Divider',
-        }
+    local Divider = {
+        Type = "Divider",
+    }
 
-        Groupbox:AddBlank(2);
-        local DividerOuter = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(0, 0, 0);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Size = UDim2.new(1, -4, 0, 5);
-            ZIndex = 5;
-            Parent = Container;
-        });
+    Groupbox:AddBlank(2)
 
-        local DividerInner = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.OutlineColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 6;
-            Parent = DividerOuter;
-        });
+    -- Frame base (container do divider)
+    local DividerOuter = Library:Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -4, 0, 12),
+        ZIndex = 5,
+        Parent = Container,
+    })
 
-        Library:AddToRegistry(DividerOuter, {
-            BorderColor3 = 'Black';
-        });
+    if labelText and labelText ~= "" then
+        -- Label centralizado
+        local Label = Library:Create("TextLabel", {
+            Text = labelText,
+            Font = Enum.Font.Code,
+            TextSize = 14,
+            BackgroundTransparency = 1,
+            TextColor3 = Library.FontColor,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            ZIndex = 6,
+            Parent = DividerOuter,
+        })
 
-        Library:AddToRegistry(DividerInner, {
-            BackgroundColor3 = 'MainColor';
-            BorderColor3 = 'OutlineColor';
-        });
+        -- Linha esquerda
+        local LeftLine = Library:Create("Frame", {
+            BackgroundColor3 = Library.MainColor,
+            BorderColor3 = Library.OutlineColor,
+            BorderMode = Enum.BorderMode.Inset,
+            Size = UDim2.new(0.5, - (Label.TextBounds.X / 2) - 6, 1, 0),
+            Position = UDim2.new(0, 0, 0.5, -0.5),
+            ZIndex = 6,
+            Parent = DividerOuter,
+        })
 
-        Groupbox:AddBlank(9);
-        Groupbox:Resize();
+        -- Linha direita
+        local RightLine = Library:Create("Frame", {
+            BackgroundColor3 = Library.MainColor,
+            BorderColor3 = Library.OutlineColor,
+            BorderMode = Enum.BorderMode.Inset,
+            Size = UDim2.new(0.5, - (Label.TextBounds.X / 2) - 6, 1, 0),
+            Position = UDim2.new(0.5, (Label.TextBounds.X / 2) + 6, 0.5, -0.5),
+            ZIndex = 6,
+            Parent = DividerOuter,
+        })
+
+        Library:AddToRegistry(LeftLine, {
+            BackgroundColor3 = "MainColor",
+            BorderColor3 = "OutlineColor",
+        })
+
+        Library:AddToRegistry(RightLine, {
+            BackgroundColor3 = "MainColor",
+            BorderColor3 = "OutlineColor",
+        })
+
+    else
+        -- Linha completa (sem label)
+        local FullLine = Library:Create("Frame", {
+            BackgroundColor3 = Library.MainColor,
+            BorderColor3 = Library.OutlineColor,
+            BorderMode = Enum.BorderMode.Inset,
+            Size = UDim2.new(1, 0, 1, 0),
+            Position = UDim2.new(0, 0, 0.5, -0.5),
+            ZIndex = 6,
+            Parent = DividerOuter,
+        })
+
+        Library:AddToRegistry(FullLine, {
+            BackgroundColor3 = "MainColor",
+            BorderColor3 = "OutlineColor",
+        })
     end
 
+    Groupbox:AddBlank(9)
+    Groupbox:Resize()
+end
+    
     function BaseGroupboxFuncs:AddInput(Idx, Info)
         assert(Info.Text, string.format('AddInput (IDX: %s): Missing `Text` string.', tostring(Idx)));
 
