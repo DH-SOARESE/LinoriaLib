@@ -57,12 +57,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 999999;
+ScreenGui.DisplayOrder = 99999999;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 99999999;
+ModalScreenGui.DisplayOrder = 999999;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
