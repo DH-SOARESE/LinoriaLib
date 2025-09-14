@@ -133,7 +133,7 @@ MainFeatures:AddSlider('FOV', {
 ```lua
 -- Dropdown simples
 ExtraOptions:AddDropdown('GameMode', {
-    Text = 'Modo de Jogo',
+    Text = 'Modo de Jogo', --Opcional 
     Values = {'Normal', 'Rápido', 'Especialista'},
     Default = 1,              -- Índice da opção padrão
     Tooltip = 'Selecione o modo de jogo',
@@ -144,7 +144,7 @@ ExtraOptions:AddDropdown('GameMode', {
 
 -- Dropdown com busca
 ExtraOptions:AddDropdown('PlayerList', {
-    Text = 'Lista de Jogadores',
+    Text = 'Lista de Jogadores', -- Opcional 
     Values = {'Jogador1', 'Jogador2', 'Jogador3'},
     Default = 1,
     Searchable = true,        -- Permitir busca
@@ -155,7 +155,7 @@ ExtraOptions:AddDropdown('PlayerList', {
 
 -- Dropdown de múltipla seleção
 ExtraOptions:AddDropdown('Features', {
-    Text = 'Funcionalidades',
+    Text = 'Funcionalidades', -- Opcional 
     Values = {'ESP', 'Aimbot', 'Speed', 'Jump'},
     Default = 1,
     Multi = true,             -- Seleção múltipla
