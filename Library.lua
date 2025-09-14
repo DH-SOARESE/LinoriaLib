@@ -6508,10 +6508,8 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 local uiVisible = true 
 
 ToggleUIButton.MouseButton1Down:Connect(function()
-    uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
-    Library:Toggle()           -- Mostra/oculta a UI
-    ToggleUIButton.Text = uiVisible and "Hide UI" or "Show UI"
-
+    uiVisible = not uiVisible
+    Library:Toggle()           
     if uiVisible then
         Library.CantDrag = true
     else
@@ -6595,7 +6593,7 @@ end)
     if uiVisible then
         Library.CantDrag = true
     else
-        Library.CantDrag = not Library.CantDrag
+        Library.CantDrag = not Library.CantDragForced
     end
 end)
 end;
