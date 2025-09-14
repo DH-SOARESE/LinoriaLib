@@ -6510,16 +6510,14 @@ local uiVisible = true
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible
     Library:Toggle()           
-    if uiVisible then
+    
+    if not uiVisible then
         Library.CantDrag = true
     else
-        if Library.CantDrag then
-            Library.CantDrag = true
-        else
-            Library.CantDrag = false
-        end
+        Library.CantDrag = IdLocked
     end
 end)
+
         -- Lock
         local LockUIOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
@@ -6583,18 +6581,22 @@ end)
             ZIndex = 203;
             Parent = LockUIInnerFrame;
         });
-    
-        Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
         
-        LockUIButton.MouseButton1Down:Connect(function()
+        Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
+
+local IdLocked = false
+
+LockUIButton.MouseButton1Down:Connect(function()
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
 
-    if uiVisible then
+    if not uiVisible then
         Library.CantDrag = true
     else
-        Library.CantDrag = not Library.CantDragForced
+        Library.CantDrag = Library.CantDragForced
     end
+
+    IdLocked = Library.CantDragForced
 end)
 end;
 
