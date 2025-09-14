@@ -6593,7 +6593,7 @@ LockUIButton.MouseButton1Down:Connect(function()
     if not uiVisible then
         Library.CantDrag = true
     else
-        Library.CantDrag = Library.CantDragForced
+        Library.CantDrag = not Library.CantDragForced
     end
 
     IdLocked = Library.CantDragForced
