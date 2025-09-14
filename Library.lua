@@ -6317,199 +6317,262 @@ function Library:CreateWindow(...)
         return Tab;
     end;
 
-    local TransparencyCache = {};
-    local Toggled = false;
-    local Fading = false;
-    
-    function Library:Toggle(Toggling)
-        if typeof(Toggling) == "boolean" and Toggling == Toggled then return end;
-        if Fading then return end;
+local TransparencyCache = {};
+local Toggled = false;
+local Fading = false;
 
-        local FadeTime = Config.MenuFadeTime;
-        Fading = true;
-        Toggled = (not Toggled);
+function Library:Toggle(Toggling)
+    if typeof(Toggling) == "boolean" and Toggling == Toggled then return end;
+    if Fading then return end;
 
-        Library.Toggled = Toggled;
-        ModalElement.Modal = Toggled;
+    local FadeTime = Config.MenuFadeTime;
+    Fading = true;
+    Toggled = (not Toggled);
 
-        if Toggled then
-            -- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
-            Outer.Visible = true;
+    Library.Toggled = Toggled;
+    ModalElement.Modal = Toggled;
 
-            if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
-                IsBadDrawingLib = not (pcall(function()
-                    local Cursor = DrawingLib.new("Triangle")
-                    Cursor.Thickness = 1
-                    Cursor.Filled = true
+    if Toggled then
+        -- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
+        Outer.Visible = true;
+
+        if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
+            IsBadDrawingLib = not (pcall(function()
+                local Cursor = DrawingLib.new("Triangle")
+                Cursor.Thickness = 1
+                Cursor.Filled = true
+                Cursor.Visible = Library.ShowCustomCursor
+
+                local CursorOutline = DrawingLib.new("Triangle")
+                CursorOutline.Thickness = 1
+                CursorOutline.Filled = false
+                CursorOutline.Color = Color3.new(0, 0, 0)
+                CursorOutline.Visible = Library.ShowCustomCursor
+                
+                local OldMouseIconState = InputService.MouseIconEnabled
+                pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end)
+                RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
+                    InputService.MouseIconEnabled = not Library.ShowCustomCursor
+                    local mPos = InputService:GetMouseLocation()
+                    local X, Y = mPos.X, mPos.Y
+                    Cursor.Color = Library.AccentColor
+                    Cursor.PointA = Vector2.new(X, Y)
+                    Cursor.PointB = Vector2.new(X + 16, Y + 6)
+                    Cursor.PointC = Vector2.new(X + 6, Y + 16)
                     Cursor.Visible = Library.ShowCustomCursor
-
-                    local CursorOutline = DrawingLib.new("Triangle")
-                    CursorOutline.Thickness = 1
-                    CursorOutline.Filled = false
-                    CursorOutline.Color = Color3.new(0, 0, 0)
+                    CursorOutline.PointA = Cursor.PointA
+                    CursorOutline.PointB = Cursor.PointB
+                    CursorOutline.PointC = Cursor.PointC
                     CursorOutline.Visible = Library.ShowCustomCursor
-                    
-                    local OldMouseIconState = InputService.MouseIconEnabled
-                    pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end)
-                    RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
-                        InputService.MouseIconEnabled = not Library.ShowCustomCursor
-                        local mPos = InputService:GetMouseLocation()
-                        local X, Y = mPos.X, mPos.Y
-                        Cursor.Color = Library.AccentColor
-                        Cursor.PointA = Vector2.new(X, Y)
-                        Cursor.PointB = Vector2.new(X + 16, Y + 6)
-                        Cursor.PointC = Vector2.new(X + 6, Y + 16)
-                        Cursor.Visible = Library.ShowCustomCursor
-                        CursorOutline.PointA = Cursor.PointA
-                        CursorOutline.PointB = Cursor.PointB
-                        CursorOutline.PointC = Cursor.PointC
-                        CursorOutline.Visible = Library.ShowCustomCursor
 
-                        if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
-                            InputService.MouseIconEnabled = OldMouseIconState
-                            if Cursor then Cursor:Destroy() end
-                            if CursorOutline then CursorOutline:Destroy() end
-                            RunService:UnbindFromRenderStep("LinoriaCursor")
-                        end
-                    end)
-                end));
-            end
-        end;
-
-        for _, Option in Options do
-            task.spawn(function()
-                if Option.Type == 'Dropdown' then
-                    Option:CloseDropdown();
-                elseif Option.Type == 'KeyPicker' then
-                    Option:SetModePickerVisibility(false);
-                elseif Option.Type == 'ColorPicker' then
-                    Option.ContextMenu:Hide();
-                    Option:Hide();
-                end
-            end)
+                    if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
+                        InputService.MouseIconEnabled = OldMouseIconState
+                        if Cursor then Cursor:Destroy() end
+                        if CursorOutline then CursorOutline:Destroy() end
+                        RunService:UnbindFromRenderStep("LinoriaCursor")
+                    end
+                end)
+            end));
         end
+    end;
 
-        for _, Desc in next, Outer:GetDescendants() do
-            local Properties = {};
-
-            if Desc:IsA('ImageLabel') then
-                table.insert(Properties, 'ImageTransparency');
-                table.insert(Properties, 'BackgroundTransparency');
-            elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
-                table.insert(Properties, 'TextTransparency');
-            elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
-                table.insert(Properties, 'BackgroundTransparency');
-            elseif Desc:IsA('UIStroke') then
-                table.insert(Properties, 'Transparency');
-            end;
-
-            local Cache = TransparencyCache[Desc];
-
-            if (not Cache) then
-                Cache = {};
-                TransparencyCache[Desc] = Cache;
-            end;
-
-            for _, Prop in next, Properties do
-                if not Cache[Prop] then
-                    Cache[Prop] = Desc[Prop];
-                end;
-
-                if Cache[Prop] == 1 then
-                    continue;
-                end;
-
-                TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), { [Prop] = Toggled and Cache[Prop] or 1 }):Play();
-            end;
-        end;
-
-        task.wait(FadeTime);
-        Outer.Visible = Toggled;
-        Fading = false;
+    for _, Option in Options do
+        task.spawn(function()
+            if Option.Type == 'Dropdown' then
+                Option:CloseDropdown();
+            elseif Option.Type == 'KeyPicker' then
+                Option:SetModePickerVisibility(false);
+            elseif Option.Type == 'ColorPicker' then
+                Option.ContextMenu:Hide();
+                Option:Hide();
+            end
+        end)
     end
 
-    Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
-        if typeof(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
-            if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == Library.ToggleKeybind.Value then
-                task.spawn(Library.Toggle)
-            end
+    for _, Desc in next, Outer:GetDescendants() do
+        local Properties = {};
 
-        elseif Input.KeyCode == Enum.KeyCode.RightControl or (Input.KeyCode == Enum.KeyCode.RightShift and (not Processed)) then
+        if Desc:IsA('ImageLabel') then
+            table.insert(Properties, 'ImageTransparency');
+            table.insert(Properties, 'BackgroundTransparency');
+        elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
+            table.insert(Properties, 'TextTransparency');
+        elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
+            table.insert(Properties, 'BackgroundTransparency');
+        elseif Desc:IsA('UIStroke') then
+            table.insert(Properties, 'Transparency');
+        end;
+
+        local Cache = TransparencyCache[Desc];
+
+        if (not Cache) then
+            Cache = {};
+            TransparencyCache[Desc] = Cache;
+        end;
+
+        for _, Prop in next, Properties do
+            if not Cache[Prop] then
+                Cache[Prop] = Desc[Prop];
+            end;
+
+            if Cache[Prop] == 1 then
+                continue;
+            end;
+
+            TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), { [Prop] = Toggled and Cache[Prop] or 1 }):Play();
+        end;
+    end;
+
+    task.wait(FadeTime);
+    Outer.Visible = Toggled;
+    Fading = false;
+end
+
+Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
+    if typeof(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
+        if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == Library.ToggleKeybind.Value then
             task.spawn(Library.Toggle)
         end
-    end));
 
-    if Library.IsMobile then
-        local ToggleUIOuter = Library:Create('Frame', {
-            BorderColor3 = Color3.new(0, 0, 0);
-            Position = UDim2.new(0.008, 0, 0.018, 0);
-            Size = UDim2.new(0, 77, 0, 30);
-            ZIndex = 200;
-            Visible = true;
-            Parent = ScreenGui;
-        });
-    
-        local ToggleUIInner = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.AccentColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 201;
-            Parent = ToggleUIOuter;
-        });
-    
-        Library:AddToRegistry(ToggleUIInner, {
-            BorderColor3 = 'AccentColor';
-        });
-    
-        local ToggleUIInnerFrame = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            BorderSizePixel = 0;
-            Position = UDim2.new(0, 1, 0, 1);
-            Size = UDim2.new(1, -2, 1, -2);
-            ZIndex = 202;
-            Parent = ToggleUIInner;
-        });
-    
-        local ToggleUIGradient = Library:Create('UIGradient', {
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-                ColorSequenceKeypoint.new(1, Library.MainColor),
-            });
-            Rotation = -90;
-            Parent = ToggleUIInnerFrame;
-        });
-    
-        Library:AddToRegistry(ToggleUIGradient, {
-            Color = function()
-                return ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-                    ColorSequenceKeypoint.new(1, Library.MainColor),
-                });
-            end
-        });
-    
-        local ToggleUIButton = Library:Create('TextButton', {
-            Position = UDim2.new(0, 5, 0, 0);
-            Size = UDim2.new(1, -4, 1, 0);
-            BackgroundTransparency = 1;
-            Font = Library.Font;
-            Text = "Toggle UI"; 
-            TextColor3 = Library.FontColor;
-            TextSize = 14;
-            TextXAlignment = Enum.TextXAlignment.Left;
-            TextStrokeTransparency = 0;
-            ZIndex = 203;
-            Parent = ToggleUIInnerFrame;
+    elseif Input.KeyCode == Enum.KeyCode.RightControl or (Input.KeyCode == Enum.KeyCode.RightShift and (not Processed)) then
+        task.spawn(Library.Toggle)
+    end
+end));
+
+if Library.IsMobile then
+-- ===== Toggle UI =====
+local ToggleUIOuter = Library:Create('Frame', {
+    BorderColor3 = Color3.new(0, 0, 0);
+    Position = UDim2.new(0.008, 0, 0.018, 0);
+    Size = UDim2.new(0, 77, 0, 30);
+    ZIndex = 200;
+    Visible = true;
+    Parent = ScreenGui;
+})
+
+local ToggleUIInner = Library:Create('Frame', {
+    BackgroundColor3 = Library.MainColor;
+    BorderColor3 = Library.AccentColor;
+    BorderMode = Enum.BorderMode.Inset;
+    Size = UDim2.new(1, 0, 1, 0);
+    ZIndex = 201;
+    Parent = ToggleUIOuter;
+})
+
+Library:AddToRegistry(ToggleUIInner, { BorderColor3 = 'AccentColor' })
+
+local ToggleUIInnerFrame = Library:Create('Frame', {
+    BackgroundColor3 = Color3.new(1, 1, 1);
+    BorderSizePixel = 0;
+    Position = UDim2.new(0, 1, 0, 1);
+    Size = UDim2.new(1, -2, 1, -2);
+    ZIndex = 202;
+    Parent = ToggleUIInner;
+})
+
+local ToggleUIGradient = Library:Create('UIGradient', {
+    Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
+        ColorSequenceKeypoint.new(1, Library.MainColor),
+    });
+    Rotation = -90;
+    Parent = ToggleUIInnerFrame;
+})
+
+Library:AddToRegistry(ToggleUIGradient, {
+    Color = function()
+        return ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
+            ColorSequenceKeypoint.new(1, Library.MainColor),
+        })
+    end
+})
+
+local ToggleUIButton = Library:Create('TextButton', {
+    Position = UDim2.new(0, 5, 0, 0);
+    Size = UDim2.new(1, -4, 1, 0);
+    BackgroundTransparency = 1;
+    Font = Library.Font;
+    Text = "Toggle UI";
+    TextColor3 = Library.FontColor;
+    TextSize = 14;
+    TextXAlignment = Enum.TextXAlignment.Left;
+    TextStrokeTransparency = 0;
+    ZIndex = 203;
+    Parent = ToggleUIInnerFrame;
 })
 
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
--- Inicializações
+-- ===== Lock UI =====
+local LockUIOuter = Library:Create('Frame', {
+    BorderColor3 = Color3.new(0, 0, 0);
+    Position = UDim2.new(0.008, 0, 0.075, 0);
+    Size = UDim2.new(0, 77, 0, 30);
+    ZIndex = 200;
+    Visible = true;
+    Parent = ScreenGui;
+})
+
+local LockUIInner = Library:Create('Frame', {
+    BackgroundColor3 = Library.MainColor;
+    BorderColor3 = Library.AccentColor;
+    BorderMode = Enum.BorderMode.Inset;
+    Size = UDim2.new(1, 0, 1, 0);
+    ZIndex = 201;
+    Parent = LockUIOuter;
+})
+
+Library:AddToRegistry(LockUIInner, { BorderColor3 = 'AccentColor' })
+
+local LockUIInnerFrame = Library:Create('Frame', {
+    BackgroundColor3 = Color3.new(1, 1, 1);
+    BorderSizePixel = 0;
+    Position = UDim2.new(0, 1, 0, 1);
+    Size = UDim2.new(1, -2, 1, -2);
+    ZIndex = 202;
+    Parent = LockUIInner;
+})
+
+local LockUIGradient = Library:Create('UIGradient', {
+    Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
+        ColorSequenceKeypoint.new(1, Library.MainColor),
+    });
+    Rotation = -90;
+    Parent = LockUIInnerFrame;
+})
+
+Library:AddToRegistry(LockUIGradient, {
+    Color = function()
+        return ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
+            ColorSequenceKeypoint.new(1, Library.MainColor),
+        })
+    end
+})
+
+local LockUIButton = Library:Create('TextButton', {
+    Position = UDim2.new(0, 5, 0, 0);
+    Size = UDim2.new(1, -4, 1, 0);
+    BackgroundTransparency = 1;
+    Font = Library.Font;
+    Text = "Lock UI";
+    TextColor3 = Library.FontColor;
+    TextSize = 14;
+    TextXAlignment = Enum.TextXAlignment.Left;
+    TextStrokeTransparency = 0;
+    ZIndex = 203;
+    Parent = LockUIInnerFrame;
+})
+
+Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
+
+-- ===== Inicializações =====
 local uiVisible = true
 local IdLocked = false
 
--- Botão de toggle da UI
+-- Toggle UI
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible
     Library:Toggle()
@@ -6517,17 +6580,15 @@ ToggleUIButton.MouseButton1Down:Connect(function()
     if not uiVisible then
         Library.CantDrag = true
     else
-        -- Respeita se o lock manual está ativo
-        Library.CantDrag = IdLocked
+        Library.CantDrag = IdLocked -- respeita o lock manual
     end
 end)
 
--- Botão de lock/deslock da UI
+-- Lock/Unlock UI
 LockUIButton.MouseButton1Down:Connect(function()
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
 
-    -- Atualiza CantDrag de acordo com o estado da UI e lock manual
     if not uiVisible then
         Library.CantDrag = true
     else
@@ -6536,83 +6597,6 @@ LockUIButton.MouseButton1Down:Connect(function()
 
     IdLocked = Library.CantDragForced
 end)
-
-        -- Lock
-        local LockUIOuter = Library:Create('Frame', {
-            BorderColor3 = Color3.new(0, 0, 0);
-            Position = UDim2.new(0.008, 0, 0.075, 0);
-            Size = UDim2.new(0, 77, 0, 30);
-            ZIndex = 200;
-            Visible = true;
-            Parent = ScreenGui;
-        });
-    
-        local LockUIInner = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.AccentColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 201;
-            Parent = LockUIOuter;
-        });
-    
-        Library:AddToRegistry(LockUIInner, {
-            BorderColor3 = 'AccentColor';
-        });
-    
-        local LockUIInnerFrame = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            BorderSizePixel = 0;
-            Position = UDim2.new(0, 1, 0, 1);
-            Size = UDim2.new(1, -2, 1, -2);
-            ZIndex = 202;
-            Parent = LockUIInner;
-        });
-    
-        local LockUIGradient = Library:Create('UIGradient', {
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-                ColorSequenceKeypoint.new(1, Library.MainColor),
-            });
-            Rotation = -90;
-            Parent = LockUIInnerFrame;
-        });
-    
-        Library:AddToRegistry(LockUIGradient, {
-            Color = function()
-                return ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-                    ColorSequenceKeypoint.new(1, Library.MainColor),
-                });
-            end
-        });
-    
-        local LockUIButton = Library:Create('TextButton', {
-            Position = UDim2.new(0, 5, 0, 0);
-            Size = UDim2.new(1, -4, 1, 0);
-            BackgroundTransparency = 1;
-            Font = Library.Font;
-            Text = "Lock UI";
-            TextColor3 = Library.FontColor;
-            TextSize = 14;
-            TextXAlignment = Enum.TextXAlignment.Left;
-            TextStrokeTransparency = 0;
-            ZIndex = 203;
-            Parent = LockUIInnerFrame;
-        });
-        
-        Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
-
-
-end;
-
-    if Config.AutoShow then task.spawn(Library.Toggle) end
-
-    Window.Holder = Outer;
-    Library.Window = Window;
-
-    return Window;
-end;
 
 local function OnPlayerChange()
     local PlayerList, ExcludedPlayerList = GetPlayers(false, true), GetPlayers(true, true);
