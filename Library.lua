@@ -6505,17 +6505,36 @@ function Library:CreateWindow(...)
 
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
-local uiVisible = true 
+-- Inicializações
+local uiVisible = true
+local IdLocked = false
 
+-- Botão de toggle da UI
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible
-    Library:Toggle()           
-    
+    Library:Toggle()
+
     if not uiVisible then
         Library.CantDrag = true
     else
+        -- Respeita se o lock manual está ativo
         Library.CantDrag = IdLocked
     end
+end)
+
+-- Botão de lock/deslock da UI
+LockUIButton.MouseButton1Down:Connect(function()
+    Library.CantDragForced = not Library.CantDragForced
+    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+
+    -- Atualiza CantDrag de acordo com o estado da UI e lock manual
+    if not uiVisible then
+        Library.CantDrag = true
+    else
+        Library.CantDrag = not Library.CantDragForced
+    end
+
+    IdLocked = Library.CantDragForced
 end)
 
         -- Lock
@@ -6584,20 +6603,7 @@ end)
         
         Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
-local IdLocked = false
 
-LockUIButton.MouseButton1Down:Connect(function()
-    Library.CantDragForced = not Library.CantDragForced
-    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
-
-    if not uiVisible then
-        Library.CantDrag = true
-    else
-        Library.CantDrag = not Library.CantDragForced
-    end
-
-    IdLocked = Library.CantDragForced
-end)
 end;
 
     if Config.AutoShow then task.spawn(Library.Toggle) end
