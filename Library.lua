@@ -350,7 +350,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if not Toggled then
+                if not uiVisible then
                 return;
                 end;
                 if IsMainWindow == true and Library.CantDragForced == true then
