@@ -351,12 +351,12 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
                 if not Toggled then
-                    return;
+                return;
                 end;
                 if IsMainWindow == true and Library.CantDragForced == true then
                     return;
                 end;
-
+           
                 local ObjPos = Vector2.new(
                     Mouse.X - Instance.AbsolutePosition.X,
                     Mouse.Y - Instance.AbsolutePosition.Y
@@ -383,13 +383,11 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
         InputService.TouchStarted:Connect(function(Input)
             if IsMainWindow == true and Library.CantDragForced == true then
-                Dragging = false;
+                Dragging = false
                 return;
-            end;
+            end
 
-            if not Dragging and Library:MouseIsOverFrame(Instance, Input) 
-               and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) 
-            then
+            if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
                 DraggingInput = Input;
                 DraggingStart = Input.Position;
                 StartPosition = Instance.Position;
@@ -403,16 +401,13 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
                 Dragging = true;
             end;
         end);
-
         InputService.TouchMoved:Connect(function(Input)
             if IsMainWindow == true and Library.CantDragForced == true then
                 Dragging = false;
                 return;
-            end;
+            end
 
-            if Input == DraggingInput and Dragging 
-               and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) 
-            then
+            if Input == DraggingInput and Dragging and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
                 local OffsetPos = Input.Position - DraggingStart;
 
                 Instance.Position = UDim2.new(
@@ -423,9 +418,8 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
                 );
             end;
         end);
-
         InputService.TouchEnded:Connect(function(Input)
-            if Input == DraggingInput then
+            if Input == DraggingInput then 
                 Dragging = false;
             end;
         end);
@@ -6345,107 +6339,46 @@ function Library:CreateWindow(...)
             -- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
             Outer.Visible = true;
 
-            local canUseTriangle = true;
-local Cursor, CursorOutline, Line1, Line2, Line3;
+            if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
+                IsBadDrawingLib = not (pcall(function()
+                    local Cursor = DrawingLib.new("Triangle")
+                    Cursor.Thickness = 1
+                    Cursor.Filled = true
+                    Cursor.Visible = Library.ShowCustomCursor
 
-if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
-    IsBadDrawingLib = not (pcall(function()
-        local testTri = DrawingLib.new("Triangle");
-        testTri:Remove();
-    end));
+                    local CursorOutline = DrawingLib.new("Triangle")
+                    CursorOutline.Thickness = 1
+                    CursorOutline.Filled = false
+                    CursorOutline.Color = Color3.new(0, 0, 0)
+                    CursorOutline.Visible = Library.ShowCustomCursor
+                    
+                    local OldMouseIconState = InputService.MouseIconEnabled
+                    pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end)
+                    RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
+                        InputService.MouseIconEnabled = not Library.ShowCustomCursor
+                        local mPos = InputService:GetMouseLocation()
+                        local X, Y = mPos.X, mPos.Y
+                        Cursor.Color = Library.AccentColor
+                        Cursor.PointA = Vector2.new(X, Y)
+                        Cursor.PointB = Vector2.new(X + 16, Y + 6)
+                        Cursor.PointC = Vector2.new(X + 6, Y + 16)
+                        Cursor.Visible = Library.ShowCustomCursor
+                        CursorOutline.PointA = Cursor.PointA
+                        CursorOutline.PointB = Cursor.PointB
+                        CursorOutline.PointC = Cursor.PointC
+                        CursorOutline.Visible = Library.ShowCustomCursor
 
-    if IsBadDrawingLib then
-        canUseTriangle = false;
-        -- Fallback to lines; assume Line is more widely supported.
-        -- Reset IsBadDrawingLib if lines work.
-        IsBadDrawingLib = not (pcall(function()
-            local testLine = DrawingLib.new("Line");
-            testLine:Remove();
-        end));
-    end;
-
-    if not IsBadDrawingLib then
-        pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end);
-
-        if canUseTriangle then
-            Cursor = DrawingLib.new("Triangle");
-            Cursor.Thickness = 1;
-            Cursor.Filled = true;
-            Cursor.Visible = Library.ShowCustomCursor;
-
-            CursorOutline = DrawingLib.new("Triangle");
-            CursorOutline.Thickness = 1;
-            CursorOutline.Filled = false;
-            CursorOutline.Color = Color3.new(0, 0, 0);
-            CursorOutline.Visible = Library.ShowCustomCursor;
-        else
-            -- Create three lines for an outline-only triangle cursor (no fill, but compatible).
-            Line1 = DrawingLib.new("Line");
-            Line1.Thickness = 2;  -- Slightly thicker for visibility without fill.
-            Line1.Color = Library.AccentColor;
-            Line1.Visible = Library.ShowCustomCursor;
-
-            Line2 = DrawingLib.new("Line");
-            Line2.Thickness = 2;
-            Line2.Color = Library.AccentColor;
-            Line2.Visible = Library.ShowCustomCursor;
-
-            Line3 = DrawingLib.new("Line");
-            Line3.Thickness = 2;
-            Line3.Color = Library.AccentColor;
-            Line3.Visible = Library.ShowCustomCursor;
-
-            -- Optional thin black outline lines (overlay for contrast), but keep simple to avoid complexity.
+                        if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
+                            InputService.MouseIconEnabled = OldMouseIconState
+                            if Cursor then Cursor:Destroy() end
+                            if CursorOutline then CursorOutline:Destroy() end
+                            RunService:UnbindFromRenderStep("LinoriaCursor")
+                        end
+                    end)
+                end));
+            end
         end;
 
-        local OldMouseIconState = InputService.MouseIconEnabled;
-
-        RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
-            InputService.MouseIconEnabled = not Library.ShowCustomCursor;
-            local mPos = InputService:GetMouseLocation();
-            local X, Y = mPos.X, mPos.Y;
-
-            if canUseTriangle then
-                Cursor.Color = Library.AccentColor;
-                Cursor.PointA = Vector2.new(X, Y);
-                Cursor.PointB = Vector2.new(X + 16, Y + 6);
-                Cursor.PointC = Vector2.new(X + 6, Y + 16);
-                Cursor.Visible = Library.ShowCustomCursor;
-
-                CursorOutline.PointA = Cursor.PointA;
-                CursorOutline.PointB = Cursor.PointB;
-                CursorOutline.PointC = Cursor.PointC;
-                CursorOutline.Visible = Library.ShowCustomCursor;
-            else
-                -- Update lines for triangle shape: A to B, A to C, B to C.
-                Line1.From = Vector2.new(X, Y);
-                Line1.To = Vector2.new(X + 16, Y + 6);
-                Line1.Visible = Library.ShowCustomCursor;
-
-                Line2.From = Vector2.new(X, Y);
-                Line2.To = Vector2.new(X + 6, Y + 16);
-                Line2.Visible = Library.ShowCustomCursor;
-
-                Line3.From = Vector2.new(X + 16, Y + 6);
-                Line3.To = Vector2.new(X + 6, Y + 16);
-                Line3.Visible = Library.ShowCustomCursor;
-            end;
-
-            if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
-                InputService.MouseIconEnabled = OldMouseIconState;
-                if canUseTriangle then
-                    if Cursor then Cursor:Remove() end;
-                    if CursorOutline then CursorOutline:Remove() end;
-                else
-                    if Line1 then Line1:Remove() end;
-                    if Line2 then Line2:Remove() end;
-                    if Line3 then Line3:Remove() end;
-                end;
-                RunService:UnbindFromRenderStep("LinoriaCursor");
-            end;
-        end);
-    end;
-end;
         for _, Option in Options do
             task.spawn(function()
                 if Option.Type == 'Dropdown' then
@@ -6564,7 +6497,7 @@ end;
             Size = UDim2.new(1, -4, 1, 0);
             BackgroundTransparency = 1;
             Font = Library.Font;
-            Text = "Toggle UI"; 
+            Text = "Show UI"; 
             TextColor3 = Library.FontColor;
             TextSize = 14;
             TextXAlignment = Enum.TextXAlignment.Left;
