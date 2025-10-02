@@ -172,7 +172,7 @@ else
     Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS);
 end
 
-Library.MinSize = if Library.IsMobile then Vector2.new(550, 200) else Vector2.new(550, 300);
+Library.MinSize = if Library.IsMobile then Vector2.new(550, 150) else Vector2.new(550, 300);
 
 local RainbowStep = 0
 local Hue = 0
@@ -261,7 +261,7 @@ function Library:SetDPIScale(value: number)
     assert(type(value) == "number", "Expected type number for DPI scale but got " .. typeof(value))
     
     DPIScale = value / 100;
-    Library.MinSize = (if Library.IsMobile then Vector2.new(550, 180) else Vector2.new(550, 300)) * DPIScale;
+    Library.MinSize = (if Library.IsMobile then Vector2.new(550, 150) else Vector2.new(550, 300)) * DPIScale;
 end;
 
 function Library:SafeCallback(Func, ...)
@@ -352,7 +352,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if (IsMainWindow and Library.CantDragForced) or not uiVisible then
+                if IsMainWindow and Library.CantDragForced then
                     return;
                 end;
            
@@ -431,7 +431,7 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if (IsMainWindow and Library.CantDragForced)  or not uiVisible then
+                if IsMainWindow and Library.CantDragForced then
                     return;
                 end;
   
