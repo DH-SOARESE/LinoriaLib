@@ -10,6 +10,7 @@ local TweenService: TweenService = cloneref(game:GetService('TweenService'));
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
+local uiVisible = true;
 
 local getgenv = getgenv or (function() return shared end);
 local ProtectGui = protectgui or (function() end);
@@ -54,6 +55,7 @@ local function ParentUI(UI: Instance, SkipHiddenUI: boolean?)
     pcall(ProtectGui, UI)
     SafeParentUI(UI, GetHUI)
 end
+
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
@@ -350,10 +352,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if not uiVisible then
-                return;
-                end;
-                if IsMainWindow == true and Library.CantDragForced == true then
+                if (IsMainWindow and Library.CantDragForced) or uiVisible then
                     return;
                 end;
            
@@ -382,7 +381,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
         local Dragging, DraggingInput, DraggingStart, StartPosition;
 
         InputService.TouchStarted:Connect(function(Input)
-            if IsMainWindow == true and Library.CantDragForced == true then
+            if (IsMainWindow and Library.CantDragForced) or uiVisible then
                 Dragging = false
                 return;
             end
@@ -432,7 +431,7 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if IsMainWindow == true and Library.CantDragForced == true then
+                if (IsMainWindow and Library.CantDragForced)  or uiVisible then
                     return;
                 end;
   
@@ -6508,7 +6507,6 @@ function Library:CreateWindow(...)
 
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
-local uiVisible = true 
 
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
@@ -6595,7 +6593,7 @@ end)
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
 
-    if uiVisible then
+    if not uiVisible then
         Library.CantDrag = true
     else
         Library.CantDrag = not Library.CantDrag
