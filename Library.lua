@@ -1,62 +1,47 @@
--- =========================
--- Função para clonagem de referências
--- =========================
-local cloneref = cloneref or clonereference or function(instance) return instance end
+local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
+local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
+local TextService: TextService = cloneref(game:GetService('TextService'));
+local CoreGui: CoreGui = cloneref(game:GetService('CoreGui'));
+local Teams: Teams = cloneref(game:GetService('Teams'));
+local Players: Players = cloneref(game:GetService('Players'));
+local RunService: RunService = cloneref(game:GetService('RunService'));
+local TweenService: TweenService = cloneref(game:GetService('TweenService'));
 
--- =========================
--- Serviços do Roblox
--- =========================
-local Players        = cloneref(game:GetService("Players"))
-local LocalPlayer    = Players.LocalPlayer
-local Teams          = cloneref(game:GetService("Teams"))
-local RunService     = cloneref(game:GetService("RunService"))
-local TweenService   = cloneref(game:GetService("TweenService"))
-local InputService   = cloneref(game:GetService("UserInputService"))
-local TextService    = cloneref(game:GetService("TextService"))
-local CoreGui        = cloneref(game:GetService("CoreGui"))
+local RenderStepped = RunService.RenderStepped;
+local LocalPlayer = Players.LocalPlayer;
+local Mouse = LocalPlayer:GetMouse();
+local uiVisible = true;
 
--- =========================
--- Variáveis úteis
--- =========================
-local RenderStepped  = RunService.RenderStepped
-local Mouse          = LocalPlayer:GetMouse()
-local uiVisible      = true
+local getgenv = getgenv or (function() return shared end);
+local ProtectGui = protectgui or (function() end);
+local GetHUI = gethui or (function() return CoreGui end);
 
-local getgenv        = getgenv or function() return shared end
-local ProtectGui     = protectgui or function() end
-local GetHUI         = gethui or function() return CoreGui end
-
--- =========================
--- Função assert customizada
--- =========================
 local assert = function(condition, errorMessage)
-    if not condition then
-        error(errorMessage or "assert failed", 3)
-    end
-end
+if (not condition) then
+error(if errorMessage then errorMessage else "assert failed", 3);
+end;
+end;
 
--- =========================
--- Inicializa a Drawing API, se disponível
--- =========================
 local DrawingLib = typeof(Drawing) == "table" and Drawing or { drawing_replaced = true }
-local IsBadDrawingLib = false
 
 -- Função para criar qualquer objeto de Drawing, só se disponível
 local function createDrawing(typeName, properties)
-    if DrawingLib.drawing_replaced then
-        warn("Drawing não disponível. Ignorando objeto: " .. typeName)
-        IsBadDrawingLib = true
-        return nil
-    end
-
-    local obj = DrawingLib.new(typeName)
-    if properties then
-        for prop, value in pairs(properties) do
-            obj[prop] = value
-        end
-    end
-    return obj
+if DrawingLib.drawing_replaced then
+warn("Drawing não disponível. Ignorando objeto: "..typeName)
+return nil
 end
+
+local obj = DrawingLib.new(typeName)  
+if properties then  
+    for prop, value in pairs(properties) do  
+        obj[prop] = value  
+    end  
+end  
+return obj
+
+end
+
+local IsBadDrawingLib = false;
 
 local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instance)
     local success, _error = pcall(function()
