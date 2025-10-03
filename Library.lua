@@ -1,29 +1,62 @@
-local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
-local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
-local TextService: TextService = cloneref(game:GetService('TextService'));
-local CoreGui: CoreGui = cloneref(game:GetService('CoreGui'));
-local Teams: Teams = cloneref(game:GetService('Teams'));
-local Players: Players = cloneref(game:GetService('Players'));
-local RunService: RunService = cloneref(game:GetService('RunService'));
-local TweenService: TweenService = cloneref(game:GetService('TweenService'));
+-- =========================
+-- Função para clonagem de referências
+-- =========================
+local cloneref = cloneref or clonereference or function(instance) return instance end
 
-local RenderStepped = RunService.RenderStepped;
-local LocalPlayer = Players.LocalPlayer;
-local Mouse = LocalPlayer:GetMouse();
-local uiVisible = true;
+-- =========================
+-- Serviços do Roblox
+-- =========================
+local Players        = cloneref(game:GetService("Players"))
+local LocalPlayer    = Players.LocalPlayer
+local Teams          = cloneref(game:GetService("Teams"))
+local RunService     = cloneref(game:GetService("RunService"))
+local TweenService   = cloneref(game:GetService("TweenService"))
+local InputService   = cloneref(game:GetService("UserInputService"))
+local TextService    = cloneref(game:GetService("TextService"))
+local CoreGui        = cloneref(game:GetService("CoreGui"))
 
-local getgenv = getgenv or (function() return shared end);
-local ProtectGui = protectgui or (function() end);
-local GetHUI = gethui or (function() return CoreGui end);
+-- =========================
+-- Variáveis úteis
+-- =========================
+local RenderStepped  = RunService.RenderStepped
+local Mouse          = LocalPlayer:GetMouse()
+local uiVisible      = true
 
-local assert = function(condition, errorMessage) 
-    if (not condition) then
-        error(if errorMessage then errorMessage else "assert failed", 3);
-    end;
-end;
+local getgenv        = getgenv or function() return shared end
+local ProtectGui     = protectgui or function() end
+local GetHUI         = gethui or function() return CoreGui end
 
-local DrawingLib = typeof(Drawing) == "table" and Drawing or { drawing_replaced = true };
-local IsBadDrawingLib = false;
+-- =========================
+-- Função assert customizada
+-- =========================
+local assert = function(condition, errorMessage)
+    if not condition then
+        error(errorMessage or "assert failed", 3)
+    end
+end
+
+-- =========================
+-- Inicializa a Drawing API, se disponível
+-- =========================
+local DrawingLib = typeof(Drawing) == "table" and Drawing or { drawing_replaced = true }
+local IsBadDrawingLib = false
+
+-- Função para criar qualquer objeto de Drawing, só se disponível
+local function createDrawing(typeName, properties)
+    if DrawingLib.drawing_replaced then
+        warn("Drawing não disponível. Ignorando objeto: " .. typeName)
+        IsBadDrawingLib = true
+        return nil
+    end
+
+    local obj = DrawingLib.new(typeName)
+    if properties then
+        for prop, value in pairs(properties) do
+            obj[prop] = value
+        end
+    end
+    return obj
+end
 
 local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instance)
     local success, _error = pcall(function()
@@ -172,7 +205,7 @@ else
     Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS);
 end
 
-Library.MinSize = if Library.IsMobile then Vector2.new(550, 150) else Vector2.new(550, 300);
+Library.MinSize = if Library.IsMobile then Vector2.new(550, 130) else Vector2.new(550, 300);
 
 local RainbowStep = 0
 local Hue = 0
@@ -261,7 +294,7 @@ function Library:SetDPIScale(value: number)
     assert(type(value) == "number", "Expected type number for DPI scale but got " .. typeof(value))
     
     DPIScale = value / 100;
-    Library.MinSize = (if Library.IsMobile then Vector2.new(550, 150) else Vector2.new(550, 300)) * DPIScale;
+    Library.MinSize = (if Library.IsMobile then Vector2.new(550, 130) else Vector2.new(550, 300)) * DPIScale;
 end;
 
 function Library:SafeCallback(Func, ...)
@@ -381,7 +414,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
         local Dragging, DraggingInput, DraggingStart, StartPosition;
 
         InputService.TouchStarted:Connect(function(Input)
-            if (IsMainWindow and Library.CantDragForced) or not uiVisible then
+            if IsMainWindow and Library.CantDragForced then
                 Dragging = false
                 return;
             end
@@ -401,7 +434,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
             end;
         end);
         InputService.TouchMoved:Connect(function(Input)
-            if (IsMainWindow and Library.CantDragForced) or not uiVisible then
+            if IsMainWindow and Library.CantDragForced then
                 Dragging = false;
                 return;
             end
@@ -431,7 +464,7 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if IsMainWindow and Library.CantDragForced then
+                if (IsMainWindow and Library.CantDragForced) or not UiVisible then
                     return;
                 end;
   
@@ -6335,7 +6368,6 @@ function Library:CreateWindow(...)
         ModalElement.Modal = Toggled;
 
         if Toggled then
-            -- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
             Outer.Visible = true;
 
             if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
@@ -6496,7 +6528,7 @@ function Library:CreateWindow(...)
             Size = UDim2.new(1, -4, 1, 0);
             BackgroundTransparency = 1;
             Font = Library.Font;
-            Text = "Show UI"; 
+            Text = "Toggle UI"; 
             TextColor3 = Library.FontColor;
             TextSize = 14;
             TextXAlignment = Enum.TextXAlignment.Left;
@@ -6509,18 +6541,8 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
 
 ToggleUIButton.MouseButton1Down:Connect(function()
-    uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
-    Library:Toggle()           -- Mostra/oculta a UI
-    ToggleUIButton.Text = uiVisible and "Close UI" or "Show UI"
-
-    if uiVisible then
-        Library.CantDrag = true
-    else
-        if Library.CantDrag then
-            Library.CantDrag = true
-        else
-            Library.CantDrag = false
-        end
+    uiVisible = not uiVisible  
+    Library:Toggle()       
     end
 end)
         -- Lock
@@ -6587,17 +6609,17 @@ end)
             Parent = LockUIInnerFrame;
         });
     
-        Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
-        
-        LockUIButton.MouseButton1Down:Connect(function()
-    Library.CantDragForced = not Library.CantDragForced
-    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+        -- Permite arrastar o botão usando o pai
+Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
-    if not uiVisible then
-        Library.CantDrag = true
-    else
-        Library.CantDrag = not Library.CantDrag
-    end
+-- Evento de clique do botão
+LockUIButton.MouseButton1Down:Connect(function()
+    -- Alterna entre bloquear/desbloquear a UI
+    Library.CantDragForced = not Library.CantDragForced
+    Library.CantDrag = not Library.CantDrag
+
+    -- Atualiza o texto do botão
+    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
 end)
 end;
 
