@@ -412,7 +412,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
             end;
         end);
         InputService.TouchMoved:Connect(function(Input)
-            if (IsMainWindow and Library.CantDragForced) or not uiVisible then
+            if IsMainWindow and Library.CantDragForced then
                 Dragging = false;
                 return;
             end
@@ -6320,115 +6320,132 @@ function Library:CreateWindow(...)
         return Tab;
     end;
 
-    local TransparencyCache = {};
-    local Toggled = false;
-    local Fading = false;
-    
-    function Library:Toggle(Toggling)
-        if typeof(Toggling) == "boolean" and Toggling == Toggled then return end;
-        if Fading then return end;
+local TransparencyCache = {}
+local Toggled = false
+local Fading = false
+local Cursor = nil
+local CursorOutline = nil
+local OldMouseIconState = nil
 
-        local FadeTime = Config.MenuFadeTime;
-        Fading = true;
-        Toggled = (not Toggled);
+function Library:Toggle(Toggling)
+    if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
+    if Fading then return end
 
-        Library.Toggled = Toggled;
-        ModalElement.Modal = Toggled;
+    local FadeTime = Config.MenuFadeTime
+    Fading = true
+    Toggled = not Toggled
+    Library.Toggled = Toggled
+    ModalElement.Modal = Toggled
 
-        if Toggled then
-            Outer.Visible = true;
+    if Toggled then
+        Outer.Visible = true
 
-            if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
-                IsBadDrawingLib = not (pcall(function()
-                    local Cursor = DrawingLib.new("Line")
-                    Cursor.Thickness = 1
-                    Cursor.Filled = true
+        -- Inicialização do cursor personalizado
+        if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
+            IsBadDrawingLib = not pcall(function()
+                -- Limpar cursores anteriores, se existirem
+                if Cursor then Cursor:Destroy() end
+                if CursorOutline then CursorOutline:Destroy() end
+                pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end)
+
+                -- Criar novo cursor
+                Cursor = DrawingLib.new("Triangle")
+                Cursor.Thickness = 1
+                Cursor.Filled = true
+                Cursor.Visible = Library.ShowCustomCursor
+
+                -- Criar contorno do cursor
+                CursorOutline = DrawingLib.new("Triangle")
+                CursorOutline.Thickness = 1
+                CursorOutline.Filled = false
+                CursorOutline.Color = Color3.new(0, 0, 0)
+                CursorOutline.Visible = Library.ShowCustomCursor
+
+                -- Armazenar estado do ícone do mouse
+                OldMouseIconState = InputService.MouseIconEnabled
+
+                -- Atualizar cursor em cada frame
+                RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
+                    InputService.MouseIconEnabled = not Library.ShowCustomCursor
+                    local mPos = InputService:GetMouseLocation()
+                    local X, Y = mPos.X, mPos.Y
+
+                    -- Configurar propriedades do cursor
+                    Cursor.Color = Library.AccentColor
+                    Cursor.PointA = Vector2.new(X, Y)
+                    Cursor.PointB = Vector2.new(X + 16, Y + 6)
+                    Cursor.PointC = Vector2.new(X + 6, Y + 16)
                     Cursor.Visible = Library.ShowCustomCursor
 
-                    local CursorOutline = DrawingLib.new("Line")
-                    CursorOutline.Thickness = 1
-                    CursorOutline.Filled = false
-                    CursorOutline.Color = Color3.new(0, 0, 0)
+                    -- Configurar contorno do cursor
+                    CursorOutline.PointA = Cursor.PointA
+                    CursorOutline.PointB = Cursor.PointB
+                    CursorOutline.PointC = Cursor.PointC
                     CursorOutline.Visible = Library.ShowCustomCursor
-                    
-                    local OldMouseIconState = InputService.MouseIconEnabled
-                    pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end)
-                    RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
-                        InputService.MouseIconEnabled = not Library.ShowCustomCursor
-                        local mPos = InputService:GetMouseLocation()
-                        local X, Y = mPos.X, mPos.Y
-                        Cursor.Color = Library.AccentColor
-                        Cursor.PointA = Vector2.new(X, Y)
-                        Cursor.PointB = Vector2.new(X + 16, Y + 6)
-                        Cursor.PointC = Vector2.new(X + 6, Y + 16)
-                        Cursor.Visible = Library.ShowCustomCursor
-                        CursorOutline.PointA = Cursor.PointA
-                        CursorOutline.PointB = Cursor.PointB
-                        CursorOutline.PointC = Cursor.PointC
-                        CursorOutline.Visible = Library.ShowCustomCursor
 
-                        if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
-                            InputService.MouseIconEnabled = OldMouseIconState
-                            if Cursor then Cursor:Destroy() end
-                            if CursorOutline then CursorOutline:Destroy() end
-                            RunService:UnbindFromRenderStep("LinoriaCursor")
-                        end
-                    end)
-                end));
-            end
-        end;
-
-        for _, Option in Options do
-            task.spawn(function()
-                if Option.Type == 'Dropdown' then
-                    Option:CloseDropdown();
-                elseif Option.Type == 'KeyPicker' then
-                    Option:SetModePickerVisibility(false);
-                elseif Option.Type == 'ColorPicker' then
-                    Option.ContextMenu:Hide();
-                    Option:Hide();
-                end
+                    -- Limpar cursor quando não necessário
+                    if not Toggled or not ScreenGui or not ScreenGui.Parent then
+                        InputService.MouseIconEnabled = OldMouseIconState
+                        if Cursor then Cursor:Destroy(); Cursor = nil end
+                        if CursorOutline then CursorOutline:Destroy(); CursorOutline = nil end
+                        RunService:UnbindFromRenderStep("LinoriaCursor")
+                    end
+                end)
             end)
         end
-
-        for _, Desc in next, Outer:GetDescendants() do
-            local Properties = {};
-
-            if Desc:IsA('ImageLabel') then
-                table.insert(Properties, 'ImageTransparency');
-                table.insert(Properties, 'BackgroundTransparency');
-            elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
-                table.insert(Properties, 'TextTransparency');
-            elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
-                table.insert(Properties, 'BackgroundTransparency');
-            elseif Desc:IsA('UIStroke') then
-                table.insert(Properties, 'Transparency');
-            end;
-
-            local Cache = TransparencyCache[Desc];
-
-            if (not Cache) then
-                Cache = {};
-                TransparencyCache[Desc] = Cache;
-            end;
-
-            for _, Prop in next, Properties do
-                if not Cache[Prop] then
-                    Cache[Prop] = Desc[Prop];
-                end;
-
-                if Cache[Prop] == 1 then
-                    continue;
-                end;
-
-                TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), { [Prop] = Toggled and Cache[Prop] or 1 }):Play();
-            end;
-        end;
-
-        task.wait(FadeTime);
-        Outer.Visible = Toggled;
-        Fading = false;
     end
+
+    -- Fechar menus abertos
+    for _, Option in pairs(Options) do
+        task.spawn(function()
+            if Option.Type == 'Dropdown' then
+                Option:CloseDropdown()
+            elseif Option.Type == 'KeyPicker' then
+                Option:SetModePickerVisibility(false)
+            elseif Option.Type == 'ColorPicker' then
+                Option.ContextMenu:Hide()
+                Option:Hide()
+            end
+        end)
+    end
+
+    -- Animação de transparência
+    for _, Desc in pairs(Outer:GetDescendants()) do
+        local Properties = {}
+
+        if Desc:IsA('ImageLabel') then
+            table.insert(Properties, 'ImageTransparency')
+            table.insert(Properties, 'BackgroundTransparency')
+        elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
+            table.insert(Properties, 'TextTransparency')
+        elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
+            table.insert(Properties, 'BackgroundTransparency')
+        elseif Desc:IsA('UIStroke') then
+            table.insert(Properties, 'Transparency')
+        end
+
+        local Cache = TransparencyCache[Desc] or {}
+        TransparencyCache[Desc] = Cache
+
+        for _, Prop in pairs(Properties) do
+            if not Cache[Prop] then
+                Cache[Prop] = Desc[Prop]
+            end
+
+            if Cache[Prop] == 1 then
+                continue
+            end
+
+            TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), {
+                [Prop] = Toggled and Cache[Prop] or 1
+            }):Play()
+        end
+    end
+
+    task.wait(FadeTime)
+    Outer.Visible = Toggled
+    Fading = false
+end
 
     Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
         if typeof(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
