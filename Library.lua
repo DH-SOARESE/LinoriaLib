@@ -22,8 +22,19 @@ local assert = function(condition, errorMessage)
     end;
 end;
 
-local DrawingLib = typeof(Drawing) == "table" and Drawing or { drawing_replaced = true };
-local IsBadDrawingLib = false;
+-- Checa se a API Drawing nativa está disponível
+local DrawingLib
+local IsBadDrawingLib = false
+
+if typeof(Drawing) == "table" and type(Drawing.new) == "function" then
+    -- Drawing nativa disponível
+    DrawingLib = Drawing
+    IsBadDrawingLib = false
+else
+    -- Fallback simples caso não exista
+    DrawingLib = { drawing_replaced = true }
+    IsBadDrawingLib = true
+end
 
 local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instance)
     local success, _error = pcall(function()
