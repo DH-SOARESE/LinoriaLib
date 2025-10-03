@@ -1,3 +1,4 @@
+
 local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
 local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
 local TextService: TextService = cloneref(game:GetService('TextService'));
@@ -6511,7 +6512,6 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
     Library:Toggle()           -- Mostra/oculta a UI
-    end
 end)
         -- Lock
         local LockUIOuter = Library:Create('Frame', {
@@ -6581,6 +6581,7 @@ end)
         LockUIButton.MouseButton1Down:Connect(function()
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+    end)
 end;
 
     if Config.AutoShow then task.spawn(Library.Toggle) end
