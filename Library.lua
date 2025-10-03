@@ -6496,7 +6496,7 @@ function Library:CreateWindow(...)
             Size = UDim2.new(1, -4, 1, 0);
             BackgroundTransparency = 1;
             Font = Library.Font;
-            Text = "Show UI"; 
+            Text = "Toggle UI"; 
             TextColor3 = Library.FontColor;
             TextSize = 14;
             TextXAlignment = Enum.TextXAlignment.Left;
@@ -6511,17 +6511,6 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
     Library:Toggle()           -- Mostra/oculta a UI
-    ToggleUIButton.Text = uiVisible and "Close UI" or "Show UI"
-
-    if uiVisible then
-        Library.CantDrag = true
-    else
-        if Library.CantDrag then
-            Library.CantDrag = true
-        else
-            Library.CantDrag = false
-        end
-    end
 end)
         -- Lock
         local LockUIOuter = Library:Create('Frame', {
@@ -6589,15 +6578,9 @@ end)
     
         Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
         
-        LockUIButton.MouseButton1Down:Connect(function()
+LockUIButton.MouseButton1Down:Connect(function()
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
-
-    if not uiVisible then
-        Library.CantDrag = true
-    else
-        Library.CantDrag = not Library.CantDrag
-    end
 end)
 end;
 
