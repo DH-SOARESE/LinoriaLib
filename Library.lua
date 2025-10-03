@@ -1,3 +1,4 @@
+
 local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
 local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
 local TextService: TextService = cloneref(game:GetService('TextService'));
@@ -510,6 +511,7 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 		end
 	end)
   end
+end 
 
 function Library:MakeResizable(Instance, MinSize)
     if Library.IsMobile then
