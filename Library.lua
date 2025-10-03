@@ -1,4 +1,3 @@
-
 local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
 local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
 local TextService: TextService = cloneref(game:GetService('TextService'));
@@ -437,6 +436,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 	end;
 end;
 
+--[[
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
 	Instance.Active = true;
 
@@ -469,49 +469,53 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 			end;
 		end);
 	else
-	local Dragging, DraggingInput, DraggingStart, StartPosition;
+		local Dragging, DraggingInput, DraggingStart, StartPosition;
 
-	-- Apenas draggable se tocar na "top bar" ou região de corte
-	local function IsTouchInDraggableArea(input)
-		local pos = input.Position
-		local relativeY = pos.Y - Instance.AbsolutePosition.Y
-		return relativeY <= (Cutoff or 40) -- só permite arrastar se dentro do cutoff
-	end
+		InputService.TouchStarted:Connect(function(Input)
+			if (IsMainWindow == true and Library.CantDragForced == true) or not uiVisible then
+				Dragging = false
+				return;
+			end
 
-	InputService.TouchStarted:Connect(function(Input)
-		if IsMainWindow and Library.CantDragForced then
-			Dragging = false
-			return
-		end
+			if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
+				DraggingInput = Input;
+				DraggingStart = Input.Position;
+				StartPosition = Parent.Position;
 
-		if not Dragging and IsTouchInDraggableArea(Input) then
-			DraggingInput = Input
-			DraggingStart = Input.Position
-			StartPosition = Parent.Position
-			Dragging = true
-		end
-	end)
+				local OffsetPos = Input.Position - DraggingStart;
+				if OffsetPos.Y > (Cutoff or 40) then
+					Dragging = false;
+					return;
+				end;
 
-	InputService.TouchMoved:Connect(function(Input)
-		if Input == DraggingInput and Dragging then
-			local OffsetPos = Input.Position - DraggingStart
+				Dragging = true;
+			end;
+		end);
+		InputService.TouchMoved:Connect(function(Input)
+			if IsMainWindow == true and Library.CantDragForced == true then
+				Dragging = false;
+				return;
+			end
 
-			Parent.Position = UDim2.new(
-				StartPosition.X.Scale,
-				StartPosition.X.Offset + OffsetPos.X,
-				StartPosition.Y.Scale,
-				StartPosition.Y.Offset + OffsetPos.Y
-			)
-		end
-	end)
+			if Input == DraggingInput and Dragging and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
+				local OffsetPos = Input.Position - DraggingStart;
 
-	InputService.TouchEnded:Connect(function(Input)
-		if Input == DraggingInput then
-			Dragging = false
-		end
-	end)
-  end
-end 
+				Parent.Position = UDim2.new(
+					StartPosition.X.Scale,
+					StartPosition.X.Offset + OffsetPos.X,
+					StartPosition.Y.Scale,
+					StartPosition.Y.Offset + OffsetPos.Y
+				);
+			end;
+		end);
+		InputService.TouchEnded:Connect(function(Input)
+			if Input == DraggingInput then 
+				Dragging = false;
+			end;
+		end);
+	end;
+end;
+]]
 
 function Library:MakeResizable(Instance, MinSize)
     if Library.IsMobile then
