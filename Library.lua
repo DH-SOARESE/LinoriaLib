@@ -392,7 +392,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
         local Dragging, DraggingInput, DraggingStart, StartPosition;
 
         InputService.TouchStarted:Connect(function(Input)
-            if (IsMainWindow and Library.CantDragForced) or not uiVisible then
+            if IsMainWindow and Library.CantDragForced then
                 Dragging = false
                 return;
             end
@@ -805,16 +805,6 @@ function Library:RemoveFromRegistry(Instance)
 end;
 
 function Library:UpdateColorsUsingRegistry()
-    -- TODO: Could have an 'active' list of objects
-    -- where the active list only contains Visible objects.
-
-    -- IMPL: Could setup .Changed events on the AddToRegistry function
-    -- that listens for the 'Visible' propert being changed.
-    -- Visible: true => Add to active list, and call UpdateColors function
-    -- Visible: false => Remove from active list.
-
-    -- The above would be especially efficient for a rainbow menu color or live color-changing.
-
     for Idx, Object in next, Library.Registry do
         for Property, ColorIdx in next, Object.Properties do
             if typeof(ColorIdx) == "string" then
@@ -6346,17 +6336,16 @@ function Library:CreateWindow(...)
         ModalElement.Modal = Toggled;
 
         if Toggled then
-            -- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
             Outer.Visible = true;
 
             if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
                 IsBadDrawingLib = not (pcall(function()
-                    local Cursor = DrawingLib.new("Triangle")
+                    local Cursor = DrawingLib.new("Line")
                     Cursor.Thickness = 1
                     Cursor.Filled = true
                     Cursor.Visible = Library.ShowCustomCursor
 
-                    local CursorOutline = DrawingLib.new("Triangle")
+                    local CursorOutline = DrawingLib.new("Line")
                     CursorOutline.Thickness = 1
                     CursorOutline.Filled = false
                     CursorOutline.Color = Color3.new(0, 0, 0)
