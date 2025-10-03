@@ -392,7 +392,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 		local Dragging, DraggingInput, DraggingStart, StartPosition;
 
 		InputService.TouchStarted:Connect(function(Input)
-			if IsMainWindow == true and Library.CantDragForced == true then
+			if (IsMainWindow == true and Library.CantDragForced == true) or not uiVisible then
 				Dragging = false
 				return;
 			end
@@ -436,7 +436,6 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 	end;
 end;
 
---[[
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
 	Instance.Active = true;
 
@@ -472,7 +471,7 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 		local Dragging, DraggingInput, DraggingStart, StartPosition;
 
 		InputService.TouchStarted:Connect(function(Input)
-			if (IsMainWindow == true and Library.CantDragForced == true) or not uiVisible then
+			if IsMainWindow == true and Library.CantDragForced == true then
 				Dragging = false
 				return;
 			end
@@ -515,7 +514,6 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 		end);
 	end;
 end;
-]]
 
 function Library:MakeResizable(Instance, MinSize)
     if Library.IsMobile then
