@@ -1,4 +1,3 @@
-
 local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
 local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
 local TextService: TextService = cloneref(game:GetService('TextService'));
@@ -6387,7 +6386,7 @@ function Library:Toggle(Toggling)
 	Library.Toggled = Toggled
 	ModalElement.Modal = Toggled
 
-	if Toggled then
+	if uiVisible then
 		Outer.Visible = true
 
 		-- // Criar o cursor GUI se não existir
