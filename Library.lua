@@ -1,3 +1,4 @@
+
 local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
 local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
 local TextService: TextService = cloneref(game:GetService('TextService'));
@@ -6366,8 +6367,8 @@ function Library:CreateWindow(...)
 local TransparencyCache = {}
 local Toggled = false
 local Fading = false
-local Cursor = nil
-local CursorOutline = nil
+local CursorLines = {}
+local CursorFill = nil
 local OldMouseIconState = nil
 
 function Library:Toggle(Toggling)
@@ -6383,95 +6384,112 @@ function Library:Toggle(Toggling)
     if Toggled then
         Outer.Visible = true
 
-       -- Inicialização do cursor personalizado
-if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
-    IsBadDrawingLib = not pcall(function()
-        -- Limpar cursores anteriores, se existirem
-        if Cursor then Cursor:Destroy() end
-        if CursorOutline then CursorOutline:Destroy() end
-        pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end)
+        -- // Inicialização do cursor personalizado
+        if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
+            IsBadDrawingLib = not pcall(function()
+                -- // Limpar cursores anteriores
+                for _, line in pairs(CursorLines) do
+                    line:Destroy()
+                end
+                CursorLines = {}
+                if CursorFill then CursorFill:Destroy() CursorFill = nil end
+                pcall(function()
+                    RunService:UnbindFromRenderStep("LinoriaCursor")
+                end)
 
-        -- Criar novo cursor (preenchido, usando Quad como triângulo)
-        Cursor = DrawingLib.new("Quad")
-        Cursor.Thickness = 1
-        Cursor.Filled = true
-        Cursor.Visible = Library.ShowCustomCursor
+                -- // Criar 3 linhas para formar o triângulo
+                for i = 1, 3 do
+                    local line = DrawingLib.new("Line")
+                    line.Thickness = 1
+                    line.Color = Library.AccentColor
+                    line.Visible = Library.ShowCustomCursor
+                    table.insert(CursorLines, line)
+                end
 
-        -- Criar contorno do cursor (usando Quad como triângulo)
-        CursorOutline = DrawingLib.new("Quad")
-        CursorOutline.Thickness = 1
-        CursorOutline.Filled = false
-        CursorOutline.Color = Color3.new(0, 0, 0)
-        CursorOutline.Visible = Library.ShowCustomCursor
+                -- // (Opcional) quadrado de preenchimento simulando o interior do triângulo
+                CursorFill = DrawingLib.new("Square")
+                CursorFill.Size = Vector2.new(1, 1)
+                CursorFill.Filled = true
+                CursorFill.Color = Library.AccentColor
+                CursorFill.Visible = Library.ShowCustomCursor
 
-        -- Armazenar estado do ícone do mouse
-        OldMouseIconState = InputService.MouseIconEnabled
+                -- // Armazenar estado do ícone do mouse
+                OldMouseIconState = InputService.MouseIconEnabled
 
-        -- Atualizar cursor em cada frame
-        RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
-            InputService.MouseIconEnabled = not Library.ShowCustomCursor
-            local mPos = InputService:GetMouseLocation()
-            local X, Y = mPos.X, mPos.Y
+                -- // Atualizar cursor em cada frame
+                RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
+                    InputService.MouseIconEnabled = not Library.ShowCustomCursor
+                    local mPos = InputService:GetMouseLocation()
+                    local X, Y = mPos.X, mPos.Y
 
-            local pointA = Vector2.new(X, Y)
-            local pointB = Vector2.new(X + 16, Y + 6)
-            local pointC = Vector2.new(X + 6, Y + 16)
-            local pointD = pointA  -- Degenera o Quad em Triângulo
+                    -- // Pontos do triângulo
+                    local A = Vector2.new(X, Y)
+                    local B = Vector2.new(X + 16, Y + 6)
+                    local C = Vector2.new(X + 6, Y + 16)
 
-            -- Configurar propriedades do cursor
-            Cursor.Color = Library.AccentColor
-            Cursor.PointA = pointA
-            Cursor.PointB = pointB
-            Cursor.PointC = pointC
-            Cursor.PointD = pointD
-            Cursor.Visible = Library.ShowCustomCursor
+                    -- // Atualizar linhas
+                    CursorLines[1].From = A
+                    CursorLines[1].To = B
 
-            -- Configurar contorno do cursor
-            CursorOutline.PointA = pointA
-            CursorOutline.PointB = pointB
-            CursorOutline.PointC = pointC
-            CursorOutline.PointD = pointD
-            CursorOutline.Visible = Library.ShowCustomCursor
+                    CursorLines[2].From = B
+                    CursorLines[2].To = C
 
-            -- Limpar cursor quando não necessário
-            if not Toggled or not ScreenGui or not ScreenGui.Parent then
-                InputService.MouseIconEnabled = OldMouseIconState
-                if Cursor then Cursor:Destroy(); Cursor = nil end
-                if CursorOutline then CursorOutline:Destroy(); CursorOutline = nil end
-                RunService:UnbindFromRenderStep("LinoriaCursor")
-            end
-        end)
-    end)
-end
+                    CursorLines[3].From = C
+                    CursorLines[3].To = A
+
+                    for _, line in pairs(CursorLines) do
+                        line.Color = Library.AccentColor
+                        line.Visible = Library.ShowCustomCursor
+                    end
+
+                    -- // Simular preenchimento (pequeno quadrado no meio do triângulo)
+                    CursorFill.Position = Vector2.new(X + 7, Y + 7)
+                    CursorFill.Size = Vector2.new(3, 3)
+                    CursorFill.Color = Library.AccentColor
+                    CursorFill.Visible = Library.ShowCustomCursor
+
+                    -- // Limpar cursor quando não necessário
+                    if not Toggled or not ScreenGui or not ScreenGui.Parent then
+                        InputService.MouseIconEnabled = OldMouseIconState
+                        for _, line in pairs(CursorLines) do
+                            line:Destroy()
+                        end
+                        CursorLines = {}
+                        if CursorFill then CursorFill:Destroy() CursorFill = nil end
+                        RunService:UnbindFromRenderStep("LinoriaCursor")
+                    end
+                end)
+            end)
+        end
     end
 
-    -- Fechar menus abertos
+    -- // Fechar menus abertos
     for _, Option in pairs(Options) do
         task.spawn(function()
-            if Option.Type == 'Dropdown' then
+            if Option.Type == "Dropdown" then
                 Option:CloseDropdown()
-            elseif Option.Type == 'KeyPicker' then
+            elseif Option.Type == "KeyPicker" then
                 Option:SetModePickerVisibility(false)
-            elseif Option.Type == 'ColorPicker' then
+            elseif Option.Type == "ColorPicker" then
                 Option.ContextMenu:Hide()
                 Option:Hide()
             end
         end)
     end
 
-    -- Animação de transparência
+    -- // Animação de transparência
     for _, Desc in pairs(Outer:GetDescendants()) do
         local Properties = {}
 
-        if Desc:IsA('ImageLabel') then
-            table.insert(Properties, 'ImageTransparency')
-            table.insert(Properties, 'BackgroundTransparency')
-        elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
-            table.insert(Properties, 'TextTransparency')
-        elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
-            table.insert(Properties, 'BackgroundTransparency')
-        elseif Desc:IsA('UIStroke') then
-            table.insert(Properties, 'Transparency')
+        if Desc:IsA("ImageLabel") then
+            table.insert(Properties, "ImageTransparency")
+            table.insert(Properties, "BackgroundTransparency")
+        elseif Desc:IsA("TextLabel") or Desc:IsA("TextBox") then
+            table.insert(Properties, "TextTransparency")
+        elseif Desc:IsA("Frame") or Desc:IsA("ScrollingFrame") then
+            table.insert(Properties, "BackgroundTransparency")
+        elseif Desc:IsA("UIStroke") then
+            table.insert(Properties, "Transparency")
         end
 
         local Cache = TransparencyCache[Desc] or {}
