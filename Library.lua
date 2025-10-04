@@ -6383,59 +6383,66 @@ function Library:Toggle(Toggling)
     if Toggled then
         Outer.Visible = true
 
-        -- Inicialização do cursor personalizado
-        if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
-            IsBadDrawingLib = not pcall(function()
-                -- Limpar cursores anteriores, se existirem
-                if Cursor then Cursor:Destroy() end
-                if CursorOutline then CursorOutline:Destroy() end
-                pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end)
+       -- Inicialização do cursor personalizado
+if DrawingLib.drawing_replaced ~= true and IsBadDrawingLib ~= true then
+    IsBadDrawingLib = not pcall(function()
+        -- Limpar cursores anteriores, se existirem
+        if Cursor then Cursor:Destroy() end
+        if CursorOutline then CursorOutline:Destroy() end
+        pcall(function() RunService:UnbindFromRenderStep("LinoriaCursor") end)
 
-                -- Criar novo cursor
-                Cursor = DrawingLib.new("Triangle")
-                Cursor.Thickness = 1
-                Cursor.Filled = true
-                Cursor.Visible = Library.ShowCustomCursor
+        -- Criar novo cursor (preenchido, usando Quad como triângulo)
+        Cursor = DrawingLib.new("Quad")
+        Cursor.Thickness = 1
+        Cursor.Filled = true
+        Cursor.Visible = Library.ShowCustomCursor
 
-                -- Criar contorno do cursor
-                CursorOutline = DrawingLib.new("Triangle")
-                CursorOutline.Thickness = 1
-                CursorOutline.Filled = false
-                CursorOutline.Color = Color3.new(0, 0, 0)
-                CursorOutline.Visible = Library.ShowCustomCursor
+        -- Criar contorno do cursor (usando Quad como triângulo)
+        CursorOutline = DrawingLib.new("Quad")
+        CursorOutline.Thickness = 1
+        CursorOutline.Filled = false
+        CursorOutline.Color = Color3.new(0, 0, 0)
+        CursorOutline.Visible = Library.ShowCustomCursor
 
-                -- Armazenar estado do ícone do mouse
-                OldMouseIconState = InputService.MouseIconEnabled
+        -- Armazenar estado do ícone do mouse
+        OldMouseIconState = InputService.MouseIconEnabled
 
-                -- Atualizar cursor em cada frame
-                RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
-                    InputService.MouseIconEnabled = not Library.ShowCustomCursor
-                    local mPos = InputService:GetMouseLocation()
-                    local X, Y = mPos.X, mPos.Y
+        -- Atualizar cursor em cada frame
+        RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Camera.Value - 1, function()
+            InputService.MouseIconEnabled = not Library.ShowCustomCursor
+            local mPos = InputService:GetMouseLocation()
+            local X, Y = mPos.X, mPos.Y
 
-                    -- Configurar propriedades do cursor
-                    Cursor.Color = Library.AccentColor
-                    Cursor.PointA = Vector2.new(X, Y)
-                    Cursor.PointB = Vector2.new(X + 16, Y + 6)
-                    Cursor.PointC = Vector2.new(X + 6, Y + 16)
-                    Cursor.Visible = Library.ShowCustomCursor
+            local pointA = Vector2.new(X, Y)
+            local pointB = Vector2.new(X + 16, Y + 6)
+            local pointC = Vector2.new(X + 6, Y + 16)
+            local pointD = pointA  -- Degenera o Quad em Triângulo
 
-                    -- Configurar contorno do cursor
-                    CursorOutline.PointA = Cursor.PointA
-                    CursorOutline.PointB = Cursor.PointB
-                    CursorOutline.PointC = Cursor.PointC
-                    CursorOutline.Visible = Library.ShowCustomCursor
+            -- Configurar propriedades do cursor
+            Cursor.Color = Library.AccentColor
+            Cursor.PointA = pointA
+            Cursor.PointB = pointB
+            Cursor.PointC = pointC
+            Cursor.PointD = pointD
+            Cursor.Visible = Library.ShowCustomCursor
 
-                    -- Limpar cursor quando não necessário
-                    if not Toggled or not ScreenGui or not ScreenGui.Parent then
-                        InputService.MouseIconEnabled = OldMouseIconState
-                        if Cursor then Cursor:Destroy(); Cursor = nil end
-                        if CursorOutline then CursorOutline:Destroy(); CursorOutline = nil end
-                        RunService:UnbindFromRenderStep("LinoriaCursor")
-                    end
-                end)
-            end)
-        end
+            -- Configurar contorno do cursor
+            CursorOutline.PointA = pointA
+            CursorOutline.PointB = pointB
+            CursorOutline.PointC = pointC
+            CursorOutline.PointD = pointD
+            CursorOutline.Visible = Library.ShowCustomCursor
+
+            -- Limpar cursor quando não necessário
+            if not Toggled or not ScreenGui or not ScreenGui.Parent then
+                InputService.MouseIconEnabled = OldMouseIconState
+                if Cursor then Cursor:Destroy(); Cursor = nil end
+                if CursorOutline then CursorOutline:Destroy(); CursorOutline = nil end
+                RunService:UnbindFromRenderStep("LinoriaCursor")
+            end
+        end)
+    end)
+end
     end
 
     -- Fechar menus abertos
