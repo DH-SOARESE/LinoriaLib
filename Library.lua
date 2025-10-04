@@ -6421,14 +6421,14 @@ function Library:Toggle(Toggling)
 			CursorImage.ImageColor3 = Library.AccentColor
 			CursorImage.Visible = Library.ShowCustomCursor
 
-			if not Toggled or not CursorGui or not CursorGui.Parent then
+			if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
 				InputService.MouseIconEnabled = OldMouseIconState
 				RunService:UnbindFromRenderStep("LinoriaCursor")
 				if CursorGui then CursorGui:Destroy() CursorGui = nil CursorImage = nil end
 			end
 		end)
 	end
-
+	
 	-- // Fechar menus abertos
 	for _, Option in pairs(Options) do
 		task.spawn(function()
