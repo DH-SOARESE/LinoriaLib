@@ -875,7 +875,7 @@ function Library:Unload()
     for _, UnloadCallback in pairs(Library.UnloadSignals) do
         Library:SafeCallback(UnloadCallback)
     end
-    uiVisible = false
+    CursorGui:Destroy()
     ScreenGui:Destroy()
     ModalScreenGui:Destroy()
     Library.Unloaded = true
