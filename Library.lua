@@ -363,7 +363,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 	if Library.IsMobile == false then
 		Instance.InputBegan:Connect(function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				if IsMainWindow == true and Library.CantDragForced == true then
+				if (IsMainWindow and Library.CantDragForced) or not uiVisible then
 					return;
 				end;
 
@@ -5352,7 +5352,6 @@ end;
 function Library:SetWatermark(Text)
     local X, Y = Library:GetTextBounds(Text, Library.Font, 14);
     Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3);
-    Library:SetWatermarkVisibility(true)
 
     Library.WatermarkText.Text = Text;
 end;
