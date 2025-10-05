@@ -1,4 +1,4 @@
-# LinoriaLib - Guia Completo
+# LinoriaLib - Documentação Completa
 *Uma biblioteca de UI moderna, leve e otimizada para Roblox*
 
 ## 🚀 Características
@@ -65,139 +65,384 @@ local MainFeatures = Tabs.Main:AddLeftGroupbox('Funcionalidades Principais')
 local ExtraOptions = Tabs.Main:AddRightGroupbox('Opções Extras')
 ```
 
-### Toggles (Botões Liga/Desliga)
+---
+
+## 📋 Elementos de Interface
+
+### 🔘 Toggle (Botão Liga/Desliga)
 
 ```lua
 -- Toggle simples
-local MyToggle = MainFeatures:AddToggle('MyToggle', {
-    Text = 'Ativar Funcionalidade',
-    Tooltip = 'Liga/desliga a funcionalidade principal',
-    Default = false,
-    Callback = function(value)
-        print('Toggle ativado:', value)
+local MeuToggle = Groupbox:AddToggle("MostrarESP", {
+    Text = "Ativar ESP",                              -- Texto visível
+    Default = false,                                  -- Valor inicial
+    Tooltip = "Liga ou desliga o sistema de ESP",     -- Dica ao passar o mouse
+    Risky = false,                                    -- Mostra em vermelho se for perigoso
+    Disabled = false,                                 -- Impede interação se true
+    DisabledTooltip = false,                          -- Tooltip alternativa se desativado
+    Callback = function(Value)
+        print("Toggle:", Value)
     end
 })
 
--- Toggle com keybind
-MyToggle:AddKeyPicker('MyToggleKey', {
-    Mode = 'Toggle',           -- Modo: Toggle, Hold, Always
-    Default = 'E',            -- Tecla padrão
-    Text = 'Atalho Toggle',
-    SyncToggleState = true    -- Sincronizar com o estado do toggle
+-- Manipular toggle programaticamente
+MeuToggle:SetValue(true)
+MeuToggle:OnChanged(function(value)
+    print("Estado mudou:", value)
+end)
+```
+
+#### Toggle com KeyPicker e ColorPicker
+
+```lua
+local Toggle_Example = Groupbox:AddToggle("ExampleToggle", {
+    Text = "Ativar ESP",
+    Default = false,
+    Callback = function(Value)
+        print("ESP:", Value and "Ativado" ou "Desativado")
+    end
 })
 
--- Toggle com color picker
-MyToggle:AddColorPicker('MyColor', {
-    Title = 'Cor Principal',
-    Default = Color3.new(1, 0, 0), -- Vermelho
-    Transparency = 0,
-    Callback = function(color, transparency)
-        print('Cor selecionada:', color, 'Transparência:', transparency)
+-- Adicionar KeyPicker ao Toggle
+Toggle_Example:AddKeyPicker("ESPKeyPicker", {
+    Default = "E",              -- Tecla padrão
+    Mode = "Toggle",            -- Modos: "Always", "Hold" ou "Toggle"
+    Text = "ESP",               -- Nome visível no KeybindsFrame
+    SyncToggleState = true,     -- Sincroniza com o estado do toggle
+    Callback = function(Toggled)
+        print("ESP KeyPicker Toggle:", Toggled)
+    end
+})
+
+-- Adicionar ColorPicker ao Toggle
+Toggle_Example:AddColorPicker("ESPColor", {
+    Title = "Cor do ESP",
+    Default = Color3.fromRGB(255, 0, 0),
+    Transparency = 0.1,
+    Callback = function(Color, Alpha)
+        local r = math.floor(Color.R * 255)
+        local g = math.floor(Color.G * 255)
+        local b = math.floor(Color.B * 255)
+        print(string.format("Color: (%d, %d, %d)  Alpha: %.2f", r, g, b, Alpha))
     end
 })
 ```
 
-### Sliders (Barras Deslizantes)
+---
+
+### 🎚️ Slider (Barra Deslizante)
 
 ```lua
 -- Slider normal
-MainFeatures:AddSlider('Speed', {
-    Text = 'Velocidade',
-    Default = 16,
-    Min = 1,
-    Max = 100,
-    Rounding = 0,             -- Casas decimais
-    Tooltip = 'Ajusta a velocidade do personagem',
-    Callback = function(value)
-        print('Velocidade definida:', value)
+local BrilhoSlider = Groupbox:AddSlider("BrilhoTela", {
+    Text = "Brilho da Tela",                          -- Título
+    Default = 50,                                     -- Valor inicial
+    Min = 0,                                          -- Mínimo
+    Max = 100,                                        -- Máximo
+    Rounding = 0,                                     -- Casas decimais
+    Suffix = "%",                                     -- Sufixo exibido
+    Disabled = false,
+    Tooltip = "Ajusta o brilho da tela entre 0% e 100%.",
+    Callback = function(Value)
+        print("Brilho:", Value)
     end
 })
 
 -- Slider compacto
-MainFeatures:AddSlider('FOV', {
-    Text = 'Campo de Visão',
-    Default = 70,
-    Min = 60,
-    Max = 120,
-    Rounding = 0,
-    Compact = true,           -- Formato compacto
-    HideMax = true,          -- Esconder valor máximo
-    Callback = function(value)
-        workspace.CurrentCamera.FieldOfView = value
+local VolumeSlider = Groupbox:AddSlider("VolumeGeral", {
+    Text = "Volume",
+    Default = 0.5,
+    Min = 0,
+    Max = 1,
+    Rounding = 2,
+    Compact = true,                                   -- Layout compacto
+    Prefix = "::",                                    -- Texto antes do número
+    Suffix = "::",                                    -- Texto depois do número
+    Tooltip = "Ajusta o volume geral (0 a 1).",
+    Callback = function(Value)
+        print("Volume:", Value)
+    end
+})
+
+-- Controles do Slider
+VolumeSlider:SetDisabled(false)
+VolumeSlider:SetMin(0.1)
+VolumeSlider:SetMax(2.0)
+VolumeSlider:SetValue(1.2)
+```
+
+---
+
+### 📝 Dropdown (Menu Suspenso)
+
+#### Dropdown Simples
+
+```lua
+local MeuDropdown = Groupbox:AddDropdown("EscolherItem", {
+    Text = "Item de Teste",
+    Values = {"Espada", "Escudo", "Poção"},
+    Default = "Espada",
+    Tooltip = "Escolha um item da lista.",
+    Callback = function(Value)
+        print("Selecionado:", Value)
     end
 })
 ```
 
-### Dropdowns (Menus Suspensos)
+#### Dropdown com Múltipla Seleção
 
 ```lua
--- Dropdown simples
-ExtraOptions:AddDropdown('GameMode', {
-    Text = 'Modo de Jogo', --Opcional 
-    Values = {'Normal', 'Rápido', 'Especialista'},
-    Default = 1,              -- Índice da opção padrão
-    Tooltip = 'Selecione o modo de jogo',
-    Callback = function(value)
-        print('Modo selecionado:', value)
-    end
-})
-
--- Dropdown com busca
-ExtraOptions:AddDropdown('PlayerList', {
-    Text = 'Lista de Jogadores', -- Opcional 
-    Values = {'Jogador1', 'Jogador2', 'Jogador3'},
-    Default = 1,
-    Searchable = true,        -- Permitir busca
-    Callback = function(value)
-        print('Jogador selecionado:', value)
-    end
-})
-
--- Dropdown de múltipla seleção
-ExtraOptions:AddDropdown('Features', {
-    Text = 'Funcionalidades', -- Opcional 
-    Values = {'ESP', 'Aimbot', 'Speed', 'Jump'},
-    Default = 1,
-    Multi = true,             -- Seleção múltipla
-    Callback = function(value)
-        print('Funcionalidades selecionadas:')
-        for feature, enabled in pairs(value) do
-            print(feature, enabled)
+local MultiSelect = Groupbox:AddDropdown("MultiItem", {
+    Text = "Itens Ativos",
+    Values = {"ESP", "Aimbot", "TriggerBot"},
+    Multi = true,                                     -- Permite múltiplas seleções
+    Disabled = false,
+    DisabledTooltip = false,
+    Default = {"ESP"},
+    Tooltip = "Selecione múltiplos recursos.",
+    Callback = function(Values)
+        print("Selecionados:", Values)
+        for item, enabled in pairs(Values) do
+            print(item, enabled)
         end
     end
 })
-
--- Dropdown de jogadores (automático)
-ExtraOptions:AddDropdown('TargetPlayer', {
-    SpecialType = 'Player',   -- Tipo especial para jogadores
-    ExcludeLocalPlayer = true,-- Excluir jogador local
-    Text = 'Jogador Alvo',
-    Callback = function(value)
-        print('Alvo selecionado:', value)
-    end
-})
 ```
 
-### Inputs (Campos de Texto)
+#### Dropdown de Jogadores
 
 ```lua
-MainFeatures:AddInput('CustomText', {
-    Text = 'Texto Personalizado',
-    Default = 'Digite aqui...',
-    Placeholder = 'Insira seu texto',
-    ClearTextOnFocus = true,  -- Limpar ao focar
-    Tooltip = 'Digite um texto personalizado',
-    Callback = function(value)
-        print('Texto inserido:', value)
+local ProcurarJogador = Groupbox:AddDropdown("Jogadores", {
+    Text = "Selecionar Jogador",
+    SpecialType = "Player",                           -- Preenche com jogadores
+    ExcludeLocalPlayer = true,                        -- Ignora o próprio jogador
+    Searchable = true,                                -- Habilita busca
+    Tooltip = "Selecione um jogador da lista.",
+    Callback = function(Player)
+        print("Jogador selecionado:", Player)
     end
 })
 ```
 
-### Botões
+---
+
+### ⌨️ Input (Campo de Texto)
+
+#### Input Básico
+
+```lua
+local Input_Example = Groupbox:AddInput("UsernameInput", {
+    Text = "Nome do jogador",
+    Default = "Player123",
+    Placeholder = "Digite seu nick...",
+    Callback = function(value)
+        print("Nome atualizado para:", value)
+    end
+})
+```
+
+#### Input com Enter (Finished)
+
+```lua
+Groupbox:AddInput("CommandInput", {
+    Text = "Executar comando",
+    Placeholder = "Digite um comando...",
+    Finished = true,                                  -- Só chama callback ao apertar Enter
+    Callback = function(cmd)
+        print("Executando comando:", cmd)
+    end
+})
+```
+
+#### Input com Limite de Caracteres
+
+```lua
+Groupbox:AddInput("CodeInput", {
+    Text = "Código",
+    Placeholder = "ABC123",
+    MaxLength = 6,                                    -- Limite de caracteres
+    AllowEmpty = false,                               -- Não permite campo vazio
+    EmptyReset = "ABC123",                            -- Valor ao esvaziar
+    Callback = function(value)
+        print("Novo código:", value)
+    end
+})
+```
+
+#### Input Desabilitado (Somente Leitura)
+
+```lua
+Groupbox:AddInput("LockedInput", {
+    Text = "Somente leitura",
+    Default = "Bloqueado",
+    Disabled = true,
+    Tooltip = "Este campo não pode ser editado",
+})
+```
+
+#### Controles do Input
+
+```lua
+Input_Example:SetValue("Novo texto")
+Input_Example:SetDisabled(true)
+Input_Example:SetVisible(false)
+Input_Example:OnChanged(function(v)
+    print("Valor mudou:", v)
+end)
+```
+
+---
+
+### 🎨 ColorPicker (Seletor de Cores)
+
+```lua
+Groupbox:AddColorPicker("ColorPicker", {
+    Title = "Cor de Destaque",                        -- Nome exibido no menu
+    Default = Color3.fromRGB(255, 0, 0),              -- Cor padrão
+    Transparency = 0.1,                               -- Transparência inicial (opcional)
+    Callback = function(Color, Alpha)
+        -- Extrai os valores RGB da cor (0–255)
+        local r = math.floor(Color.R * 255)
+        local g = math.floor(Color.G * 255)
+        local b = math.floor(Color.B * 255)
+        print(string.format("Color: (%d, %d, %d)  Alpha: %.2f", r, g, b, Alpha))
+    end
+})
+```
+
+---
+
+### ⌨️ KeyPicker (Seletor de Teclas)
+
+```lua
+Groupbox:AddKeyPicker("ToggleESP", {
+    Default = "E",                                    -- Tecla inicial
+    Mode = "Toggle",                                  -- Pode ser "Toggle", "Hold" ou "Always"
+    Text = "Ativar ESP",                              -- Nome visível
+    Callback = function(isActive)
+        print("ESP Toggle:", isActive)
+    end
+})
+
+-- KeyPicker encadeado (múltiplas teclas)
+Groupbox:AddKeyPicker("ESPKey", {
+    Default = "E",
+    Mode = "Toggle",
+    Text = "ESP Principal",
+    SyncToggleState = true,
+    Callback = function(Toggled)
+        print("ESP KeyPicker Toggle:", Toggled)
+    end
+})
+:AddKeyPicker("NoclipKey", {
+    Default = "N",
+    Mode = "Toggle",
+    Text = "Noclip",
+    SyncToggleState = true,
+    Callback = function(Toggled)
+        print("Noclip KeyPicker Toggle:", Toggled)
+    end
+})
+```
+
+---
+
+### 🖼️ Image (Imagens)
+
+#### Imagem Roblox Asset
+
+```lua
+local Logo = Groupbox:AddImage("LogoPrincipal", {
+    Image = "rbxassetid://1234567890",                -- ID Roblox
+    Height = 150,                                     -- Altura
+    Color = Color3.fromRGB(255, 255, 255),            -- Cor
+    RectOffset = Vector2.new(0, 0),                   -- Offset do recorte
+    RectSize = Vector2.new(0, 0),                     -- Tamanho do recorte
+    ScaleType = Enum.ScaleType.Fit,                   -- Tipo de ajuste
+    Transparency = 0,                                 -- 0 = visível
+    Visible = true,                                   -- Visibilidade inicial
+    Tooltip = "Logo principal do sistema."
+})
+```
+
+#### Ícone Lucide
+
+```lua
+local Icone = Groupbox:AddImage("IconeAviso", {
+    Image = "alert-triangle",                         -- Nome do ícone Lucide
+    Color = Color3.fromRGB(255, 200, 0),
+    Height = 60,
+    ScaleType = Enum.ScaleType.Fit,
+    Transparency = 0,
+    Visible = true,
+    Tooltip = "Ícone de aviso amarelo."
+})
+```
+
+#### Imagem Externa (URL)
+
+```lua
+local Banner = Groupbox:AddImage("BannerPromo", {
+    Image = "https://i.imgur.com/Example.png",        -- URL da imagem
+    Height = 180,
+    Color = Color3.fromRGB(255, 255, 255),
+    ScaleType = Enum.ScaleType.Crop,
+    Transparency = 0.1,
+    Visible = true,
+    Tooltip = "Banner promocional de exemplo."
+})
+```
+
+---
+
+### 🔗 DependencyBox (Caixa de Dependências)
+
+```lua
+-- Toggle principal
+local ToggleESP = Groupbox:AddToggle("MostrarESP", {
+    Text = "Ativar ESP",
+    Default = false,
+    Tooltip = "Habilita o sistema ESP.",
+    Callback = function(Value)
+        print("ESP:", Value)
+    end
+})
+
+-- Cria o container dependente
+local ESPDepBox = Groupbox:AddDependencyBox()
+ESPDepBox:SetupDependencies({ { ToggleESP, true } })  -- Só aparece quando ToggleESP = true
+
+-- Adiciona elementos dentro do DepBox
+ESPDepBox:AddSlider("TransparenciaESP", {
+    Text = "Transparência do ESP",
+    Default = 0.5,
+    Min = 0,
+    Max = 1,
+    Rounding = 2,
+    Tooltip = "Ajusta a opacidade do ESP.",
+    Callback = function(Value)
+        print("Transparência:", Value)
+    end
+})
+
+ESPDepBox:AddDropdown("ModoESP", {
+    Text = "Modo de Destaque",
+    Values = { "Outline", "Fill", "Both" },
+    Default = "Outline",
+    Tooltip = "Define o estilo do ESP.",
+    Callback = function(Value)
+        print("Modo:", Value)
+    end
+})
+```
+
+---
+
+### 🔲 Botões
 
 ```lua
 -- Botão simples
-MainFeatures:AddButton({
+Groupbox:AddButton({
     Text = 'Executar Ação',
     Tooltip = 'Clique para executar',
     Func = function()
@@ -207,33 +452,39 @@ MainFeatures:AddButton({
 })
 
 -- Botão com duplo clique
-MainFeatures:AddButton({
+Groupbox:AddButton({
     Text = 'Ação Especial',
-    DoubleClick = true,       -- Requer duplo clique
+    DoubleClick = true,                               -- Requer duplo clique
     Func = function()
-        Library:Notify('Ação especial executada!', nil, 3)
+        Library:Notify('Ação especial executada!', 3)
     end
 })
 
 -- Botão desabilitado
-MainFeatures:AddButton({
+Groupbox:AddButton({
     Text = 'Indisponível',
-    Disabled = true,          -- Botão desabilitado
+    Disabled = true,                                  -- Botão desabilitado
     DisabledTooltip = 'Esta função não está disponível',
     Func = function() end
 })
 ```
 
-### Elementos Visuais
+---
+
+### 📝 Labels e Divisores
 
 ```lua
--- Labels (textos)
-MainFeatures:AddLabel('Status: Conectado')
-MainFeatures:AddLabel('Múltiplas linhas:\nTudo funcionando!', true)
+-- Label simples
+Groupbox:AddLabel('Status: Conectado')
+
+-- Label com múltiplas linhas
+Groupbox:AddLabel('Múltiplas linhas:\nTudo funcionando!', true)
 
 -- Divisor
-MainFeatures:AddDivider()
+Groupbox:AddDivider()
 ```
+
+---
 
 ## 🎨 Tabboxes (Abas Aninhadas)
 
@@ -246,27 +497,7 @@ Combat:AddToggle('Aimbot', {Text = 'Aimbot', Default = false})
 Movement:AddSlider('WalkSpeed', {Text = 'Velocidade', Min = 1, Max = 100, Default = 16})
 ```
 
-## 🔗 Sistema de Dependências
-
-```lua
--- Toggle principal
-local EnableAdvanced = MainFeatures:AddToggle('EnableAdvanced', {
-    Text = 'Habilitar Configurações Avançadas',
-    Default = false
-})
-
--- Caixa de dependência
-local AdvancedBox = MainFeatures:AddDependencyBox()
-AdvancedBox:AddSlider('AdvancedValue', {
-    Text = 'Valor Avançado',
-    Min = 0, Max = 100, Default = 50
-})
-
--- Configurar dependência (só aparece quando EnableAdvanced estiver ativo)
-AdvancedBox:SetupDependencies({
-    {Toggles.EnableAdvanced, true}
-})
-```
+---
 
 ## 💾 Sistema de Salvamento e Temas
 
@@ -277,7 +508,7 @@ SaveManager:SetLibrary(Library)
 
 -- Configurações de salvamento
 SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({'MenuKeybind'}) -- Ignorar certas configurações
+SaveManager:SetIgnoreIndexes({'MenuKeybind'})         -- Ignorar certas configurações
 
 -- Definir pastas
 ThemeManager:SetFolder('MeuScript')
@@ -290,6 +521,8 @@ ThemeManager:ApplyToTab(Tabs.Settings)
 -- Carregar configuração automática
 SaveManager:LoadAutoloadConfig()
 ```
+
+---
 
 ## 🎪 Recursos Especiais
 
@@ -310,28 +543,19 @@ end
 updateWatermark()
 ```
 
-### Keybinds Globais
-
-```lua
--- Keybind para o menu
-Options.MenuKeybind = Library.MenuKeybind or Library:AddKeyPicker('MenuKeybind', {
-    Default = 'RightShift',
-    Text = 'Toggle Menu'
-})
-```
-
 ### Notificações
 
 ```lua
 -- Notificação simples
 Library:Notify('Mensagem de sucesso!')
 
--- Notificação com ícone e duração
-Library:Notify('Erro detectado!', nil, 4590657391) -- Message, Time, SOUND_ID 
-Library:Notify('Erro detectado!', 10, 4590657391) 
+-- Notificação com duração e som
+Library:Notify('Erro detectado!', 10, 4590657391)     -- Message, Time, SOUND_ID
 ```
 
-## 🎯 Acessando Valores
+---
+
+## 🎯 Acessando e Manipulando Valores
 
 ```lua
 -- Acessar valores de toggles
@@ -346,6 +570,8 @@ Toggles.MyToggle:SetValue(true)
 Options.Speed:SetValue(50)
 Options.GameMode:SetValue('Rápido')
 ```
+
+---
 
 ## 📱 Controles de Menu
 
@@ -369,6 +595,8 @@ MenuControls:AddButton({
     end
 })
 ```
+
+---
 
 ## 🔧 Exemplo Completo
 
@@ -425,6 +653,8 @@ SaveManager:LoadAutoloadConfig()
 print('Script carregado com sucesso!')
 ```
 
+---
+
 ## 📚 Dicas e Boas Práticas
 
 1. **Organize suas funcionalidades em groupboxes** para melhor legibilidade
@@ -434,6 +664,10 @@ print('Script carregado com sucesso!')
 5. **Use keybinds** para funcionalidades importantes
 6. **Teste em dispositivos móveis** para garantir compatibilidade
 7. **Use notificações** para dar feedback ao usuário
+8. **Utilize DependencyBox** para organizar opções avançadas
+9. **Aproveite os ColorPickers e KeyPickers** para customização
+
+---
 
 ## ⚡ Performance
 
