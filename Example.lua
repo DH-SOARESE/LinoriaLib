@@ -1,470 +1,541 @@
 --[[
     ╔══════════════════════════════════════════════════════════════════════════╗
-    ║                            LinoriaLib v3.0.0                                          ║
-    ║                        Exemplo Completo e Intuitivo                                   ║
+    ║                         LinoriaLib v3.0.0 - Template                     ║
+    ║                      Exemplo Completo e Documentado                      ║
     ╠══════════════════════════════════════════════════════════════════════════╣
-    ║  • Interface moderna e responsiva                                                     ║
-    ║  • Compatível com PC, Mobile                                                          ║
-    ║  • Sistema de salvamento automático                                                   ║
-    ║  • Temas personalizáveis                                                              ║
-    ║  • Notificações elegantes                                                             ║
+    ║  Interface moderna e responsiva                                          ║
+    ║  Compatível com PC e Mobile                                              ║
+    ║  Sistema de salvamento automático                                        ║
+    ║  Temas personalizáveis                                                   ║
+    ║  Todos os componentes disponíveis                                        ║
     ╚══════════════════════════════════════════════════════════════════════════╝
 ]]
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 🔧 CONFIGURAÇÃO INICIAL DA LIBRARY
+-- CONFIGURAÇÃO INICIAL
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local repo = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 
--- Carregamento seguro da library
-local Library, ThemeManager, SaveManager
-local function loadLinoriaLib()
-    local success, result = pcall(function()
-        Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-        ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-        SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-    end)
-    
-    if not success then
-        error('❌ Falha ao carregar LinoriaLib: ' .. tostring(result))
-    end
-    
-    print('✅ LinoriaLib carregada com sucesso!')
-end
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
-loadLinoriaLib()
-
--- Atalhos para acesso rápido
+-- Atalhos para acesso rápido aos valores
 local Options = Library.Options
 local Toggles = Library.Toggles
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 🎨 CONFIGURAÇÕES GLOBAIS DA INTERFACE
+-- CONFIGURAÇÕES GLOBAIS
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-Library.ShowToggleFrameInKeybinds = true  -- Mostra keybinds dos toggles
-Library.ShowCustomCursor = true           -- Cursor customizado
-Library.NotifySide = 'Right'              -- Lado das notificações
+Library.ShowToggleFrameInKeybinds = true
+Library.ShowCustomCursor = true
+Library.NotifySide = 'Right'
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 🏠 CRIAÇÃO DA JANELA PRINCIPAL
+-- CRIAÇÃO DA JANELA PRINCIPAL
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local Window = Library:CreateWindow({
-    Title = '🚀 Meu Script Avançado v2.1',
+    Title = 'Meu Script v1.0',
     Center = true,
     AutoShow = true,
     Resizable = true,
     ShowCustomCursor = true,
-    NotifySide = 'Right',
-    TabPadding = 10,
-    MenuFadeTime = 0.3
+    TabPadding = 8,
+    MenuFadeTime = 0.2
 })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 📁 CRIAÇÃO DAS ABAS
+-- CRIAÇÃO DAS ABAS
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local Tabs = {
-    Combat = Window:AddTab('⚔️ Combat'),
-    Player = Window:AddTab('🏃 Player'),
-    Visuals = Window:AddTab('👁️ Visuals'), 
-    Misc = Window:AddTab('🔧 Misc'),
-    Settings = Window:AddTab('⚙️ Settings')
+    Main = Window:AddTab('Principal'),
+    Visuals = Window:AddTab('Visual'),
+    Settings = Window:AddTab('Configurações')
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- ⚔️ ABA COMBAT - RECURSOS DE COMBATE
+-- ABA PRINCIPAL - EXEMPLOS DE TODOS OS COMPONENTES
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- 🔫 Recursos de Aim
-local AimGroup = Tabs.Combat:AddLeftGroupbox('🎯 Aim Assistance')
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- TOGGLE (Botão Liga/Desliga)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-local AimbotToggle = AimGroup:AddToggle('Aimbot', {
-    Text = 'Aimbot Ativado',
-    Tooltip = 'Ativa o sistema de mira automática',
+local ToggleGroup = Tabs.Main:AddLeftGroupbox('Toggle Examples')
+
+-- Toggle simples
+local MyToggle = ToggleGroup:AddToggle('MyToggle', {
+    Text = 'Toggle Simples',
+    Default = false,
+    Tooltip = 'Um toggle básico',
+    Callback = function(value)
+        print('Toggle:', value)
+    end
+})
+
+-- Toggle com KeyPicker
+local KeyToggle = ToggleGroup:AddToggle('KeyToggle', {
+    Text = 'Toggle com Tecla',
     Default = false,
     Callback = function(value)
-        print('🎯 Aimbot:', value and 'ATIVADO' or 'DESATIVADO')
-        Library:Notify(
-            value and '✅ Aimbot Ativado!' or '❌ Aimbot Desativado!',
-            nil, 
-            value and 4590657391 or 4590657392
-        )
+        print('Toggle com tecla:', value)
     end
 })
 
--- Keybind para o aimbot
-AimbotToggle:AddKeyPicker('AimbotKey', {
-    Mode = 'Hold', -- Hold, Toggle, Always
-    Default = 'MouseButton2',
-    Text = 'Aimbot Hold',
-    SyncToggleState = false,
+KeyToggle:AddKeyPicker('KeyTogglePicker', {
+    Default = 'E',
+    Mode = 'Toggle',
+    Text = 'Atalho Toggle',
+    SyncToggleState = true,
     Callback = function(value)
-        print('🔑 Aimbot Key:', value and 'PRESSIONADO' or 'SOLTO')
+        print('Tecla pressionada:', value)
     end
 })
 
--- Color picker para FOV
-AimbotToggle:AddColorPicker('AimbotFOV', {
-    Title = 'Cor do FOV',
-    Default = Color3.new(1, 0, 0),
-    Transparency = 0.8,
+-- Toggle com ColorPicker
+local ColorToggle = ToggleGroup:AddToggle('ColorToggle', {
+    Text = 'Toggle com Cor',
+    Default = false,
+    Callback = function(value)
+        print('Toggle colorido:', value)
+    end
+})
+
+ColorToggle:AddColorPicker('ColorPicker', {
+    Title = 'Cor Personalizada',
+    Default = Color3.fromRGB(255, 0, 0),
+    Transparency = 0.5,
     Callback = function(color, transparency)
-        print('🎨 FOV Color:', color, 'Transparência:', transparency)
+        print('Cor:', color, 'Transparência:', transparency)
     end
 })
 
-AimGroup:AddSlider('AimFOV', {
-    Text = 'FOV do Aimbot',
-    Default = 120,
-    Min = 50,
-    Max = 360,
+-- Toggle de risco
+ToggleGroup:AddToggle('RiskyToggle', {
+    Text = 'Opção Perigosa',
+    Default = false,
+    Risky = true,
+    Tooltip = 'Use com cuidado!'
+})
+
+-- Toggle desabilitado
+ToggleGroup:AddToggle('DisabledToggle', {
+    Text = 'Toggle Desabilitado',
+    Default = false,
+    Disabled = true,
+    DisabledTooltip = 'Este toggle está desabilitado'
+})
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- SLIDER (Barra Deslizante)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+local SliderGroup = Tabs.Main:AddRightGroupbox('Slider Examples')
+
+-- Slider normal
+SliderGroup:AddSlider('NormalSlider', {
+    Text = 'Slider Normal',
+    Default = 50,
+    Min = 0,
+    Max = 100,
     Rounding = 0,
-    Compact = false,
-    Tooltip = 'Tamanho do campo de visão do aimbot',
+    Suffix = '%',
+    Tooltip = 'Slider de 0 a 100',
     Callback = function(value)
-        print('📐 Aimbot FOV:', value)
+        print('Slider normal:', value)
     end
 })
 
-AimGroup:AddSlider('AimSmooth', {
-    Text = 'Suavidade',
-    Default = 2.5,
-    Min = 0.1,
-    Max = 10,
-    Rounding = 1,
+-- Slider compacto
+SliderGroup:AddSlider('CompactSlider', {
+    Text = 'Slider Compacto',
+    Default = 0.5,
+    Min = 0,
+    Max = 1,
+    Rounding = 2,
     Compact = true,
-    Tooltip = 'Quão suave será a mira (menor = mais suave)',
+    Tooltip = 'Formato compacto',
     Callback = function(value)
-        print('🌊 Aim Smoothness:', value)
+        print('Slider compacto:', value)
     end
 })
 
--- Dropdown para partes do corpo
-AimGroup:AddDropdown('AimPart', {
-    Text = 'Parte do Corpo',
-    Values = {'Head', 'Torso', 'HumanoidRootPart', 'Random'},
-    Default = 1,
-    Tooltip = 'Selecione qual parte do corpo mirar',
+-- Slider com prefixo e sufixo
+SliderGroup:AddSlider('CustomSlider', {
+    Text = 'Slider Customizado',
+    Default = 100,
+    Min = 1,
+    Max = 500,
+    Rounding = 0,
+    Prefix = '$',
+    Suffix = ' coins',
+    Tooltip = 'Com prefixo e sufixo',
     Callback = function(value)
-        print('🎯 Aim Target:', value)
-        Library:Notify('🎯 Mirando em: ' .. value)
+        print('Valor customizado:', value)
     end
 })
 
--- 💥 Recursos de Armas
-local WeaponGroup = Tabs.Combat:AddRightGroupbox('🔫 Weapon Mods')
-
-WeaponGroup:AddToggle('NoRecoil', {
-    Text = 'Sem Recuo',
-    Default = false,
-    Tooltip = 'Remove o recuo das armas'
-})
-
-WeaponGroup:AddToggle('NoSpread', {
-    Text = 'Sem Dispersão',
-    Default = false,
-    Tooltip = 'Remove a dispersão dos tiros'
-})
-
-WeaponGroup:AddToggle('InfiniteAmmo', {
-    Text = 'Munição Infinita',
-    Default = false,
-    Tooltip = 'Nunca mais fique sem munição'
-})
-
-WeaponGroup:AddToggle('RapidFire', {
-    Text = 'Tiro Rápido',
-    Default = false,
-    Tooltip = 'Aumenta a velocidade de tiro'
-})
-
-WeaponGroup:AddSlider('FireRate', {
-    Text = 'Taxa de Tiro',
-    Default = 1,
-    Min = 0.1,
-    Max = 10,
-    Rounding = 1,
-    Tooltip = 'Multiplicador da velocidade de tiro'
-})
-
-WeaponGroup:AddDivider()
-WeaponGroup:AddLabel('⚠️ Use com moderação!')
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- 🏃 ABA PLAYER - MODIFICAÇÕES DO JOGADOR
--- ═══════════════════════════════════════════════════════════════════════════════
-
--- 🚶 Movimento
-local MovementGroup = Tabs.Player:AddLeftGroupbox('🚀 Movement')
-
-MovementGroup:AddSlider('WalkSpeed', {
-    Text = 'Velocidade de Caminhada',
-    Default = 16,
+-- Slider sem exibir máximo
+SliderGroup:AddSlider('HiddenMaxSlider', {
+    Text = 'Sem Mostrar Máximo',
+    Default = 25,
     Min = 1,
     Max = 100,
     Rounding = 0,
-    Tooltip = 'Ajusta a velocidade de movimento',
+    HideMax = true,
+    Tooltip = 'Não mostra o valor máximo',
     Callback = function(value)
-        local player = game.Players.LocalPlayer
-        if player.Character and player.Character:FindFirstChild('Humanoid') then
-            player.Character.Humanoid.WalkSpeed = value
-            print('🏃 Velocidade alterada para:', value)
+        print('Slider sem max:', value)
+    end
+})
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- DROPDOWN (Menu Suspenso)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+local DropdownGroup = Tabs.Main:AddLeftGroupbox('Dropdown Examples')
+
+-- Dropdown simples
+DropdownGroup:AddDropdown('SimpleDropdown', {
+    Text = 'Dropdown Simples',
+    Values = {'Opção 1', 'Opção 2', 'Opção 3'},
+    Default = 1,
+    Tooltip = 'Selecione uma opção',
+    Callback = function(value)
+        print('Opção selecionada:', value)
+    end
+})
+
+-- Dropdown com busca
+DropdownGroup:AddDropdown('SearchableDropdown', {
+    Text = 'Dropdown com Busca',
+    Values = {'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'},
+    Default = 1,
+    Searchable = true,
+    Tooltip = 'Digite para buscar',
+    Callback = function(value)
+        print('Busca selecionada:', value)
+    end
+})
+
+-- Dropdown múltipla seleção
+DropdownGroup:AddDropdown('MultiDropdown', {
+    Text = 'Seleção Múltipla',
+    Values = {'ESP', 'Aimbot', 'Speed', 'Fly'},
+    Default = {'ESP'},
+    Multi = true,
+    Tooltip = 'Selecione múltiplos itens',
+    Callback = function(values)
+        print('Itens selecionados:')
+        for item, enabled in pairs(values) do
+            print('  ', item, enabled)
         end
     end
 })
 
-MovementGroup:AddSlider('JumpPower', {
-    Text = 'Força do Pulo',
-    Default = 50,
-    Min = 1,
-    Max = 200,
-    Rounding = 0,
-    Tooltip = 'Ajusta a altura do pulo',
+-- Dropdown de jogadores
+DropdownGroup:AddDropdown('PlayerDropdown', {
+    Text = 'Selecionar Jogador',
+    SpecialType = 'Player',
+    ExcludeLocalPlayer = true,
+    Searchable = true,
+    Tooltip = 'Lista de jogadores no servidor',
+    Callback = function(player)
+        print('Jogador selecionado:', player)
+    end
+})
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- INPUT (Campo de Texto)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+local InputGroup = Tabs.Main:AddRightGroupbox('Input Examples')
+
+-- Input básico
+InputGroup:AddInput('BasicInput', {
+    Text = 'Input Básico',
+    Default = 'Texto padrão',
+    Placeholder = 'Digite aqui...',
+    Tooltip = 'Campo de texto simples',
     Callback = function(value)
-        local player = game.Players.LocalPlayer
-        if player.Character and player.Character:FindFirstChild('Humanoid') then
-            player.Character.Humanoid.JumpPower = value
-            print('🦘 Força do pulo alterada para:', value)
+        print('Input básico:', value)
+    end
+})
+
+-- Input com Enter (Finished)
+InputGroup:AddInput('FinishedInput', {
+    Text = 'Input com Enter',
+    Placeholder = 'Pressione Enter...',
+    Finished = true,
+    Tooltip = 'Callback apenas ao pressionar Enter',
+    Callback = function(value)
+        print('Enter pressionado:', value)
+        Library:Notify('Texto confirmado: ' .. value)
+    end
+})
+
+-- Input com limite de caracteres
+InputGroup:AddInput('LimitedInput', {
+    Text = 'Input Limitado',
+    Placeholder = 'Máx 10 caracteres',
+    MaxLength = 10,
+    AllowEmpty = false,
+    EmptyReset = 'Padrão',
+    Tooltip = 'Máximo de 10 caracteres',
+    Callback = function(value)
+        print('Input limitado:', value)
+    end
+})
+
+-- Input numérico
+InputGroup:AddInput('NumericInput', {
+    Text = 'Input Numérico',
+    Default = '100',
+    Placeholder = 'Apenas números',
+    Numeric = true,
+    Tooltip = 'Aceita apenas números',
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            print('Número inserido:', num)
         end
     end
 })
 
-local FlyToggle = MovementGroup:AddToggle('Fly', {
-    Text = 'Voar',
-    Default = false,
-    Tooltip = 'Permite voar pelo mapa',
-    Callback = function(value)
-        if value then
-            print('✈️ Modo voo ativado!')
-            -- Aqui você implementaria a lógica do fly
-        else
-            print('🚶 Modo voo desativado!')
-        end
-    end
+-- Input desabilitado
+InputGroup:AddInput('DisabledInput', {
+    Text = 'Input Desabilitado',
+    Default = 'Somente leitura',
+    Disabled = true,
+    Tooltip = 'Este campo não pode ser editado'
 })
 
-FlyToggle:AddKeyPicker('FlyKey', {
-    Mode = 'Toggle',
-    Default = 'F',
-    Text = 'Toggle Fly',
-    SyncToggleState = true
-})
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- BUTTON (Botões)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-MovementGroup:AddToggle('Noclip', {
-    Text = 'Atravessar Paredes',
-    Default = false,
-    Tooltip = 'Permite atravessar objetos sólidos'
-})
+local ButtonGroup = Tabs.Main:AddLeftGroupbox('Button Examples')
 
--- 💪 Habilidades
-local AbilityGroup = Tabs.Player:AddRightGroupbox('💪 Abilities')
-
-AbilityGroup:AddToggle('InfiniteHealth', {
-    Text = 'Vida Infinita',
-    Default = false,
-    Tooltip = 'Mantém a vida sempre no máximo'
-})
-
-AbilityGroup:AddToggle('InfiniteStamina', {
-    Text = 'Stamina Infinita',
-    Default = false,
-    Tooltip = 'Nunca mais se canse'
-})
-
-AbilityGroup:AddButton({
-    Text = 'Regenerar Vida',
-    Tooltip = 'Restaura a vida instantaneamente',
+-- Botão simples
+ButtonGroup:AddButton({
+    Text = 'Botão Simples',
+    Tooltip = 'Clique para executar',
     Func = function()
-        local player = game.Players.LocalPlayer
-        if player.Character and player.Character:FindFirstChild('Humanoid') then
-            player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
-            Library:Notify('❤️ Vida restaurada!', nil, 4590657391)
-        end
+        print('Botão pressionado!')
+        Library:Notify('Botão clicado!')
     end
 })
 
-AbilityGroup:AddButton({
-    Text = 'Respawn',
-    Tooltip = 'Renascer instantaneamente',
+-- Botão com duplo clique
+ButtonGroup:AddButton({
+    Text = 'Duplo Clique',
     DoubleClick = true,
+    Tooltip = 'Requer duplo clique para segurança',
     Func = function()
-        local player = game.Players.LocalPlayer
-        player:LoadCharacter()
-        Library:Notify('🔄 Respawn realizado!', nil, 4590657391)
+        print('Duplo clique confirmado!')
+        Library:Notify('Ação confirmada com duplo clique!')
     end
 })
 
+-- Botão desabilitado
+ButtonGroup:AddButton({
+    Text = 'Botão Desabilitado',
+    Disabled = true,
+    DisabledTooltip = 'Este botão está desabilitado',
+    Func = function()
+        print('Este botão não deveria funcionar')
+    end
+})
+
+-- Botão de ação importante
+ButtonGroup:AddButton({
+    Text = 'Ação Importante',
+    Tooltip = 'Executa uma ação crítica',
+    Func = function()
+        Library:Notify('Executando ação importante...', 3)
+    end
+})
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- KEYPICKER (Seletor de Teclas)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+local KeyGroup = Tabs.Main:AddRightGroupbox('KeyPicker Examples')
+
+-- KeyPicker Toggle
+KeyGroup:AddLabel('KeyPicker Toggle'):AddKeyPicker('ToggleKey', {
+    Default = 'F',
+    Mode = 'Toggle',
+    Text = 'Toggle Mode',
+    Callback = function(value)
+        print('Toggle Key:', value)
+    end
+})
+
+-- KeyPicker Hold
+KeyGroup:AddLabel('KeyPicker Hold'):AddKeyPicker('HoldKey', {
+    Default = 'LeftShift',
+    Mode = 'Hold',
+    Text = 'Hold Mode',
+    Callback = function(value)
+        print('Hold Key:', value)
+    end
+})
+
+-- KeyPicker Always
+KeyGroup:AddLabel('KeyPicker Always'):AddKeyPicker('AlwaysKey', {
+    Default = 'C',
+    Mode = 'Always',
+    Text = 'Always Mode',
+    Callback = function(value)
+        print('Always Key:', value)
+    end
+})
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- IMAGE (Imagens)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+local ImageGroup = Tabs.Main:AddLeftGroupbox('Image Examples')
+
+-- Imagem Roblox Asset
+ImageGroup:AddImage('RobloxImage', {
+    Image = 'rbxassetid://1234567890',
+    Height = 100,
+    Color = Color3.fromRGB(255, 255, 255),
+    ScaleType = Enum.ScaleType.Fit,
+    Transparency = 0,
+    Visible = true,
+    Tooltip = 'Imagem do Roblox'
+})
+
+-- Ícone Lucide
+ImageGroup:AddImage('LucideIcon', {
+    Image = 'star',
+    Height = 60,
+    Color = Color3.fromRGB(255, 215, 0),
+    ScaleType = Enum.ScaleType.Fit,
+    Transparency = 0,
+    Visible = true,
+    Tooltip = 'Ícone Lucide'
+})
+
+-- Imagem URL (exemplo)
+ImageGroup:AddImage('URLImage', {
+    Image = 'https://i.imgur.com/example.png',
+    Height = 120,
+    Color = Color3.fromRGB(255, 255, 255),
+    ScaleType = Enum.ScaleType.Crop,
+    Transparency = 0,
+    Visible = true,
+    Tooltip = 'Imagem externa'
+})
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- LABELS E DIVISORES
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+local LabelGroup = Tabs.Main:AddRightGroupbox('Label & Divider Examples')
+
+LabelGroup:AddLabel('Label Simples')
+LabelGroup:AddLabel('Label com múltiplas linhas:\nLinha 2\nLinha 3', true)
+LabelGroup:AddDivider()
+LabelGroup:AddLabel('Após o divisor')
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- DEPENDENCY BOX (Caixa de Dependências)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+local DependencyGroup = Tabs.Main:AddLeftGroupbox('Dependency Box Example')
+
+local MasterToggle = DependencyGroup:AddToggle('MasterToggle', {
+    Text = 'Ativar Opções Avançadas',
+    Default = false,
+    Tooltip = 'Habilita configurações adicionais'
+})
+
+local DepBox = DependencyGroup:AddDependencyBox()
+DepBox:SetupDependencies({{Toggles.MasterToggle, true}})
+
+DepBox:AddSlider('DepSlider', {
+    Text = 'Opção Dependente',
+    Default = 50,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Tooltip = 'Só aparece quando MasterToggle está ativo'
+})
+
+DepBox:AddDropdown('DepDropdown', {
+    Text = 'Dropdown Dependente',
+    Values = {'A', 'B', 'C'},
+    Default = 1,
+    Tooltip = 'Opção dependente do toggle'
+})
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- TABBOX (Abas Aninhadas)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+local SubTabbox = Tabs.Main:AddRightTabbox()
+local SubTab1 = SubTabbox:AddTab('Sub-Aba 1')
+local SubTab2 = SubTabbox:AddTab('Sub-Aba 2')
+
+SubTab1:AddToggle('SubToggle1', {
+    Text = 'Toggle na Sub-Aba 1',
+    Default = false
+})
+
+SubTab2:AddSlider('SubSlider2', {
+    Text = 'Slider na Sub-Aba 2',
+    Default = 50,
+    Min = 0,
+    Max = 100,
+    Rounding = 0
+})
+
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 👁️ ABA VISUALS - RECURSOS VISUAIS
+-- ABA VISUAL - EXEMPLOS PRÁTICOS
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- 📦 ESP (Extra Sensory Perception)
-local ESPGroup = Tabs.Visuals:AddLeftGroupbox('👁️ ESP & Wallhacks')
+local ESPGroup = Tabs.Visuals:AddLeftGroupbox('ESP Settings')
 
 local PlayerESP = ESPGroup:AddToggle('PlayerESP', {
     Text = 'ESP de Jogadores',
     Default = false,
-    Tooltip = 'Vê jogadores através das paredes'
+    Tooltip = 'Mostra jogadores através das paredes'
 })
 
 PlayerESP:AddColorPicker('ESPColor', {
     Title = 'Cor do ESP',
-    Default = Color3.new(0, 1, 0),
+    Default = Color3.fromRGB(0, 255, 0),
     Transparency = 0.5
 })
 
-ESPGroup:AddToggle('ItemESP', {
-    Text = 'ESP de Itens',
-    Default = false,
-    Tooltip = 'Mostra itens importantes no mapa'
-})
-
-ESPGroup:AddToggle('ChestESP', {
-    Text = 'ESP de Baús',
-    Default = false,
-    Tooltip = 'Localiza baús no mapa'
+ESPGroup:AddSlider('ESPDistance', {
+    Text = 'Distância Máxima',
+    Default = 500,
+    Min = 100,
+    Max = 2000,
+    Rounding = 0,
+    Suffix = ' studs'
 })
 
 ESPGroup:AddDropdown('ESPStyle', {
     Text = 'Estilo do ESP',
     Values = {'Box', 'Highlight', 'Outline', 'Glow'},
-    Default = 1,
-    Tooltip = 'Escolha o estilo visual do ESP'
-})
-
--- 🎨 Interface
-local UIGroup = Tabs.Visuals:AddRightGroupbox('🎨 Interface')
-
-UIGroup:AddToggle('RemoveFog', {
-    Text = 'Remover Névoa',
-    Default = false,
-    Tooltip = 'Remove a névoa do jogo para melhor visibilidade'
-})
-
-UIGroup:AddToggle('Fullbright', {
-    Text = 'Brilho Total',
-    Default = false,
-    Tooltip = 'Ilumina todo o ambiente'
-})
-
-UIGroup:AddSlider('FOVChanger', {
-    Text = 'Campo de Visão',
-    Default = 70,
-    Min = 30,
-    Max = 120,
-    Rounding = 0,
-    Tooltip = 'Ajusta o campo de visão da câmera'
-})
-
--- Sistema de Crosshair personalizado
-local CrosshairGroup = Tabs.Visuals:AddRightTabbox()
-local CrosshairTab = CrosshairGroup:AddTab('🎯 Crosshair')
-
-CrosshairTab:AddToggle('ShowCrosshair', {
-    Text = 'Mostrar Crosshair',
-    Default = false,
-    Tooltip = 'Exibe uma mira personalizada na tela'
-})
-
-CrosshairTab:AddSlider('CrosshairSize', {
-    Text = 'Tamanho',
-    Default = 10,
-    Min = 5,
-    Max = 50,
-    Rounding = 0
-})
-
-CrosshairTab:AddToggle('CrosshairDot', {
-    Text = 'Ponto Central',
-    Default = true,
-    Tooltip = 'Adiciona um ponto no centro da mira'
+    Default = 1
 })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 🔧 ABA MISC - RECURSOS DIVERSOS
+-- ABA SETTINGS - CONFIGURAÇÕES E SALVAMENTO
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- 🎮 Auto-Farm
-local AutoFarmGroup = Tabs.Misc:AddLeftGroupbox('🤖 Auto Farm')
-
-AutoFarmGroup:AddToggle('AutoFarm', {
-    Text = 'Auto Farm Ativo',
-    Default = false,
-    Tooltip = 'Automatiza ações repetitivas'
-})
-
-AutoFarmGroup:AddDropdown('FarmTarget', {
-    Text = 'Alvo do Farm',
-    Values = {'Coins', 'XP', 'Items', 'Kills'},
-    Default = 1,
-    Tooltip = 'O que você quer farmar automaticamente'
-})
-
-AutoFarmGroup:AddSlider('FarmDelay', {
-    Text = 'Delay (segundos)',
-    Default = 1,
-    Min = 0.1,
-    Max = 5,
-    Rounding = 1,
-    Tooltip = 'Tempo entre cada ação do farm'
-})
-
--- 🌐 Servidor
-local ServerGroup = Tabs.Misc:AddRightGroupbox('🌐 Server Tools')
-
-ServerGroup:AddButton({
-    Text = 'Copiar Job ID',
-    Tooltip = 'Copia o ID do servidor atual',
-    Func = function()
-        setclipboard(game.JobId)
-        Library:Notify('📋 Job ID copiado!', nil, 4590657391)
-    end
-})
-
-ServerGroup:AddButton({
-    Text = 'Server Hop',
-    Tooltip = 'Muda para outro servidor',
-    Func = function()
-        Library:Notify('🔄 Procurando novo servidor...', nil, 4590657391)
-        -- Aqui você implementaria a lógica do server hop
-    end
-})
-
-ServerGroup:AddButton({
-    Text = 'Rejoin Server',
-    Tooltip = 'Reconecta ao servidor atual',
-    DoubleClick = true,
-    Func = function()
-        game:GetService('TeleportService'):Teleport(game.PlaceId)
-    end
-})
-
--- 📊 Informações
-local InfoGroup = Tabs.Misc:AddLeftGroupbox('📊 Informações')
-
-InfoGroup:AddLabel('👤 Jogador: ' .. game.Players.LocalPlayer.Name)
-InfoGroup:AddLabel('🆔 User ID: ' .. game.Players.LocalPlayer.UserId)
-InfoGroup:AddLabel('🎮 Jogo: ' .. game:GetService('MarketplaceService'):GetProductInfo(game.PlaceId).Name, true)
-
--- Atualizar ping em tempo real
-local PingLabel = InfoGroup:AddLabel('📶 Ping: Calculando...')
-spawn(function()
-    while true do
-        wait(1)
-        local ping = game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue()
-        PingLabel:SetText('📶 Ping: ' .. math.floor(ping) .. 'ms')
-    end
-end)
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- ⚙️ ABA SETTINGS - CONFIGURAÇÕES
--- ═══════════════════════════════════════════════════════════════════════════════
-
--- 🎛️ Controles do Menu
-local MenuGroup = Tabs.Settings:AddLeftGroupbox('🎛️ Menu Controls')
+local MenuGroup = Tabs.Settings:AddLeftGroupbox('Menu Controls')
 
 MenuGroup:AddToggle('ShowKeybinds', {
     Text = 'Mostrar Keybinds',
@@ -482,106 +553,43 @@ MenuGroup:AddToggle('ShowWatermark', {
     end
 })
 
-MenuGroup:AddToggle('CustomCursor', {
-    Text = 'Cursor Customizado',
-    Default = true,
-    Callback = function(value)
-        Library.ShowCustomCursor = value
-    end
-})
-
-MenuGroup:AddDropdown('NotificationSide', {
-    Text = 'Lado das Notificações',
-    Values = {'Left', 'Right'},
-    Default = 2,
-    Callback = function(value)
-        Library.NotifySide = value
-    end
-})
-
--- Keybind principal do menu
-MenuGroup:AddLabel('🔑 Menu Toggle'):AddKeyPicker('MenuKeybind', {
+MenuGroup:AddLabel('Menu Keybind'):AddKeyPicker('MenuKeybind', {
     Default = 'RightShift',
     NoUI = true,
     Text = 'Toggle Menu'
 })
 
--- Botões de controle
 MenuGroup:AddDivider()
+
 MenuGroup:AddButton({
-    Text = '🧪 Testar Notificação',
+    Text = 'Testar Notificação',
     Func = function()
-        Library:Notify('🎉 Esta é uma notificação de teste!', nil, 4590657391)
+        Library:Notify('Esta é uma notificação de teste!')
     end
 })
 
 MenuGroup:AddButton({
-    Text = '🔄 Recarregar Menu',
-    Func = function()
-        Library:Notify('🔄 Recarregando interface...', nil, 4590657391)
-        wait(1)
-        -- Aqui você poderia recarregar o script
-    end
-})
-
-MenuGroup:AddButton({
-    Text = '❌ Descarregar Menu',
+    Text = 'Descarregar Menu',
     Func = function()
         Library:Unload()
     end
 })
 
--- Sistema de dependências avançado
-local AdvancedGroup = Tabs.Settings:AddRightGroupbox('⚙️ Advanced Settings')
-
-local EnableAdvanced = AdvancedGroup:AddToggle('EnableAdvanced', {
-    Text = 'Ativar Configurações Avançadas',
-    Default = false,
-    Tooltip = 'Desbloqueia opções experimentais'
-})
-
-local DependencyBox = AdvancedGroup:AddDependencyBox()
-
-DependencyBox:AddToggle('ExperimentalFeatures', {
-    Text = 'Recursos Experimentais',
-    Default = false,
-    Tooltip = 'ATENÇÃO: Pode causar instabilidade'
-})
-
-DependencyBox:AddSlider('PerformanceMode', {
-    Text = 'Modo Performance',
-    Default = 1,
-    Min = 1,
-    Max = 3,
-    Rounding = 0,
-    Tooltip = '1=Balanced, 2=Performance, 3=Quality'
-})
-
-DependencyBox:AddInput('CustomScript', {
-    Text = 'Script Personalizado',
-    Placeholder = 'print("Hello World")',
-    Tooltip = 'Execute código Lua personalizado'
-})
-
--- Configurar dependência
-DependencyBox:SetupDependencies({{Toggles.EnableAdvanced, true}})
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 💧 SISTEMA DE WATERMARK DINÂMICO
+-- WATERMARK DINÂMICO
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 Library:SetWatermarkVisibility(true)
 
 local function updateWatermark()
     local RunService = game:GetService('RunService')
-    local Players = game:GetService('Players')
     local Stats = game:GetService('Stats')
     
     local frameStart = tick()
     local frameCount = 0
     local FPS = 60
     
-    local connection = RunService.Heartbeat:Connect(function()
+    RunService.Heartbeat:Connect(function()
         frameCount = frameCount + 1
         
         if tick() - frameStart >= 1 then
@@ -591,97 +599,62 @@ local function updateWatermark()
         end
         
         local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
-        local playerCount = #Players:GetPlayers()
         
         Library:SetWatermark(string.format(
-            '🚀 Meu Script v2.1 | 👥 %d Players | 📶 %dms | 🎯 %d FPS',
-            playerCount,
-            math.floor(ping),
-            math.floor(FPS)
+            'Meu Script v1.0 | %d FPS | %dms',
+            math.floor(FPS),
+            math.floor(ping)
         ))
-    end)
-    
-    Library:OnUnload(function()
-        connection:Disconnect()
-        print('👋 Menu descarregado com sucesso!')
     end)
 end
 
 updateWatermark()
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 💾 SISTEMA DE SALVAMENTO E TEMAS
+-- SISTEMA DE SALVAMENTO
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- Configurar gerenciadores
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 
--- Ignorar configurações de tema no save
 SaveManager:IgnoreThemeSettings()
-
--- Ignorar keybind do menu
 SaveManager:SetIgnoreIndexes({'MenuKeybind'})
 
--- Definir pastas
 ThemeManager:SetFolder('MeuScript')
 SaveManager:SetFolder('MeuScript/configs')
 
--- Adicionar seções de configuração
 SaveManager:BuildConfigSection(Tabs.Settings)
 ThemeManager:ApplyToTab(Tabs.Settings)
 
--- Carregar configuração automaticamente
 SaveManager:LoadAutoloadConfig()
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 🎯 EXEMPLOS DE USO AVANÇADO
+-- EXEMPLOS DE USO AVANÇADO
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Monitorar mudanças em tempo real
-Toggles.Aimbot:OnChanged(function()
-    local state = Toggles.Aimbot.Value
-    print('🎯 Aimbot state changed:', state)
-    
-    if state then
-        Library:Notify('🎯 Aimbot Ativado!', nil, 4590657391)
-    else
-        Library:Notify('🎯 Aimbot Desativado!', nil, 4590657392)
+Toggles.PlayerESP:OnChanged(function()
+    print('PlayerESP mudou para:', Toggles.PlayerESP.Value)
+end)
+
+-- Acessar valores
+task.spawn(function()
+    while true do
+        wait(1)
+        -- Exemplo de como acessar valores dos componentes
+        if Toggles.PlayerESP and Toggles.PlayerESP.Value then
+            local distance = Options.ESPDistance.Value
+            print('ESP ativo com distância:', distance)
+        end
     end
 end)
 
--- Exemplo de como usar valores
-Options.WalkSpeed:OnChanged(function()
-    local speed = Options.WalkSpeed.Value
-    local player = game.Players.LocalPlayer
-    
-    if player.Character and player.Character:FindFirstChild('Humanoid') then
-        player.Character.Humanoid.WalkSpeed = speed
-    end
-end)
-
--- Sistema de notificações personalizadas
-local function showCustomNotification(title, message, icon)
-    Library:Notify(title .. ': ' .. message, nil, icon or 4590657391)
-end
-
--- Exemplo de uso das funções
-showCustomNotification('Sistema', 'Script carregado com sucesso!', 4590657391)
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 🚀 FINALIZAÇÃO
+-- FINALIZAÇÃO
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-print('═══════════════════════════════════════════')
-print('🎉 MENU CARREGADO COM SUCESSO!')
-print('📝 Versão: 2.1')
-print('👤 Usuário:', game.Players.LocalPlayer.Name)
-print('🎮 Jogo:', game:GetService('MarketplaceService'):GetProductInfo(game.PlaceId).Name)
-print('⚡ Status: Pronto para uso!')
-print('═══════════════════════════════════════════')
+print('Menu carregado com sucesso!')
+print('Usuário:', game.Players.LocalPlayer.Name)
+print('Pressione', Options.MenuKeybind.Value, 'para abrir/fechar o menu')
 
--- Notificação de boas-vindas
-wait(0.5)
-Library:Notify('🎉 Bem-vindo, ' .. game.Players.LocalPlayer.Name .. '!', nil, 4590657391)
-wait(2)
-Library:Notify('💡 Pressione RightShift para abrir/fechar o menu', nil, 4590657391)
+Library:Notify('Menu carregado com sucesso!')
