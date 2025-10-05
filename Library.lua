@@ -6552,7 +6552,8 @@ end
 
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
-ToggleUIButton.MouseButton1Up:Connect(function()
+
+ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
     Library:Toggle()           -- Mostra/oculta a UI
 end)
@@ -6620,9 +6621,9 @@ end)
             Parent = LockUIInnerFrame;
         });
     
-        Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
-
-LockUIButton.MouseButton1Up:Connect(function()
+        Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
+        
+LockUIButton.MouseButton1Down:Connect(function()
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
 end)
