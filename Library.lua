@@ -412,7 +412,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 			end;
 		end);
 		InputService.TouchMoved:Connect(function(Input)
-			if (IsMainWindow  and Library.CantDragForced) or uiVisible then
+			if (IsMainWindow  and Library.CantDragForced) or not uiVisible then
 				Dragging = false;
 				return;
 			end
