@@ -1,18 +1,18 @@
 --[[
     ╔══════════════════════════════════════════════════════════════════════════╗
     ║                         LinoriaLib v3.0.0 - Template                     ║
-    ║                      Exemplo Completo e Documentado                      ║
+    ║                      Complete and Documented Example                     ║
     ╠══════════════════════════════════════════════════════════════════════════╣
-    ║  Interface moderna e responsiva                                          ║
-    ║  Compatível com PC e Mobile                                              ║
-    ║  Sistema de salvamento automático                                        ║
-    ║  Temas personalizáveis                                                   ║
-    ║  Todos os componentes disponíveis                                        ║
+    ║  Modern and responsive interface                                        ║
+    ║  Compatible with PC and Mobile                                           ║
+    ║  Automatic saving system                                                 ║
+    ║  Customizable themes                                                     ║
+    ║  All components available                                                ║
     ╚══════════════════════════════════════════════════════════════════════════╝
 ]]
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- CONFIGURAÇÃO INICIAL
+-- INITIAL CONFIGURATION
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local repo = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
@@ -21,12 +21,12 @@ local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
--- Atalhos para acesso rápido aos valores
+-- Shortcuts for quick access to values
 local Options = Library.Options
 local Toggles = Library.Toggles
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- CONFIGURAÇÕES GLOBAIS
+-- GLOBAL SETTINGS
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 Library.ShowToggleFrameInKeybinds = true
@@ -34,11 +34,11 @@ Library.ShowCustomCursor = true
 Library.NotifySide = 'Right'
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- CRIAÇÃO DA JANELA PRINCIPAL
+-- CREATION OF THE MAIN WINDOW
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local Window = Library:CreateWindow({
-    Title = 'Meu Script v1.0',
+    Title = 'My Script v1.0',
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -48,320 +48,320 @@ local Window = Library:CreateWindow({
 })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- CRIAÇÃO DAS ABAS
+-- CREATION OF TABS
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local Tabs = {
-    Main = Window:AddTab('Principal'),
-    Visuals = Window:AddTab('Visual'),
-    Settings = Window:AddTab('Configurações')
+    Main = Window:AddTab('Main'),
+    Visuals = Window:AddTab('Visuals'),
+    Settings = Window:AddTab('Settings')
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- ABA PRINCIPAL - EXEMPLOS DE TODOS OS COMPONENTES
+-- MAIN TAB - EXAMPLES OF ALL COMPONENTS
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- TOGGLE (Botão Liga/Desliga)
+-- TOGGLE (On/Off Button)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local ToggleGroup = Tabs.Main:AddLeftGroupbox('Toggle Examples')
 
--- Toggle simples
+-- Simple toggle
 local MyToggle = ToggleGroup:AddToggle('MyToggle', {
-    Text = 'Toggle Simples',
+    Text = 'Simple Toggle',
     Default = false,
-    Tooltip = 'Um toggle básico',
+    Tooltip = 'A basic toggle',
     Callback = function(value)
         print('Toggle:', value)
     end
 })
 
--- Toggle com KeyPicker
+-- Toggle with KeyPicker
 local KeyToggle = ToggleGroup:AddToggle('KeyToggle', {
-    Text = 'Toggle com Tecla',
+    Text = 'Toggle with Key',
     Default = false,
     Callback = function(value)
-        print('Toggle com tecla:', value)
+        print('Toggle with key:', value)
     end
 })
 
 KeyToggle:AddKeyPicker('KeyTogglePicker', {
     Default = 'E',
     Mode = 'Toggle',
-    Text = 'Atalho Toggle',
+    Text = 'Toggle Shortcut',
     SyncToggleState = true,
     Callback = function(value)
-        print('Tecla pressionada:', value)
+        print('Key pressed:', value)
     end
 })
 
--- Toggle com ColorPicker
+-- Toggle with ColorPicker
 local ColorToggle = ToggleGroup:AddToggle('ColorToggle', {
-    Text = 'Toggle com Cor',
+    Text = 'Toggle with Color',
     Default = false,
     Callback = function(value)
-        print('Toggle colorido:', value)
+        print('Colored toggle:', value)
     end
 })
 
 ColorToggle:AddColorPicker('ColorPicker', {
-    Title = 'Cor Personalizada',
+    Title = 'Custom Color',
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.5,
     Callback = function(color, transparency)
-        print('Cor:', color, 'Transparência:', transparency)
+        print('Color:', color, 'Transparency:', transparency)
     end
 })
 
--- Toggle de risco
+-- Risky toggle
 ToggleGroup:AddToggle('RiskyToggle', {
-    Text = 'Opção Perigosa',
+    Text = 'Dangerous Option',
     Default = false,
     Risky = true,
-    Tooltip = 'Use com cuidado!'
+    Tooltip = 'Use with caution!'
 })
 
--- Toggle desabilitado
+-- Disabled toggle
 ToggleGroup:AddToggle('DisabledToggle', {
-    Text = 'Toggle Desabilitado',
+    Text = 'Disabled Toggle',
     Default = false,
     Disabled = true,
-    DisabledTooltip = 'Este toggle está desabilitado'
+    DisabledTooltip = 'This toggle is disabled'
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- SLIDER (Barra Deslizante)
+-- SLIDER (Slider Bar)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local SliderGroup = Tabs.Main:AddRightGroupbox('Slider Examples')
 
--- Slider normal
+-- Normal slider
 SliderGroup:AddSlider('NormalSlider', {
-    Text = 'Slider Normal',
+    Text = 'Normal Slider',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
     Suffix = '%',
-    Tooltip = 'Slider de 0 a 100',
+    Tooltip = 'Slider from 0 to 100',
     Callback = function(value)
-        print('Slider normal:', value)
+        print('Normal slider:', value)
     end
 })
 
--- Slider compacto
+-- Compact slider
 SliderGroup:AddSlider('CompactSlider', {
-    Text = 'Slider Compacto',
+    Text = 'Compact Slider',
     Default = 0.5,
     Min = 0,
     Max = 1,
     Rounding = 2,
     Compact = true,
-    Tooltip = 'Formato compacto',
+    Tooltip = 'Compact format',
     Callback = function(value)
-        print('Slider compacto:', value)
+        print('Compact slider:', value)
     end
 })
 
--- Slider com prefixo e sufixo
+-- Slider with prefix and suffix
 SliderGroup:AddSlider('CustomSlider', {
-    Text = 'Slider Customizado',
+    Text = 'Custom Slider',
     Default = 100,
     Min = 1,
     Max = 500,
     Rounding = 0,
     Prefix = '$',
     Suffix = ' coins',
-    Tooltip = 'Com prefixo e sufixo',
+    Tooltip = 'With prefix and suffix',
     Callback = function(value)
-        print('Valor customizado:', value)
+        print('Custom value:', value)
     end
 })
 
--- Slider sem exibir máximo
+-- Slider without showing maximum
 SliderGroup:AddSlider('HiddenMaxSlider', {
-    Text = 'Sem Mostrar Máximo',
+    Text = 'Without Showing Maximum',
     Default = 25,
     Min = 1,
     Max = 100,
     Rounding = 0,
     HideMax = true,
-    Tooltip = 'Não mostra o valor máximo',
+    Tooltip = 'Does not show the maximum value',
     Callback = function(value)
-        print('Slider sem max:', value)
+        print('Slider without max:', value)
     end
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- DROPDOWN (Menu Suspenso)
+-- DROPDOWN (Dropdown Menu)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local DropdownGroup = Tabs.Main:AddLeftGroupbox('Dropdown Examples')
 
--- Dropdown simples
+-- Simple dropdown
 DropdownGroup:AddDropdown('SimpleDropdown', {
-    Text = 'Dropdown Simples',
-    Values = {'Opção 1', 'Opção 2', 'Opção 3'},
+    Text = 'Simple Dropdown',
+    Values = {'Option 1', 'Option 2', 'Option 3'},
     Default = 1,
-    Tooltip = 'Selecione uma opção',
+    Tooltip = 'Select an option',
     Callback = function(value)
-        print('Opção selecionada:', value)
+        print('Selected option:', value)
     end
 })
 
--- Dropdown com busca
+-- Dropdown with search
 DropdownGroup:AddDropdown('SearchableDropdown', {
-    Text = 'Dropdown com Busca',
+    Text = 'Dropdown with Search',
     Values = {'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'},
     Default = 1,
     Searchable = true,
-    Tooltip = 'Digite para buscar',
+    Tooltip = 'Type to search',
     Callback = function(value)
-        print('Busca selecionada:', value)
+        print('Search selected:', value)
     end
 })
 
--- Dropdown múltipla seleção
+-- Multiple selection dropdown
 DropdownGroup:AddDropdown('MultiDropdown', {
-    Text = 'Seleção Múltipla',
+    Text = 'Multiple Selection',
     Values = {'ESP', 'Aimbot', 'Speed', 'Fly'},
     Default = {'ESP'},
     Multi = true,
-    Tooltip = 'Selecione múltiplos itens',
+    Tooltip = 'Select multiple items',
     Callback = function(values)
-        print('Itens selecionados:')
+        print('Selected items:')
         for item, enabled in pairs(values) do
             print('  ', item, enabled)
         end
     end
 })
 
--- Dropdown de jogadores
+-- Player dropdown
 DropdownGroup:AddDropdown('PlayerDropdown', {
-    Text = 'Selecionar Jogador',
+    Text = 'Select Player',
     SpecialType = 'Player',
     ExcludeLocalPlayer = true,
     Searchable = true,
-    Tooltip = 'Lista de jogadores no servidor',
+    Tooltip = 'List of players on the server',
     Callback = function(player)
-        print('Jogador selecionado:', player)
+        print('Selected player:', player)
     end
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- INPUT (Campo de Texto)
+-- INPUT (Text Field)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local InputGroup = Tabs.Main:AddRightGroupbox('Input Examples')
 
--- Input básico
+-- Basic input
 InputGroup:AddInput('BasicInput', {
-    Text = 'Input Básico',
-    Default = 'Texto padrão',
-    Placeholder = 'Digite aqui...',
-    Tooltip = 'Campo de texto simples',
+    Text = 'Basic Input',
+    Default = 'Default text',
+    Placeholder = 'Type here...',
+    Tooltip = 'Simple text field',
     Callback = function(value)
-        print('Input básico:', value)
+        print('Basic input:', value)
     end
 })
 
--- Input com Enter (Finished)
+-- Input with Enter (Finished)
 InputGroup:AddInput('FinishedInput', {
-    Text = 'Input com Enter',
-    Placeholder = 'Pressione Enter...',
+    Text = 'Input with Enter',
+    Placeholder = 'Press Enter...',
     Finished = true,
-    Tooltip = 'Callback apenas ao pressionar Enter',
+    Tooltip = 'Callback only on pressing Enter',
     Callback = function(value)
-        print('Enter pressionado:', value)
-        Library:Notify('Texto confirmado: ' .. value)
+        print('Enter pressed:', value)
+        Library:Notify('Text confirmed: ' .. value)
     end
 })
 
--- Input com limite de caracteres
+-- Input with character limit
 InputGroup:AddInput('LimitedInput', {
-    Text = 'Input Limitado',
-    Placeholder = 'Máx 10 caracteres',
+    Text = 'Limited Input',
+    Placeholder = 'Max 10 characters',
     MaxLength = 10,
     AllowEmpty = false,
-    EmptyReset = 'Padrão',
-    Tooltip = 'Máximo de 10 caracteres',
+    EmptyReset = 'Default',
+    Tooltip = 'Maximum of 10 characters',
     Callback = function(value)
-        print('Input limitado:', value)
+        print('Limited input:', value)
     end
 })
 
--- Input numérico
+-- Numeric input
 InputGroup:AddInput('NumericInput', {
-    Text = 'Input Numérico',
+    Text = 'Numeric Input',
     Default = '100',
-    Placeholder = 'Apenas números',
+    Placeholder = 'Numbers only',
     Numeric = true,
-    Tooltip = 'Aceita apenas números',
+    Tooltip = 'Accepts only numbers',
     Callback = function(value)
         local num = tonumber(value)
         if num then
-            print('Número inserido:', num)
+            print('Inserted number:', num)
         end
     end
 })
 
--- Input desabilitado
+-- Disabled input
 InputGroup:AddInput('DisabledInput', {
-    Text = 'Input Desabilitado',
-    Default = 'Somente leitura',
+    Text = 'Disabled Input',
+    Default = 'Read only',
     Disabled = true,
-    Tooltip = 'Este campo não pode ser editado'
+    Tooltip = 'This field cannot be edited'
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- BUTTON (Botões)
+-- BUTTON (Buttons)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local ButtonGroup = Tabs.Main:AddLeftGroupbox('Button Examples')
 
--- Botão simples
+-- Simple button
 ButtonGroup:AddButton({
-    Text = 'Botão Simples',
-    Tooltip = 'Clique para executar',
+    Text = 'Simple Button',
+    Tooltip = 'Click to execute',
     Func = function()
-        print('Botão pressionado!')
-        Library:Notify('Botão clicado!')
+        print('Button pressed!')
+        Library:Notify('Button clicked!')
     end
 })
 
--- Botão com duplo clique
+-- Button with double click
 ButtonGroup:AddButton({
-    Text = 'Duplo Clique',
+    Text = 'Double Click',
     DoubleClick = true,
-    Tooltip = 'Requer duplo clique para segurança',
+    Tooltip = 'Requires double click for safety',
     Func = function()
-        print('Duplo clique confirmado!')
-        Library:Notify('Ação confirmada com duplo clique!')
+        print('Double click confirmed!')
+        Library:Notify('Action confirmed with double click!')
     end
 })
 
--- Botão desabilitado
+-- Disabled button
 ButtonGroup:AddButton({
-    Text = 'Botão Desabilitado',
+    Text = 'Disabled Button',
     Disabled = true,
-    DisabledTooltip = 'Este botão está desabilitado',
+    DisabledTooltip = 'This button is disabled',
     Func = function()
-        print('Este botão não deveria funcionar')
+        print('This button should not work')
     end
 })
 
--- Botão de ação importante
+-- Important action button
 ButtonGroup:AddButton({
-    Text = 'Ação Importante',
-    Tooltip = 'Executa uma ação crítica',
+    Text = 'Important Action',
+    Tooltip = 'Executes a critical action',
     Func = function()
-        Library:Notify('Executando ação importante...', 3)
+        Library:Notify('Executing important action...', 3)
     end
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- KEYPICKER (Seletor de Teclas)
+-- KEYPICKER (Key Selector)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local KeyGroup = Tabs.Main:AddRightGroupbox('KeyPicker Examples')
@@ -397,12 +397,12 @@ KeyGroup:AddLabel('KeyPicker Always'):AddKeyPicker('AlwaysKey', {
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- IMAGE (Imagens)
+-- IMAGE (Images)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local ImageGroup = Tabs.Main:AddLeftGroupbox('Image Example')
 
--- Imagem Roblox Asset
+-- Roblox Asset Image
 ImageGroup:AddImage('RobloxImage', {
     Image = 'rbxassetid://9328294962',
     Height = 100,
@@ -410,66 +410,66 @@ ImageGroup:AddImage('RobloxImage', {
     ScaleType = Enum.ScaleType.Fit,
     Transparency = 0,
     Visible = true,
-    Tooltip = 'Imagem do Roblox'
+    Tooltip = 'Roblox Image'
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- LABELS E DIVISORES
+-- LABELS AND DIVIDERS
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local LabelGroup = Tabs.Main:AddRightGroupbox('Label & Divider Examples')
 
-LabelGroup:AddLabel('Label Simples')
-LabelGroup:AddLabel('Label com múltiplas linhas:\nLinha 2\nLinha 3', true)
+LabelGroup:AddLabel('Simple Label')
+LabelGroup:AddLabel('Label with multiple lines:\nLine 2\nLine 3', true)
 LabelGroup:AddDivider()
-LabelGroup:AddLabel('Após o divisor')
+LabelGroup:AddLabel('After the divider')
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- DEPENDENCY BOX (Caixa de Dependências)
+-- DEPENDENCY BOX (Dependency Box)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local DependencyGroup = Tabs.Main:AddLeftGroupbox('Dependency Box Example')
 
 local MasterToggle = DependencyGroup:AddToggle('MasterToggle', {
-    Text = 'Ativar Opções Avançadas',
+    Text = 'Enable Advanced Options',
     Default = false,
-    Tooltip = 'Habilita configurações adicionais'
+    Tooltip = 'Enables additional settings'
 })
 
 local DepBox = DependencyGroup:AddDependencyBox()
 DepBox:SetupDependencies({{Toggles.MasterToggle, true}})
 
 DepBox:AddSlider('DepSlider', {
-    Text = 'Opção Dependente',
+    Text = 'Dependent Option',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
-    Tooltip = 'Só aparece quando MasterToggle está ativo'
+    Tooltip = 'Only appears when MasterToggle is active'
 })
 
 DepBox:AddDropdown('DepDropdown', {
-    Text = 'Dropdown Dependente',
+    Text = 'Dependent Dropdown',
     Values = {'A', 'B', 'C'},
     Default = 1,
-    Tooltip = 'Opção dependente do toggle'
+    Tooltip = 'Option dependent on the toggle'
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- TABBOX (Abas Aninhadas)
+-- TABBOX (Nested Tabs)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local SubTabbox = Tabs.Main:AddRightTabbox()
-local SubTab1 = SubTabbox:AddTab('Sub-Aba 1')
-local SubTab2 = SubTabbox:AddTab('Sub-Aba 2')
+local SubTab1 = SubTabbox:AddTab('Sub-Tab 1')
+local SubTab2 = SubTabbox:AddTab('Sub-Tab 2')
 
 SubTab1:AddToggle('SubToggle1', {
-    Text = 'Toggle na Sub-Aba 1',
+    Text = 'Toggle in Sub-Tab 1',
     Default = false
 })
 
 SubTab2:AddSlider('SubSlider2', {
-    Text = 'Slider na Sub-Aba 2',
+    Text = 'Slider in Sub-Tab 2',
     Default = 50,
     Min = 0,
     Max = 100,
@@ -477,25 +477,25 @@ SubTab2:AddSlider('SubSlider2', {
 })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- ABA VISUAL - EXEMPLOS PRÁTICOS
+-- VISUALS TAB - PRACTICAL EXAMPLES
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local ESPGroup = Tabs.Visuals:AddLeftGroupbox('ESP Settings')
 
 local PlayerESP = ESPGroup:AddToggle('PlayerESP', {
-    Text = 'ESP de Jogadores',
+    Text = 'Player ESP',
     Default = false,
-    Tooltip = 'Mostra jogadores através das paredes'
+    Tooltip = 'Shows players through walls'
 })
 
 PlayerESP:AddColorPicker('ESPColor', {
-    Title = 'Cor do ESP',
+    Title = 'ESP Color',
     Default = Color3.fromRGB(0, 255, 0),
     Transparency = 0.5
 })
 
 ESPGroup:AddSlider('ESPDistance', {
-    Text = 'Distância Máxima',
+    Text = 'Maximum Distance',
     Default = 500,
     Min = 100,
     Max = 2000,
@@ -504,19 +504,19 @@ ESPGroup:AddSlider('ESPDistance', {
 })
 
 ESPGroup:AddDropdown('ESPStyle', {
-    Text = 'Estilo do ESP',
+    Text = 'ESP Style',
     Values = {'Box', 'Highlight', 'Outline', 'Glow'},
     Default = 1
 })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- ABA SETTINGS - CONFIGURAÇÕES E SALVAMENTO
+-- SETTINGS TAB - SETTINGS AND SAVING
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local MenuGroup = Tabs.Settings:AddLeftGroupbox('Menu Controls')
 
 MenuGroup:AddToggle('ShowKeybinds', {
-    Text = 'Mostrar Keybinds',
+    Text = 'Show Keybinds',
     Default = true,
     Callback = function(value)
         Library.KeybindFrame.Visible = value
@@ -524,7 +524,7 @@ MenuGroup:AddToggle('ShowKeybinds', {
 })
 
 MenuGroup:AddToggle('ShowWatermark', {
-    Text = 'Mostrar Watermark',
+    Text = 'Show Watermark',
     Default = true,
     Callback = function(value)
         Library:SetWatermarkVisibility(value)
@@ -540,21 +540,21 @@ MenuGroup:AddLabel('Menu Keybind'):AddKeyPicker('MenuKeybind', {
 MenuGroup:AddDivider()
 
 MenuGroup:AddButton({
-    Text = 'Testar Notificação',
+    Text = 'Test Notification',
     Func = function()
-        Library:Notify('Esta é uma notificação de teste!')
+        Library:Notify('This is a test notification!')
     end
 })
 
 MenuGroup:AddButton({
-    Text = 'Descarregar Menu',
+    Text = 'Unload Menu',
     Func = function()
         Library:Unload()
     end
 })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- WATERMARK DINÂMICO
+-- DYNAMIC WATERMARK
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 Library:SetWatermarkVisibility(true)
@@ -579,7 +579,7 @@ local function updateWatermark()
         local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
         
         Library:SetWatermark(string.format(
-            'Meu Script v1.0 | %d FPS | %dms',
+            'My Script v1.0 | %d FPS | %dms',
             math.floor(FPS),
             math.floor(ping)
         ))
@@ -589,7 +589,7 @@ end
 updateWatermark()
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SISTEMA DE SALVAMENTO
+-- SAVING SYSTEM
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 ThemeManager:SetLibrary(Library)
@@ -598,8 +598,8 @@ SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({'MenuKeybind'})
 
-ThemeManager:SetFolder('MeuScript')
-SaveManager:SetFolder('MeuScript/configs')
+ThemeManager:SetFolder('MyScript')
+SaveManager:SetFolder('MyScript/configs')
 
 SaveManager:BuildConfigSection(Tabs.Settings)
 ThemeManager:ApplyToTab(Tabs.Settings)
@@ -607,32 +607,32 @@ ThemeManager:ApplyToTab(Tabs.Settings)
 SaveManager:LoadAutoloadConfig()
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- EXEMPLOS DE USO AVANÇADO
+-- ADVANCED USAGE EXAMPLES
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- Monitorar mudanças em tempo real
+-- Monitor changes in real time
 Toggles.PlayerESP:OnChanged(function()
-    print('PlayerESP mudou para:', Toggles.PlayerESP.Value)
+    print('PlayerESP changed to:', Toggles.PlayerESP.Value)
 end)
 
--- Acessar valores
+-- Access values
 task.spawn(function()
     while true do
         wait(1)
-        -- Exemplo de como acessar valores dos componentes
+        -- Example of how to access component values
         if Toggles.PlayerESP and Toggles.PlayerESP.Value then
             local distance = Options.ESPDistance.Value
-            print('ESP ativo com distância:', distance)
+            print('ESP active with distance:', distance)
         end
     end
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- FINALIZAÇÃO
+-- FINALIZATION
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-print('Menu carregado com sucesso!')
-print('Usuário:', game.Players.LocalPlayer.Name)
-print('Pressione', Options.MenuKeybind.Value, 'para abrir/fechar o menu')
+print('Menu loaded successfully!')
+print('User:', game.Players.LocalPlayer.Name)
+print('Press', Options.MenuKeybind.Value, 'to open/close the menu')
 
-Library:Notify('Menu carregado com sucesso!')
+Library:Notify('Menu loaded successfully!')
