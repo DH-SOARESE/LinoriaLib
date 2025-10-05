@@ -400,39 +400,17 @@ KeyGroup:AddLabel('KeyPicker Always'):AddKeyPicker('AlwaysKey', {
 -- IMAGE (Imagens)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-local ImageGroup = Tabs.Main:AddLeftGroupbox('Image Examples')
+local ImageGroup = Tabs.Main:AddLeftGroupbox('Image Example')
 
 -- Imagem Roblox Asset
 ImageGroup:AddImage('RobloxImage', {
-    Image = 'rbxassetid://1234567890',
+    Image = 'rbxassetid://9328294962',
     Height = 100,
     Color = Color3.fromRGB(255, 255, 255),
     ScaleType = Enum.ScaleType.Fit,
     Transparency = 0,
     Visible = true,
     Tooltip = 'Imagem do Roblox'
-})
-
--- Ícone Lucide
-ImageGroup:AddImage('LucideIcon', {
-    Image = 'star',
-    Height = 60,
-    Color = Color3.fromRGB(255, 215, 0),
-    ScaleType = Enum.ScaleType.Fit,
-    Transparency = 0,
-    Visible = true,
-    Tooltip = 'Ícone Lucide'
-})
-
--- Imagem URL (exemplo)
-ImageGroup:AddImage('URLImage', {
-    Image = 'https://i.imgur.com/example.png',
-    Height = 120,
-    Color = Color3.fromRGB(255, 255, 255),
-    ScaleType = Enum.ScaleType.Crop,
-    Transparency = 0,
-    Visible = true,
-    Tooltip = 'Imagem externa'
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
