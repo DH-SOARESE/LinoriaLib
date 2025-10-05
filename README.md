@@ -104,7 +104,7 @@ local Toggle_Example = Groupbox:AddToggle("ExampleToggle", {
 })
 
 -- Adicionar KeyPicker ao Toggle
-Toggle_Example:AddKeyPicker("ESPKeyPicker", {
+Groupbox:AddKeyPicker("ESPKeyPicker", {
     Default = "E",              -- Tecla padrão
     Mode = "Toggle",            -- Modos: "Always", "Hold" ou "Toggle"
     Text = "ESP",               -- Nome visível no KeybindsFrame
@@ -115,7 +115,7 @@ Toggle_Example:AddKeyPicker("ESPKeyPicker", {
 })
 
 -- Adicionar ColorPicker ao Toggle
-Toggle_Example:AddColorPicker("ESPColor", {
+Groupbox:AddColorPicker("ESPColor", {
     Title = "Cor do ESP",
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.1,
@@ -333,14 +333,13 @@ Groupbox:AddKeyPicker("ESPKey", {
     Callback = function(Toggled)
         print("ESP KeyPicker Toggle:", Toggled)
     end
-})
-:AddKeyPicker("NoclipKey", {
+}):AddKeyPicker("KeyESPKEY", {
     Default = "N",
     Mode = "Toggle",
-    Text = "Noclip",
+    Text = "M",
     SyncToggleState = true,
     Callback = function(Toggled)
-        print("Noclip KeyPicker Toggle:", Toggled)
+        print("ESP KEYKeyPicker Toggle:", Toggled)
     end
 })
 ```
