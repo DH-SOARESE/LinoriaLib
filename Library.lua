@@ -357,7 +357,7 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
-function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
+function Library:MakeDraggable(Cutoff, IsMainWindow)
 	Instance.Active = true;
 
 	if Library.IsMobile == false then
@@ -6554,7 +6554,7 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
 
 ToggleUIButton.MouseButton1Down:Connect(function()
-    uiVisible = not uiVisible  -- Atualiza o estado antes de alternar o menu
+    uiVisible = Toggled  -- Atualiza o estado antes de alternar o menu
     Library:Toggle()           -- Mostra/oculta a UI
 end)
         -- Lock
