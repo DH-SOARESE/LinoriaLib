@@ -362,6 +362,12 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 	Cutoff = Cutoff or 40
 
 	local function CanDrag()
+		-- Outer sempre pode ser arrastado, independentemente do estado
+		if Instance.Name == "Outer" then
+			return true
+		end
+
+		-- Caso contrário, segue as restrições normais
 		return uiVisible and (not IsMainWindow or not Library.CantDragForced)
 	end
 
@@ -369,7 +375,6 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 		local highest = nil
 		local topZ = -math.huge
 
-		-- percorre todos os GuiObjects visíveis dentro do mesmo parent
 		for _, obj in ipairs(Instance.Parent:GetDescendants()) do
 			if obj:IsA("GuiObject") and obj.Visible and obj ~= Instance then
 				local pos, size = obj.AbsolutePosition, obj.AbsoluteSize
@@ -385,7 +390,6 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 			end
 		end
 
-		-- se o elemento acima tem ZIndex maior, bloqueia o arrasto
 		return highest and highest.ZIndex > Instance.ZIndex
 	end
 
@@ -402,7 +406,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
 			local mousePos = Vector2.new(Mouse.X, Mouse.Y)
 
-			-- bloqueia se clicou sobre algo com ZIndex mais alto
+			-- Bloqueia se clicou sobre algo com ZIndex maior
 			if IsTouchOverHigherUI(mousePos) then
 				return
 			end
@@ -412,12 +416,10 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 				mousePos.Y - Instance.AbsolutePosition.Y
 			)
 
-			-- impede arrastar clicando fora da área de corte
 			if ObjPos.Y > Cutoff then
 				return
 			end
 
-			-- arrasto enquanto o botão estiver pressionado
 			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
 				if not CanDrag() then break end
 
@@ -446,7 +448,6 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 				return
 			end
 
-			-- bloqueia se o toque for sobre algo mais alto
 			if IsTouchOverHigherUI(Input.Position) then
 				return
 			end
