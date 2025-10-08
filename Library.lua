@@ -363,7 +363,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 	if not Library.IsMobile then
 		Instance.InputBegan:Connect(function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Outer" and not uiVisible) then
+				if (IsMainWindow and Library.CantDragForced) or (Instance == "Outer" and not uiVisible) then
 					return
 				end
 
@@ -392,7 +392,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 		local DraggingInput, DraggingStart, StartPosition
 
 		InputService.TouchStarted:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Outer" and not uiVisible) then
+			if (IsMainWindow and Library.CantDragForced) or (Instance == "Outer" and not uiVisible) then
 				Dragging = false
 				return
 			end
@@ -411,7 +411,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 		end)
 
 		InputService.TouchMoved:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Outer" and not uiVisible) then
+			if (IsMainWindow and Library.CantDragForced) or (Instance ==  "Outer" and not uiVisible) then
 				Dragging = false
 				return
 			end
