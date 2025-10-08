@@ -363,7 +363,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 	if Library.IsMobile == false then
 		Instance.InputBegan:Connect(function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				if (IsMainWindow and Library.CantDragForced) or uiVisible then
+				if (IsMainWindow and Library.CantDragForced) or not uiVisible then
 					return;
 				end;
 
@@ -6555,8 +6555,8 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
 
 ToggleUIButton.MouseButton1Down:Connect(function()
-    uiVisible = Toggled  -- Atualiza o estado antes de alternar o menu
-    Library:Toggle()           -- Mostra/oculta a UI
+    uiVisible = not uiVisible  
+    Library:Toggle()
 end)
         -- Lock
         local LockUIOuter = Library:Create('Frame', {
