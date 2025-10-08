@@ -5568,7 +5568,9 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
-
+    LibraryMainOuterFrame = Outer;
+    Library:MakeDraggable(Outer, 10, true);
+    
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
     end
@@ -5582,8 +5584,6 @@ function Library:CreateWindow(...)
         ZIndex = 1;
         Parent = Outer;
     });
-    LibraryMainOuterFrame = Inner;
-    Library:MakeDraggable(Inner, 25, true);
     
     Library:AddToRegistry(Inner, {
         BackgroundColor3 = 'MainColor';
