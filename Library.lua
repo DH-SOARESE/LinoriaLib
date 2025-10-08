@@ -357,84 +357,85 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
-function Library:MakeDraggable(mainFrame, titleLabel, cutoff, isMainWindow)
-	mainFrame.Active = true
-	titleLabel.Active = true
-	cutoff = cutoff or 25
+function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
+	Instance.Active = true;
 
-	local function canDrag()
-		return uiVisible and (not isMainWindow or not Library.CantDragForced)
-	end
+	if Library.IsMobile == false then
+		Instance.InputBegan:Connect(function(Input)
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+				if (IsMainWindow and Library.CantDragForced) or not uiVisible then
+					return;
+				end;
 
-	-- 🔹 PC (mouse)
-	if not Library.IsMobile then
-		titleLabel.InputBegan:Connect(function(input)
-			if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
-				return
-			end
+				local ObjPos = Vector2.new(
+					Mouse.X - Instance.AbsolutePosition.X,
+					Mouse.Y - Instance.AbsolutePosition.Y
+				);
 
-			if not canDrag() then
-				return
-			end
+				if ObjPos.Y > (Cutoff or 40) then
+					return;
+				end;
 
-			local offset = Vector2.new(
-				Mouse.X - mainFrame.AbsolutePosition.X,
-				Mouse.Y - mainFrame.AbsolutePosition.Y
-			)
+				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+					Instance.Position = UDim2.new(
+						0,
+						Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+						0,
+						Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+					);
 
-			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-				mainFrame.Position = UDim2.new(
-					0,
-					Mouse.X - offset.X + (mainFrame.Size.X.Offset * mainFrame.AnchorPoint.X),
-					0,
-					Mouse.Y - offset.Y + (mainFrame.Size.Y.Offset * mainFrame.AnchorPoint.Y)
-				)
-				RenderStepped:Wait()
-			end
-		end)
-
-	-- 🔹 Mobile (touch)
+					RenderStepped:Wait();
+				end;
+			end;
+		end);
 	else
-		local dragging = false
-		local dragInput
-		local dragStart
-		local startPos
+		local Dragging, DraggingInput, DraggingStart, StartPosition;
 
-		titleLabel.TouchStarted:Connect(function(input)
-			if not canDrag() then
-				dragging = false
-				return
+		InputService.TouchStarted:Connect(function(Input)
+			if IsMainWindow and Library.CantDragForced then
+				Dragging = false
+				return;
 			end
 
-			if Library:MouseIsOverFrame(titleLabel, input) then
-				dragInput = input
-				dragStart = input.Position
-				startPos = mainFrame.Position
-				dragging = true
-			end
-		end)
+			if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
+				DraggingInput = Input;
+				DraggingStart = Input.Position;
+				StartPosition = Instance.Position;
 
-		titleLabel.TouchMoved:Connect(function(input)
-			if not canDrag() or input ~= dragInput or not dragging then
-				return
+				local OffsetPos = Input.Position - DraggingStart;
+				if OffsetPos.Y > (Cutoff or 40) then
+					Dragging = false;
+					return;
+				end;
+
+				Dragging = true;
+			end;
+		end);
+		InputService.TouchMoved:Connect(function(Input)
+			if (IsMainWindow  and Library.CantDragForced) or not uiVisible then
+				Dragging = false;
+				return;
 			end
 
-			local delta = input.Position - dragStart
-			mainFrame.Position = UDim2.new(
-				startPos.X.Scale,
-				startPos.X.Offset + delta.X,
-				startPos.Y.Scale,
-				startPos.Y.Offset + delta.Y
-			)
-		end)
+			if Input == DraggingInput and Dragging and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
+				local OffsetPos = Input.Position - DraggingStart;
 
-		titleLabel.TouchEnded:Connect(function(input)
-			if input == dragInput then
-				dragging = false
-			end
-		end)
-	end
-end
+				Instance.Position = UDim2.new(
+					StartPosition.X.Scale,
+					StartPosition.X.Offset + OffsetPos.X,
+					StartPosition.Y.Scale,
+					StartPosition.Y.Offset + OffsetPos.Y
+				);
+			end;
+		end);
+		InputService.TouchEnded:Connect(function(Input)
+			if Input == DraggingInput then 
+				Dragging = false;
+			end;
+		end);
+	end;
+end;
+
 
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
 	Instance.Active = true;
@@ -5567,8 +5568,6 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
-    LibraryMainOuterFrame = Outer;
-    Library:MakeDraggable(Outer, 25, true);
 
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
@@ -5597,6 +5596,8 @@ function Library:CreateWindow(...)
         ZIndex = 1;
         Parent = Inner;
     });
+    LibraryMainOuterFrame = WindowLabel;
+    Library:MakeDraggable(WindowLabel, 25, true);
 
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
