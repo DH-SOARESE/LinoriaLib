@@ -359,59 +359,108 @@ end;
 
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 	Instance.Active = true
+	Cutoff = Cutoff or 40
 
-	if not Library.IsMobile then
-		Instance.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				if (IsMainWindow and Library.CantDragForced) or (Instance == "Outer" and not uiVisible) then
-					return
-				end
+	local function CanDrag()
+		return uiVisible and (not IsMainWindow or not Library.CantDragForced)
+	end
 
-				local ObjPos = Vector2.new(
-					Mouse.X - Instance.AbsolutePosition.X,
-					Mouse.Y - Instance.AbsolutePosition.Y
-				)
+	local function IsTouchOverHigherUI(inputPos)
+		local highest = nil
+		local topZ = -math.huge
 
-				if ObjPos.Y > (Cutoff or 40) then
-					return
-				end
-
-				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-					Instance.Position = UDim2.new(
-						0,
-						Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
-						0,
-						Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
-					)
-					RenderStepped:Wait()
+		-- percorre tudo dentro do mesmo parent (ex: todos filhos do ScreenGui)
+		for _, obj in ipairs(Instance.Parent:GetDescendants()) do
+			if obj:IsA("GuiObject") and obj.Visible and obj ~= Instance then
+				local pos, size = obj.AbsolutePosition, obj.AbsoluteSize
+				if
+					inputPos.X >= pos.X and inputPos.X <= pos.X + size.X and
+					inputPos.Y >= pos.Y and inputPos.Y <= pos.Y + size.Y
+				then
+					if obj.ZIndex > topZ then
+						topZ = obj.ZIndex
+						highest = obj
+					end
 				end
 			end
+		end
+
+		-- se o elemento acima tem ZIndex maior que o Outer, bloqueia o arrasto
+		return highest and highest.ZIndex > Instance.ZIndex
+	end
+
+	-- 💻 PC / Mouse
+	if not Library.IsMobile then
+		Instance.InputBegan:Connect(function(Input)
+			if Input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+				return
+			end
+
+			if not CanDrag() then
+				return
+			end
+
+			local mousePos = Vector2.new(Mouse.X, Mouse.Y)
+
+			-- ❌ bloqueia se clicou sobre algo com ZIndex mais alto
+			if IsTouchOverHigherUI(mousePos) then
+				return
+			end
+
+			local ObjPos = Vector2.new(
+				Mouse.X - Instance.AbsolutePosition.X,
+				Mouse.Y - Instance.AbsolutePosition.Y
+			)
+
+			if ObjPos.Y > Cutoff then
+				return
+			end
+
+			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+				Instance.Position = UDim2.new(
+					0,
+					Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+					0,
+					Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+				)
+				RenderStepped:Wait()
+			end
 		end)
+
+	-- 📱 Mobile / Touch
 	else
-		local Dragging = false
-		local DraggingInput, DraggingStart, StartPosition
+		local Dragging, DraggingInput, DraggingStart, StartPosition
 
 		InputService.TouchStarted:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or (Instance == "Outer" and not uiVisible) then
+			if not CanDrag() then
 				Dragging = false
 				return
 			end
 
-			if not Dragging and Library:MouseIsOverFrame(Instance, Input) then
-				local OffsetPos = Input.Position - Instance.AbsolutePosition
-				if OffsetPos.Y > (Cutoff or 40) then
-					return
-				end
-
-				Dragging = true
-				DraggingInput = Input
-				DraggingStart = Input.Position
-				StartPosition = Instance.Position
+			if not Library:MouseIsOverFrame(Instance, Input) then
+				return
 			end
+
+			-- ❌ bloqueia se o toque for sobre algo mais alto
+			if IsTouchOverHigherUI(Input.Position) then
+				return
+			end
+
+			DraggingInput = Input
+			DraggingStart = Input.Position
+			StartPosition = Instance.Position
+
+			local OffsetPos = Input.Position - DraggingStart
+			if OffsetPos.Y > Cutoff then
+				Dragging = false
+				return
+			end
+
+			Dragging = true
 		end)
 
 		InputService.TouchMoved:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or (Instance ==  "Outer" and not uiVisible) then
+			if not CanDrag() then
 				Dragging = false
 				return
 			end
@@ -5567,8 +5616,8 @@ function Library:CreateWindow(...)
         Name = "Window";
     });
     LibraryMainOuterFrame = Outer;
-    Library:MakeDraggable(Outer, 25, true);
-
+    Library:MakeDraggable(Outer, 10, true);
+    
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
     end
@@ -5582,7 +5631,7 @@ function Library:CreateWindow(...)
         ZIndex = 1;
         Parent = Outer;
     });
-
+    
     Library:AddToRegistry(Inner, {
         BackgroundColor3 = 'MainColor';
         BorderColor3 = 'AccentColor';
