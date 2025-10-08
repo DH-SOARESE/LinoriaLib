@@ -5582,7 +5582,9 @@ function Library:CreateWindow(...)
         ZIndex = 1;
         Parent = Outer;
     });
-
+    LibraryMainOuterFrame = Inner;
+    Library:MakeDraggable(Inner, 25, true);
+    
     Library:AddToRegistry(Inner, {
         BackgroundColor3 = 'MainColor';
         BorderColor3 = 'AccentColor';
@@ -5596,8 +5598,6 @@ function Library:CreateWindow(...)
         ZIndex = 1;
         Parent = Inner;
     });
-    LibraryMainOuterFrame = WindowLabel;
-    Library:MakeDraggable(WindowLabel, 25, true);
 
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
