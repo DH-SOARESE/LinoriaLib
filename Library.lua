@@ -411,7 +411,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 		end)
 
 		InputService.TouchMoved:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Outer" and uiVisible) then
+			if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Outer" and not uiVisible) then
 				Dragging = false
 				return
 			end
