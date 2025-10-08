@@ -365,11 +365,10 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 		return uiVisible and (not IsMainWindow or not Library.CantDragForced)
 	end
 
-	local function IsTouchOverHigherUI(inputPos)
-		local highest = nil
+	local function TouchOverHigherUI(inputPos)
 		local topZ = -math.huge
+		local topObj = nil
 
-		-- percorre tudo dentro do mesmo parent (ex: todos filhos do ScreenGui)
 		for _, obj in ipairs(Instance.Parent:GetDescendants()) do
 			if obj:IsA("GuiObject") and obj.Visible and obj ~= Instance then
 				local pos, size = obj.AbsolutePosition, obj.AbsoluteSize
@@ -379,17 +378,17 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 				then
 					if obj.ZIndex > topZ then
 						topZ = obj.ZIndex
-						highest = obj
+						topObj = obj
 					end
 				end
 			end
 		end
 
-		-- se o elemento acima tem ZIndex maior que o Outer, bloqueia o arrasto
-		return highest and highest.ZIndex > Instance.ZIndex
+		-- retorna true se o toque estiver em algo com ZIndex maior que o frame arrastável
+		return topObj and topObj.ZIndex > Instance.ZIndex
 	end
 
-	-- 💻 PC / Mouse
+	-- 💻 PC (mouse)
 	if not Library.IsMobile then
 		Instance.InputBegan:Connect(function(Input)
 			if Input.UserInputType ~= Enum.UserInputType.MouseButton1 then
@@ -402,8 +401,8 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
 			local mousePos = Vector2.new(Mouse.X, Mouse.Y)
 
-			-- ❌ bloqueia se clicou sobre algo com ZIndex mais alto
-			if IsTouchOverHigherUI(mousePos) then
+			-- se clicou em algo com ZIndex maior, ignora só esse clique
+			if TouchOverHigherUI(mousePos) then
 				return
 			end
 
@@ -427,7 +426,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 			end
 		end)
 
-	-- 📱 Mobile / Touch
+	-- 📱 Mobile (toque)
 	else
 		local Dragging, DraggingInput, DraggingStart, StartPosition
 
@@ -437,12 +436,13 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 				return
 			end
 
+			-- verifica se toque está dentro do frame
 			if not Library:MouseIsOverFrame(Instance, Input) then
 				return
 			end
 
-			-- ❌ bloqueia se o toque for sobre algo mais alto
-			if IsTouchOverHigherUI(Input.Position) then
+			-- se tocou em algo acima, ignora só esse toque
+			if TouchOverHigherUI(Input.Position) then
 				return
 			end
 
@@ -452,7 +452,6 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
 			local OffsetPos = Input.Position - DraggingStart
 			if OffsetPos.Y > Cutoff then
-				Dragging = false
 				return
 			end
 
@@ -461,7 +460,6 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
 		InputService.TouchMoved:Connect(function(Input)
 			if not CanDrag() then
-				Dragging = false
 				return
 			end
 
