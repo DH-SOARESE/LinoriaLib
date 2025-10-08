@@ -357,7 +357,7 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
-function Library:MakeDraggable(Cutoff, IsMainWindow)
+function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 	Instance.Active = true;
 
 	if Library.IsMobile == false then
@@ -435,6 +435,7 @@ function Library:MakeDraggable(Cutoff, IsMainWindow)
 		end);
 	end;
 end;
+
 
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
 	Instance.Active = true;
