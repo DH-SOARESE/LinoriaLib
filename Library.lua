@@ -369,7 +369,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 		local highest = nil
 		local topZ = -math.huge
 
-		-- percorre tudo dentro do mesmo parent (ex: todos filhos do ScreenGui)
+		-- percorre todos os GuiObjects visíveis dentro do mesmo parent
 		for _, obj in ipairs(Instance.Parent:GetDescendants()) do
 			if obj:IsA("GuiObject") and obj.Visible and obj ~= Instance then
 				local pos, size = obj.AbsolutePosition, obj.AbsoluteSize
@@ -385,7 +385,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 			end
 		end
 
-		-- se o elemento acima tem ZIndex maior que o Outer, bloqueia o arrasto
+		-- se o elemento acima tem ZIndex maior, bloqueia o arrasto
 		return highest and highest.ZIndex > Instance.ZIndex
 	end
 
@@ -402,21 +402,25 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
 			local mousePos = Vector2.new(Mouse.X, Mouse.Y)
 
-			-- ❌ bloqueia se clicou sobre algo com ZIndex mais alto
+			-- bloqueia se clicou sobre algo com ZIndex mais alto
 			if IsTouchOverHigherUI(mousePos) then
 				return
 			end
 
 			local ObjPos = Vector2.new(
-				Mouse.X - Instance.AbsolutePosition.X,
-				Mouse.Y - Instance.AbsolutePosition.Y
+				mousePos.X - Instance.AbsolutePosition.X,
+				mousePos.Y - Instance.AbsolutePosition.Y
 			)
 
+			-- impede arrastar clicando fora da área de corte
 			if ObjPos.Y > Cutoff then
 				return
 			end
 
+			-- arrasto enquanto o botão estiver pressionado
 			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+				if not CanDrag() then break end
+
 				Instance.Position = UDim2.new(
 					0,
 					Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
@@ -429,7 +433,8 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
 	-- 📱 Mobile / Touch
 	else
-		local Dragging, DraggingInput, DraggingStart, StartPosition
+		local Dragging = false
+		local DraggingInput, DraggingStart, StartPosition
 
 		InputService.TouchStarted:Connect(function(Input)
 			if not CanDrag() then
@@ -441,31 +446,30 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 				return
 			end
 
-			-- ❌ bloqueia se o toque for sobre algo mais alto
+			-- bloqueia se o toque for sobre algo mais alto
 			if IsTouchOverHigherUI(Input.Position) then
 				return
 			end
 
-			DraggingInput = Input
-			DraggingStart = Input.Position
-			StartPosition = Instance.Position
-
-			local OffsetPos = Input.Position - DraggingStart
-			if OffsetPos.Y > Cutoff then
+			local OffsetY = Input.Position.Y - Instance.AbsolutePosition.Y
+			if OffsetY > Cutoff then
 				Dragging = false
 				return
 			end
 
 			Dragging = true
+			DraggingInput = Input
+			DraggingStart = Input.Position
+			StartPosition = Instance.Position
 		end)
 
 		InputService.TouchMoved:Connect(function(Input)
-			if not CanDrag() then
-				Dragging = false
-				return
-			end
+			if Dragging and Input == DraggingInput then
+				if not CanDrag() then
+					Dragging = false
+					return
+				end
 
-			if Input == DraggingInput and Dragging then
 				local OffsetPos = Input.Position - DraggingStart
 				Instance.Position = UDim2.new(
 					StartPosition.X.Scale,
@@ -479,6 +483,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 		InputService.TouchEnded:Connect(function(Input)
 			if Input == DraggingInput then
 				Dragging = false
+				DraggingInput = nil
 			end
 		end)
 	end
