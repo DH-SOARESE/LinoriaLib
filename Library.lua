@@ -367,7 +367,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
 	local function TouchOverHigherUI(inputPos)
 		local topZ = -math.huge
-		local topObj = nil
+		local topObj
 
 		for _, obj in ipairs(Instance.Parent:GetDescendants()) do
 			if obj:IsA("GuiObject") and obj.Visible and obj ~= Instance then
@@ -384,24 +384,22 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 			end
 		end
 
-		-- retorna true se o toque estiver em algo com ZIndex maior que o frame arrastável
 		return topObj and topObj.ZIndex > Instance.ZIndex
 	end
 
-	-- 💻 PC (mouse)
+	-- 💻 PC (Mouse)
 	if not Library.IsMobile then
 		Instance.InputBegan:Connect(function(Input)
 			if Input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 				return
 			end
-
 			if not CanDrag() then
 				return
 			end
 
 			local mousePos = Vector2.new(Mouse.X, Mouse.Y)
 
-			-- se clicou em algo com ZIndex maior, ignora só esse clique
+			-- se clicou em algo acima, ignora só esse clique
 			if TouchOverHigherUI(mousePos) then
 				return
 			end
@@ -415,68 +413,75 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 				return
 			end
 
-			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-				Instance.Position = UDim2.new(
-					0,
-					Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
-					0,
-					Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
-				)
-				RenderStepped:Wait()
-			end
+			-- enquanto o botão esquerdo estiver pressionado
+			local moveConn
+			local releaseConn
+
+			moveConn = InputService.InputChanged:Connect(function(moveInput)
+				if moveInput.UserInputType == Enum.UserInputType.MouseMovement then
+					Instance.Position = UDim2.new(
+						0,
+						Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+						0,
+						Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+					)
+				end
+			end)
+
+			releaseConn = Input.Changed:Connect(function()
+				if Input.UserInputState == Enum.UserInputState.End then
+					moveConn:Disconnect()
+					releaseConn:Disconnect()
+				end
+			end)
 		end)
 
-	-- 📱 Mobile (toque)
+	-- 📱 Mobile (Touch)
 	else
-		local Dragging, DraggingInput, DraggingStart, StartPosition
+		local Dragging = false
+		local DraggingInput, DraggingStart, StartPosition
 
 		InputService.TouchStarted:Connect(function(Input)
 			if not CanDrag() then
-				Dragging = false
 				return
 			end
 
-			-- verifica se toque está dentro do frame
 			if not Library:MouseIsOverFrame(Instance, Input) then
 				return
 			end
 
-			-- se tocou em algo acima, ignora só esse toque
 			if TouchOverHigherUI(Input.Position) then
 				return
 			end
 
+			Dragging = true
 			DraggingInput = Input
 			DraggingStart = Input.Position
 			StartPosition = Instance.Position
-
-			local OffsetPos = Input.Position - DraggingStart
-			if OffsetPos.Y > Cutoff then
-				return
-			end
-
-			Dragging = true
 		end)
 
 		InputService.TouchMoved:Connect(function(Input)
-			if not CanDrag() then
+			if not Dragging or Input ~= DraggingInput then
 				return
 			end
 
-			if Input == DraggingInput and Dragging then
-				local OffsetPos = Input.Position - DraggingStart
-				Instance.Position = UDim2.new(
-					StartPosition.X.Scale,
-					StartPosition.X.Offset + OffsetPos.X,
-					StartPosition.Y.Scale,
-					StartPosition.Y.Offset + OffsetPos.Y
-				)
+			local Offset = Input.Position - DraggingStart
+			if Offset.Y > Cutoff then
+				return
 			end
+
+			Instance.Position = UDim2.new(
+				StartPosition.X.Scale,
+				StartPosition.X.Offset + Offset.X,
+				StartPosition.Y.Scale,
+				StartPosition.Y.Offset + Offset.Y
+			)
 		end)
 
 		InputService.TouchEnded:Connect(function(Input)
 			if Input == DraggingInput then
 				Dragging = false
+				DraggingInput = nil
 			end
 		end)
 	end
