@@ -3821,17 +3821,23 @@ function Slider:Display()
         FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value);
     end
     
-    if Info.Compact then    
-        DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, FormattedValue, Slider.Suffix);    
+if Info.Compact then    
+    DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, FormattedValue, Slider.Suffix);    
 
-    elseif Info.HideMax then    
-        DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, FormattedValue, Slider.Suffix);    
+elseif Info.HideMax then    
+    DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, FormattedValue, Slider.Suffix);    
 
-    else    
+else
+    -- Se estiver usando ValueTextMin ou ValueTextMax, mostra só o texto fixo (sem /Max)
+    if (Slider.Value == Slider.Max and Slider.ValueTextMax ~= "") or 
+       (Slider.Value == Slider.Min and Slider.ValueTextMin ~= "") then
+        DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, FormattedValue, Slider.Suffix);
+    else
         DisplayLabel.Text = string.format("%s%s%s/%s%s%s",     
             Slider.Prefix, FormattedValue, Slider.Suffix,    
-            Slider.Prefix, tostring(Slider.Max), Slider.Suffix);    
-    end;    
+            Slider.Prefix, tostring(Slider.Max), Slider.Suffix);
+    end
+end
 
     local X = Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, 1);    
     Fill.Size = UDim2.new(X, 0, 1, 0);    
