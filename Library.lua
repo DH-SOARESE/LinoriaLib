@@ -952,27 +952,36 @@ do
         });
 
         local function updatePickerPosition()
-    local screenX, screenY = DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18
-    local pickerWidth, pickerHeight = PickerFrameOuter.AbsoluteSize.X, PickerFrameOuter.AbsoluteSize.Y
-    local screenWidth, screenHeight = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
+    task.wait() -- aguarda o frame ter um AbsoluteSize atualizado
+    local displayPos = DisplayFrame.AbsolutePosition
+    local displaySize = DisplayFrame.AbsoluteSize
+    local pickerSize = PickerFrameOuter.AbsoluteSize
+    local viewportSize = workspace.CurrentCamera.ViewportSize
 
-    -- Ajusta horizontal
-    if screenX + pickerWidth > screenWidth then
-        screenX = screenWidth - pickerWidth - 5 -- 5px de folga
-    end
-    if screenX < 0 then
-        screenX = 5
-    end
+    local x = displayPos.X
+    local y = displayPos.Y + displaySize.Y + 4 -- aparece logo abaixo
 
-    -- Ajusta vertical
-    if screenY + pickerHeight > screenHeight then
-        screenY = DisplayFrame.AbsolutePosition.Y - pickerHeight - 5 -- mostra acima do DisplayFrame se não couber embaixo
-    end
-    if screenY < 0 then
-        screenY = 5
+    -- Se passar da direita, move pra esquerda
+    if x + pickerSize.X > viewportSize.X then
+        x = viewportSize.X - pickerSize.X - 6
     end
 
-    PickerFrameOuter.Position = UDim2.fromOffset(screenX, screenY)
+    -- Se passar da esquerda
+    if x < 0 then
+        x = 6
+    end
+
+    -- Se não couber pra baixo, aparece acima
+    if y + pickerSize.Y > viewportSize.Y then
+        y = displayPos.Y - pickerSize.Y - 4
+    end
+
+    -- Se ainda sair pra cima, força dentro
+    if y < 0 then
+        y = 6
+    end
+
+    PickerFrameOuter.Position = UDim2.fromOffset(x, y)
 end
 
 DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updatePickerPosition)
