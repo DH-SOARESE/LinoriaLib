@@ -952,50 +952,33 @@ do
         });
 
         local function updatePickerPosition()
-    task.wait()
+    local screenX, screenY = DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18
+    local pickerWidth, pickerHeight = PickerFrameOuter.AbsoluteSize.X, PickerFrameOuter.AbsoluteSize.Y
+    local screenWidth, screenHeight = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
 
-    local displayPos = DisplayFrame.AbsolutePosition
-    local displaySize = DisplayFrame.AbsoluteSize
-    local pickerSize = PickerFrameOuter.AbsoluteSize
-    local viewportSize = workspace.CurrentCamera.ViewportSize
-
-    local x, y = displayPos.X, displayPos.Y + displaySize.Y + 4 -- padrão: abaixo do menu
-
-    -- Espaço disponível nas direções
-    local spaceBelow = viewportSize.Y - (displayPos.Y + displaySize.Y)
-    local spaceAbove = displayPos.Y
-    local spaceRight = viewportSize.X - (displayPos.X + displaySize.X)
-    local spaceLeft = displayPos.X
-
-    -- Decide se mostra acima ou abaixo (onde couber melhor)
-    if spaceBelow < pickerSize.Y and spaceAbove > pickerSize.Y then
-        y = displayPos.Y - pickerSize.Y - 4 -- aparece acima
-    elseif spaceBelow < pickerSize.Y and spaceAbove < pickerSize.Y then
-        -- Se não couber nem acima nem abaixo, ajusta pra caber
-        y = math.clamp(y, 4, viewportSize.Y - pickerSize.Y - 4)
+    -- Ajusta horizontal
+    if screenX + pickerWidth > screenWidth then
+        screenX = screenWidth - pickerWidth - 5 -- 5px de folga
+    end
+    if screenX < 0 then
+        screenX = 5
     end
 
-    -- Ajuste horizontal
-    if spaceRight < pickerSize.X and spaceLeft > pickerSize.X then
-        -- move para a esquerda do menu
-        x = displayPos.X - pickerSize.X - 4
-    elseif spaceRight < pickerSize.X and spaceLeft < pickerSize.X then
-        -- não cabe de nenhum lado, centraliza no menu
-        x = math.clamp(displayPos.X + displaySize.X / 2 - pickerSize.X / 2, 4, viewportSize.X - pickerSize.X - 4)
+    -- Ajusta vertical
+    if screenY + pickerHeight > screenHeight then
+        screenY = DisplayFrame.AbsolutePosition.Y - pickerHeight - 5 -- mostra acima do DisplayFrame se não couber embaixo
+    end
+    if screenY < 0 then
+        screenY = 5
     end
 
-    -- Clamp final para nunca sair da viewport
-    x = math.clamp(x, 4, viewportSize.X - pickerSize.X - 4)
-    y = math.clamp(y, 4, viewportSize.Y - pickerSize.Y - 4)
-
-    PickerFrameOuter.Position = UDim2.fromOffset(x, y)
+    PickerFrameOuter.Position = UDim2.fromOffset(screenX, screenY)
 end
 
 DisplayFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(updatePickerPosition)
 PickerFrameOuter:GetPropertyChangedSignal("AbsoluteSize"):Connect(updatePickerPosition)
 updatePickerPosition()
 
-updatePickerPosition() 
 
         local PickerFrameInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
