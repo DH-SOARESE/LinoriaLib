@@ -176,6 +176,16 @@ local Library = {
     Buttons = Buttons;
 };
 
+local TransparencyCache = {}
+local Toggled = false
+local Fading = false
+local OldMouseIconState = nil
+local CursorGui = nil
+local CursorImage = nil
+
+local CURSOR_IMAGE = "rbxassetid://12230889708"
+local CURSOR_SIZE = 24
+
 if RunService:IsStudio() then
    Library.IsMobile = InputService.TouchEnabled and not InputService.MouseEnabled 
 else
@@ -357,91 +367,84 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
-function Library:MakeDraggable(instance, cutoff, isMainWindow)
-	instance.Active = true
-	cutoff = cutoff or 40
+function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
+	Instance.Active = true;
 
-	local canDrag = function()
-		return uiVisible and (not isMainWindow or not Library.CantDragForced)
-	end
+	if Library.IsMobile == false then
+		Instance.InputBegan:Connect(function(Input)
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+				if IsMainWindow == true and Library.CantDragForced == true then
+					return;
+				end;
 
-	if not Library.IsMobile then
-		instance.InputBegan:Connect(function(input)
-			if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
-				return
-			end
+				local ObjPos = Vector2.new(
+					Mouse.X - Instance.AbsolutePosition.X,
+					Mouse.Y - Instance.AbsolutePosition.Y
+				);
 
-			if not canDrag() then
-				return
-			end
+				if ObjPos.Y > (Cutoff or 40) then
+					return;
+				end;
 
-			local objPos = Vector2.new(
-				Mouse.X - instance.AbsolutePosition.X,
-				Mouse.Y - instance.AbsolutePosition.Y
-			)
+				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+					Instance.Position = UDim2.new(
+						0,
+						Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+						0,
+						Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+					);
 
-			if objPos.Y > cutoff then
-				return
-			end
-
-			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-				instance.Position = UDim2.new(
-					0,
-					Mouse.X - objPos.X + (instance.Size.X.Offset * instance.AnchorPoint.X),
-					0,
-					Mouse.Y - objPos.Y + (instance.Size.Y.Offset * instance.AnchorPoint.Y)
-				)
-				RenderStepped:Wait()
-			end
-		end)
+					RenderStepped:Wait();
+				end;
+			end;
+		end);
 	else
-		local dragging = false
-		local draggingInput
-		local dragStart
-		local startPosition
+		local Dragging, DraggingInput, DraggingStart, StartPosition;
 
-		InputService.TouchStarted:Connect(function(input)
-			if not canDrag() then
-				dragging = false
-				return
+		InputService.TouchStarted:Connect(function(Input)
+			if IsMainWindow == true and Library.CantDragForced == true then
+				Dragging = false
+				return;
 			end
 
-			if Library:MouseIsOverFrame(instance, input) and (not isMainWindow or (Library.CanDrag and Library.Window.Holder.Visible)) then
-				draggingInput = input
-				dragStart = input.Position
-				startPosition = instance.Position
+			if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
+				DraggingInput = Input;
+				DraggingStart = Input.Position;
+				StartPosition = Instance.Position;
 
-				local offset = input.Position - dragStart
-				if offset.Y > cutoff then
-					dragging = false
-					return
-				end
+				local OffsetPos = Input.Position - DraggingStart;
+				if OffsetPos.Y > (Cutoff or 40) then
+					Dragging = false;
+					return;
+				end;
 
-				dragging = true
+				Dragging = true;
+			end;
+		end);
+		InputService.TouchMoved:Connect(function(Input)
+			if IsMainWindow == true and Library.CantDragForced == true then
+				Dragging = false;
+				return;
 			end
-		end)
 
-		InputService.TouchMoved:Connect(function(input)
-			if not canDrag() or input ~= draggingInput or not dragging then
-				return
-			end
+			if Input == DraggingInput and Dragging and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
+				local OffsetPos = Input.Position - DraggingStart;
 
-			local offset = input.Position - dragStart
-			instance.Position = UDim2.new(
-				startPosition.X.Scale,
-				startPosition.X.Offset + offset.X,
-				startPosition.Y.Scale,
-				startPosition.Y.Offset + offset.Y
-			)
-		end)
-
-		InputService.TouchEnded:Connect(function(input)
-			if input == draggingInput then
-				dragging = false
-			end
-		end)
-	end
-end
+				Instance.Position = UDim2.new(
+					StartPosition.X.Scale,
+					StartPosition.X.Offset + OffsetPos.X,
+					StartPosition.Y.Scale,
+					StartPosition.Y.Offset + OffsetPos.Y
+				);
+			end;
+		end);
+		InputService.TouchEnded:Connect(function(Input)
+			if Input == DraggingInput then 
+				Dragging = false;
+			end;
+		end);
+	end;
+end;
 
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
 	Instance.Active = true;
@@ -5574,8 +5577,6 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
-    LibraryMainOuterFrame = Outer;
-    Library:MakeDraggable(Outer, 10, true);
     
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
@@ -5597,13 +5598,14 @@ function Library:CreateWindow(...)
     });
 
     local WindowLabel = Library:CreateLabel({
-        Position = UDim2.new(0, 7, 0, 0);
-        Size = UDim2.new(0, 0, 0, 25);
-        Text = Config.Title or '';
-        TextXAlignment = Enum.TextXAlignment.Left;
-        ZIndex = 1;
-        Parent = Inner;
-    });
+		Position = UDim2.new(0, 7, 0, 0);
+		Size = UDim2.new(1, -14, 0, 25);
+		Text = Config.Title or '';
+		TextXAlignment = Enum.TextXAlignment.Left;
+		ZIndex = 1;
+		Parent = Inner;
+	});
+	Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
 
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
@@ -6370,25 +6372,13 @@ function Library:CreateWindow(...)
     end;
     
 
-local TransparencyCache = {}
-local Toggled = false
-local Fading = false
-local OldMouseIconState = nil
-local CursorGui = nil
-local CursorImage = nil
-
--- // Configurações visuais
-local CURSOR_IMAGE = "rbxassetid://12230889708"
-local CURSOR_SIZE = 24
-
--- // Função principal
 function Library:Toggle(Toggling)
 	if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
 	if Fading then return end
 
 	local FadeTime = Config.MenuFadeTime
 	Fading = true
-	Toggled = not Toggled
+	Toggled = (not Toggled);
 	Library.Toggled = Toggled
 	ModalElement.Modal = Toggled
 
