@@ -15,7 +15,7 @@ local Toggles = Library.Toggles
 
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
-Library.NotifySide = 'Right'
+Library.NotifySide = 'Left'
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- MAIN WINDOW CREATION
@@ -44,7 +44,7 @@ local Tabs = {
 -- TOGGLE EXAMPLES
 -- ────────────────────────────────────────────────────────────────────────────────
 
-local ToggleGroup = Tabs.Main:AddLeftGroupbox('Toggle Examples')
+local ToggleGroup = Tabs.Main:AddLeftGroupbox('Toggle Examples', "Left") -- Label alignment: "Left", "Center" or "Right"
 
 -- Simple toggle with key picker
 local MyToggle = ToggleGroup:AddToggle('MyToggle', {
