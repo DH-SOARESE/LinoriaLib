@@ -3684,9 +3684,9 @@ local Slider = {
 
         Prefix = typeof(Info.Prefix) == "string" and Info.Prefix or "";  
         Suffix = typeof(Info.Suffix) == "string" and Info.Suffix or "";  
-        
-        ValueTextMax = typeof(Info.ValueTextMax) == "string" and Info.ValueTextMax or "";  
-        ValueTextMin = typeof(Info.ValueTextMin) == "string" and Info.ValueTextMin or "";  
+
+        ValueTextMin = typeof(Info.ValueTextMin) == "string" and Info.ValueTextMin or "",  
+        ValueTextMax = typeof(Info.ValueTextMax) == "string" and Info.ValueTextMax or "",  
 
         Callback = Info.Callback or function(Value) end;  
     };  
@@ -3810,37 +3810,40 @@ local Slider = {
     end;  
       
     function Slider:Display()  
-        local FormattedValue;
-        
-        -- Verifica se está no máximo e tem ValueTextMax definido
-        if Slider.Value == Slider.Max and Slider.ValueTextMax ~= "" then
-            FormattedValue = Slider.ValueTextMax;
-        -- Verifica se está no mínimo e tem ValueTextMin definido
-        elseif Slider.Value == Slider.Min and Slider.ValueTextMin ~= "" then
-            FormattedValue = Slider.ValueTextMin;
-        else
-            FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value);
-        end
-        
-        if Info.Compact then  
-            DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, FormattedValue, Slider.Suffix);  
+    local FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value);  
+    local FormattedMax = tostring(Slider.Max);
+    
+    -- Determina o texto do valor atual
+    local ValueDisplay = FormattedValue;
+    if Slider.Value == Slider.Min and Slider.ValueTextMin ~= "" then  
+        ValueDisplay = Slider.ValueTextMin;  
+    elseif Slider.Value == Slider.Max and Slider.ValueTextMax ~= "" then  
+        ValueDisplay = Slider.ValueTextMax;  
+    end
+    
+    -- Determina o texto do valor máximo
+    local MaxDisplay = FormattedMax;
+    if Slider.ValueTextMax ~= "" then
+        MaxDisplay = Slider.ValueTextMax;
+    end
+    
+    if Info.Compact then  
+        DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, ValueDisplay, Slider.Suffix);  
 
-        elseif Info.HideMax then  
-            DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, FormattedValue, Slider.Suffix);  
+    elseif Info.HideMax then  
+        DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, ValueDisplay, Slider.Suffix);  
 
-        else  
-            DisplayLabel.Text = string.format("%s%s%s/%s%s%s",   
-                Slider.Prefix, FormattedValue, Slider.Suffix,  
-                Slider.Prefix, tostring(Slider.Max), Slider.Suffix);  
-        end;  
-
-        local X = Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, 1);  
-        Fill.Size = UDim2.new(X, 0, 1, 0);  
-
-        -- I have no idea what this is  
-        HideBorderRight.Visible = not (X == 1 or X == 0);  
+    else  
+        DisplayLabel.Text = string.format("%s%s%s/%s%s%s",   
+            Slider.Prefix, ValueDisplay, Slider.Suffix,  
+            Slider.Prefix, MaxDisplay, Slider.Suffix);  
     end;  
 
+    local X = Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, 1);  
+    Fill.Size = UDim2.new(X, 0, 1, 0);  
+
+    HideBorderRight.Visible = not (X == 1 or X == 0);  
+end;
     function Slider:OnChanged(Func)  
         Slider.Changed = Func;  
 
