@@ -3684,9 +3684,9 @@ local Slider = {
 
         Prefix = typeof(Info.Prefix) == "string" and Info.Prefix or "";  
         Suffix = typeof(Info.Suffix) == "string" and Info.Suffix or "";  
-        
-        ValueTextMax = typeof(Info.ValueTextMax) == "string" and Info.ValueTextMax or "";  
-        ValueTextMin = typeof(Info.ValueTextMin) == "string" and Info.ValueTextMin or "";  
+
+        ValueTextMin = typeof(Info.ValueTextMin) == "string" and Info.ValueTextMin or "",  
+        ValueTextMax = typeof(Info.ValueTextMax) == "string" and Info.ValueTextMax or "",  
 
         Callback = Info.Callback or function(Value) end;  
     };  
@@ -3810,28 +3810,30 @@ local Slider = {
     end;  
       
     function Slider:Display()  
-        local FormattedValue;
-        
-        -- Verifica se está no máximo e tem ValueTextMax definido
-        if Slider.Value == Slider.Max and Slider.ValueTextMax ~= "" then
-            FormattedValue = Slider.ValueTextMax;
-        -- Verifica se está no mínimo e tem ValueTextMin definido
-        elseif Slider.Value == Slider.Min and Slider.ValueTextMin ~= "" then
-            FormattedValue = Slider.ValueTextMin;
-        else
-            FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value);
-        end
-        
+        local FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value);  
+        local isCustom = false;  
+        local ValueDisplay = FormattedValue;  
+        if Slider.Value == Slider.Min and Slider.ValueTextMin ~= "" then  
+            ValueDisplay = Slider.ValueTextMin;  
+            isCustom = true;  
+        elseif Slider.Value == Slider.Max and Slider.ValueTextMax ~= "" then  
+            ValueDisplay = Slider.ValueTextMax;  
+            isCustom = true;  
+        end  
         if Info.Compact then  
-            DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, FormattedValue, Slider.Suffix);  
+            DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, ValueDisplay, Slider.Suffix);  
 
         elseif Info.HideMax then  
-            DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, FormattedValue, Slider.Suffix);  
+            DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, ValueDisplay, Slider.Suffix);  
 
         else  
-            DisplayLabel.Text = string.format("%s%s%s/%s%s%s",   
-                Slider.Prefix, FormattedValue, Slider.Suffix,  
-                Slider.Prefix, tostring(Slider.Max), Slider.Suffix);  
+            if isCustom then  
+                DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, ValueDisplay, Slider.Suffix);  
+            else  
+                DisplayLabel.Text = string.format("%s%s%s/%s%s%s",   
+                    Slider.Prefix, ValueDisplay, Slider.Suffix,  
+                    Slider.Prefix, tostring(Slider.Max), Slider.Suffix);  
+            end  
         end;  
 
         local X = Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, 1);  
