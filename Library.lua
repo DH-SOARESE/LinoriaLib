@@ -3081,24 +3081,24 @@ do
         Type = 'Divider',
     }
 
-    Groupbox:AddBlank(2)
+    Groupbox:AddBlank(3)
 
-    -- Container principal do divider
+    
     local DividerOuter = Library:Create('Frame', {
         BackgroundTransparency = 1;
-        Size = UDim2.new(1, -4, 0, 8); -- Altura fixa
+        Size = UDim2.new(1, -4, 0, 18); -- antes 8 → agora 18 (mais alto)
         ZIndex = 5;
         Parent = Container;
     })
 
-    -- Se não houver label, cria uma linha completa
+    
     if not LabelText or LabelText == "" then
         local DividerLine = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 0, 1);
-            Position = UDim2.new(0, 0, 0.5, 0);
+            Size = UDim2.new(1, 0, 0, 2); 
+            Position = UDim2.new(0, 0, 0.5, -1);
             ZIndex = 6;
             Parent = DividerOuter;
         })
@@ -3113,28 +3113,28 @@ do
             BackgroundTransparency = 1;
             Text = tostring(LabelText);
             Font = Enum.Font.Code;
-            TextSize = 13;
+            TextSize = 14; -- levemente maior
             TextColor3 = Library.FontColor;
             TextStrokeTransparency = 0;
             ZIndex = 7;
             AnchorPoint = Vector2.new(0.5, 0.5);
-            Position = UDim2.new(0.5, 0, 0.5, 0); -- Centralizado
+            Position = UDim2.new(0.5, 0, 0.5, 0);
             Parent = DividerOuter;
         })
 
-        -- Ajusta largura horizontal do label de acordo com o texto
-        Label.Size = UDim2.new(0, Label.TextBounds.X + 8, 0, 13)
+        
+        Label.Size = UDim2.new(0, Label.TextBounds.X + 12, 0, 16)
 
-        -- Linhas laterais proporcionais
-        local leftWidth = 0.5 - (Label.TextBounds.X / 2) / DividerOuter.AbsoluteSize.X
-        local RightOffset = Label.Size.X.Offset / 2 + 4
+        
+        local lineThickness = 2
+        local sideOffset = Label.Size.X.Offset / 2 + 8
 
         local LeftLine = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 6, 0, 1);
-            Position = UDim2.new(0, 0, 0.5, 0);
+            Size = UDim2.new(0.5, -sideOffset, 0, lineThickness);
+            Position = UDim2.new(0, 0, 0.5, -lineThickness / 2);
             ZIndex = 6;
             Parent = DividerOuter;
         })
@@ -3143,13 +3143,12 @@ do
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 6, 0, 1);
-            Position = UDim2.new(0.5, Label.Size.X.Offset / 2 + 6, 0.5, 0);
+            Size = UDim2.new(0.5, -sideOffset, 0, lineThickness);
+            Position = UDim2.new(0.5, sideOffset, 0.5, -lineThickness / 2);
             ZIndex = 6;
             Parent = DividerOuter;
         })
 
-        -- Registro pro sistema de temas
         Library:AddToRegistry(LeftLine, {
             BackgroundColor3 = 'MainColor';
             BorderColor3 = 'OutlineColor';
@@ -3165,7 +3164,7 @@ do
         })
     end
 
-    Groupbox:AddBlank(8)
+    Groupbox:AddBlank(10)
     Groupbox:Resize()
 end
     
