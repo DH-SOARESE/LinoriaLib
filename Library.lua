@@ -3128,7 +3128,7 @@ do
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 4, 0, 1);
+            Size = UDim2.new(1, -Label.Size.X.Offset / 2 - 4, 0, 1);
             Position = UDim2.new(0, 0, 0.5, -0.5);
             ZIndex = 6;
             Parent = DividerOuter;
@@ -3138,7 +3138,7 @@ do
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 4, 0, 1);
+            Size = UDim2.new(1, -Label.Size.X.Offset / 2 - 4, 0, 1);
             Position = UDim2.new(0.5, Label.Size.X.Offset / 2 + 4, 0.5, -0.5);
             ZIndex = 6;
             Parent = DividerOuter;
