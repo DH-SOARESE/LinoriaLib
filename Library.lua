@@ -3082,22 +3082,24 @@ do
     }
 
     Groupbox:AddBlank(2)
+
+    -- Frame base do divisor
     local DividerOuter = Library:Create('Frame', {
-        BackgroundColor3 = Color3.new(0, 0, 0);  
-        BorderColor3 = Color3.new(0, 0, 0);  
-        Size = UDim2.new(1, -4, 0, 5);  
-        ZIndex = 5;  
-        Parent = Container;  
+        BackgroundColor3 = Color3.new(0, 0, 0);
+        BorderColor3 = Color3.new(0, 0, 0);
+        Size = UDim2.new(1, -4, 0, 5);
+        ZIndex = 5;
+        Parent = Container;
     })
 
-    -- Se não houver label, cria uma linha completa
     if not LabelText or LabelText == "" then
+        -- Divider simples (sem texto)
         local DividerLine = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
             Size = UDim2.new(1, 0, 0, 5);
-            Position = UDim2.new(0, 0, 0.5, -0.5);
+            Position = UDim2.new(0, 0, 0.5, -2);
             ZIndex = 6;
             Parent = DividerOuter;
         })
@@ -3107,6 +3109,7 @@ do
             BorderColor3 = 'OutlineColor';
         })
     else
+        -- Label centralizado
         local Label = Library:Create('TextLabel', {
             BackgroundTransparency = 1;
             Text = tostring(LabelText);
@@ -3118,15 +3121,17 @@ do
             Parent = DividerOuter;
         })
 
+        -- Centraliza horizontalmente e ajusta largura
         Label.Size = UDim2.new(0, Label.TextBounds.X + 10, 1, 0)
         Label.Position = UDim2.new(0.5, -Label.Size.X.Offset / 2, 0, 0)
 
+        -- Linhas laterais
         local LeftLine = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
             Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 4, 0, 5);
-            Position = UDim2.new(0, 0, 0.5, -0.5);
+            Position = UDim2.new(0, 0, 0.5, -2);
             ZIndex = 6;
             Parent = DividerOuter;
         })
@@ -3136,32 +3141,28 @@ do
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
             Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 4, 0, 5);
-            Position = UDim2.new(0.5, Label.Size.X.Offset / 2 + 4, 0.5, -0.5);
+            Position = UDim2.new(0.5, Label.Size.X.Offset / 2 + 4, 0.5, -2);
             ZIndex = 6;
             Parent = DividerOuter;
         })
-        
-        Library:AddToRegistry(LeftLine, {  
-        BorderColor3 = 'Black';  
-        });  
-        
-        Library:AddToRegistry(RightLine, {  
-        BorderColor3 = 'Black';  
-        });  
+
+        Library:AddToRegistry(Label, {
+            TextColor3 = 'FontColor';
+        })
 
         Library:AddToRegistry(LeftLine, {
             BackgroundColor3 = 'MainColor';
             BorderColor3 = 'OutlineColor';
-        });
+        })
 
         Library:AddToRegistry(RightLine, {
             BackgroundColor3 = 'MainColor';
             BorderColor3 = 'OutlineColor';
-        });
+        })
     end
 
-    Groupbox:AddBlank(9);
-    Groupbox:Resize();
+    Groupbox:AddBlank(9)
+    Groupbox:Resize()
 end
     
     function BaseGroupboxFuncs:AddInput(Idx, Info)
