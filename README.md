@@ -20,8 +20,6 @@ local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))
 local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
 ```
 
-## 🏗️ Basic Setup
-
 ### 1. Creating a Window
 
 ```lua
@@ -46,7 +44,7 @@ local Window = Library:CreateWindow({
 
 ```lua
 local Tabs = {
-    Player = Window:AddTab('Player'),
+    Main = Window:AddTab('Main'),
     Settings = Window:AddTab('Settings')
 }
 ```
@@ -57,17 +55,28 @@ local Tabs = {
 
 ```lua
 -- Left groupbox
-local PlayerFeatures = Tabs.Player:AddLeftGroupbox('Player Features')
-
+local Left = Tabs.Main:AddLeftGroupbox('Left')
+```
+```lua
 -- Right groupbox
-local ExtraOptions = Tabs.Player:AddRightGroupbox('Extra Options')
+local Right = Tabs.Main:AddRightGroupbox('Right')
 ```
 
 ---
 
+## 🎨 Tabboxes
+
+```lua
+local SubTabs = Tabs.Main:AddRightTabbox()
+local Tab1 = SubTabs:AddTab('Sub tab1')
+local Tab2 = SubTabs:AddTab('Sub tab2')
+```
+---
+
+
 ## 📋 Interface Elements
 
-### 🔘 Toggle
+### Toggle
 
 ```lua
 -- Basic toggle
@@ -478,20 +487,7 @@ Groupbox:AddLabel('Multi-line:\nEverything working!', true)
 
 -- Divider
 Groupbox:AddDivider()
-Groupbox:AddDivider("End")
-```
-
----
-
-## 🎨 Tabboxes
-
-```lua
-local SubTabs = Tabs.Player:AddRightTabbox()
-local Combat = SubTabs:AddTab('Combat')
-local Movement = SubTabs:AddTab('Movement')
-
-Combat:AddToggle('Aimbot', {Text = 'Aimbot', Default = false})
-Movement:AddSlider('WalkSpeed', {Text = 'Speed', Min = 1, Max = 100, Default = 16})
+Groupbox:AddDivider("Divider with label")
 ```
 
 ---
