@@ -3097,7 +3097,7 @@ do
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 0, 1);
+            Size = UDim2.new(1, 0, 0, 5);
             Position = UDim2.new(0, 0, 0.5, -0.5);
             ZIndex = 6;
             Parent = DividerOuter;
@@ -6054,105 +6054,106 @@ function Library:CreateWindow(...)
                 TabButtonLabel.Text = Tab.Name;
             end
         end;
-
+        
         function Tab:AddGroupbox(Info)
-            local Groupbox = {};
+    local Groupbox = {}
 
-            local BoxOuter = Library:Create('Frame', {
-                BackgroundColor3 = Library.BackgroundColor;
-                BorderColor3 = Library.OutlineColor;
-                BorderMode = Enum.BorderMode.Inset;
-                Size = UDim2.new(1, 0, 0, 507 + 2);
-                ZIndex = 2;
-                Parent = Info.Side == 1 and LeftSide or RightSide;
-            });
+    local BoxOuter = Library:Create('Frame', {
+        BackgroundColor3 = Library.BackgroundColor,
+        BorderColor3 = Library.OutlineColor,
+        BorderMode = Enum.BorderMode.Inset,
+        Size = UDim2.new(1, 0, 0, 507 + 2),
+        ZIndex = 2,
+        Parent = Info.Side == 1 and LeftSide or RightSide,
+    })
 
-            Library:AddToRegistry(BoxOuter, {
-                BackgroundColor3 = 'BackgroundColor';
-                BorderColor3 = 'OutlineColor';
-            });
+    Library:AddToRegistry(BoxOuter, {
+        BackgroundColor3 = 'BackgroundColor',
+        BorderColor3 = 'OutlineColor',
+    })
 
-            local BoxInner = Library:Create('Frame', {
-                BackgroundColor3 = Library.BackgroundColor;
-                BorderColor3 = Color3.new(0, 0, 0);
-                -- BorderMode = Enum.BorderMode.Inset;
-                Size = UDim2.new(1, -2, 1, -2);
-                Position = UDim2.new(0, 1, 0, 1);
-                ZIndex = 4;
-                Parent = BoxOuter;
-            });
+    local BoxInner = Library:Create('Frame', {
+        BackgroundColor3 = Library.BackgroundColor,
+        BorderColor3 = Color3.new(0, 0, 0),
+        Size = UDim2.new(1, -2, 1, -2),
+        Position = UDim2.new(0, 1, 0, 1),
+        ZIndex = 4,
+        Parent = BoxOuter,
+    })
 
-            Library:AddToRegistry(BoxInner, {
-                BackgroundColor3 = 'BackgroundColor';
-            });
+    Library:AddToRegistry(BoxInner, {
+        BackgroundColor3 = 'BackgroundColor',
+    })
 
-            local Highlight = Library:Create('Frame', {
-                BackgroundColor3 = Library.AccentColor;
-                BorderSizePixel = 0;
-                Size = UDim2.new(1, 0, 0, 2);
-                ZIndex = 5;
-                Parent = BoxInner;
-            });
+    local Highlight = Library:Create('Frame', {
+        BackgroundColor3 = Library.AccentColor,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 0, 2),
+        ZIndex = 5,
+        Parent = BoxInner,
+    })
 
-            Library:AddToRegistry(Highlight, {
-                BackgroundColor3 = 'AccentColor';
-            });
+    Library:AddToRegistry(Highlight, {
+        BackgroundColor3 = 'AccentColor',
+    })
 
-            local GroupboxLabel = Library:CreateLabel({
-                Size = UDim2.new(1, 0, 0, 18);
-                Position = UDim2.new(0, 4, 0, 2);
-                TextSize = 14;
-                Text = Info.Name;
-                TextXAlignment = Enum.TextXAlignment.Left;
-                ZIndex = 5;
-                Parent = BoxInner;
-            });
+    local LabelHeight = 0
+    if Info.Name and Info.Name ~= "" then
+        LabelHeight = 20
+        local GroupboxLabel = Library:CreateLabel({
+            Size = UDim2.new(1, 0, 0, 18),
+            Position = UDim2.new(0, 4, 0, 2),
+            TextSize = 14,
+            Text = Info.Name,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 5,
+            Parent = BoxInner,
+        })
+    end
 
-            local Container = Library:Create('Frame', {
-                BackgroundTransparency = 1;
-                Position = UDim2.new(0, 4, 0, 20);
-                Size = UDim2.new(1, -4, 1, -20);
-                ZIndex = 1;
-                Parent = BoxInner;
-            });
+    local Container = Library:Create('Frame', {
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 4, 0, LabelHeight),
+        Size = UDim2.new(1, -4, 1, -LabelHeight),
+        ZIndex = 1,
+        Parent = BoxInner,
+    })
 
-            Library:Create('UIListLayout', {
-                FillDirection = Enum.FillDirection.Vertical;
-                SortOrder = Enum.SortOrder.LayoutOrder;
-                Parent = Container;
-            });
+    Library:Create('UIListLayout', {
+        FillDirection = Enum.FillDirection.Vertical,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = Container,
+    })
 
-            function Groupbox:Resize()
-                local Size = 0;
+    function Groupbox:Resize()
+        local Size = 0
+        for _, Element in next, Groupbox.Container:GetChildren() do
+            if not Element:IsA('UIListLayout') and Element.Visible then
+                Size = Size + Element.Size.Y.Offset
+            end
+        end
+        BoxOuter.Size = UDim2.new(1, 0, 0, (LabelHeight * DPIScale + Size) + 4)
+    end
 
-                for _, Element in next, Groupbox.Container:GetChildren() do
-                    if (not Element:IsA('UIListLayout')) and Element.Visible then
-                        Size = Size + Element.Size.Y.Offset;
-                    end;
-                end;
+    Groupbox.Container = Container
+    setmetatable(Groupbox, BaseGroupbox)
 
-                BoxOuter.Size = UDim2.new(1, 0, 0, (20 * DPIScale + Size) + 2 + 2);
-            end;
+    Groupbox:AddBlank(3)
+    Groupbox:Resize()
 
-            Groupbox.Container = Container;
-            setmetatable(Groupbox, BaseGroupbox);
+    Tab.Groupboxes[Info.Name or tostring(#Tab.Groupboxes + 1)] = Groupbox
 
-            Groupbox:AddBlank(3);
-            Groupbox:Resize();
+    return Groupbox
+end
 
-            Tab.Groupboxes[Info.Name] = Groupbox;
+function Tab:AddLeftGroupbox(Name)
+    return Tab:AddGroupbox({ Side = 1, Name = Name })
+end
 
-            return Groupbox;
-        end;
-
-        function Tab:AddLeftGroupbox(Name)
-            return Tab:AddGroupbox({ Side = 1; Name = Name; });
-        end;
-
-        function Tab:AddRightGroupbox(Name)
-            return Tab:AddGroupbox({ Side = 2; Name = Name; });
-        end;
-
+function Tab:AddRightGroupbox(Name)
+    return Tab:AddGroupbox({ Side = 2, Name = Name })
+end
+       
         function Tab:AddTabbox(Info)
             local Tabbox = {
                 Tabs = {};
