@@ -2270,6 +2270,7 @@ updatePickerPosition()
 
             ScrollBarThickness = 3,
             ScrollBarImageColor3 = Library.AccentColor,
+            ScrollingElasticity = Enum.ScrollingElasticity.Never,
         });
 
         Library:AddToRegistry(Scrolling, {
