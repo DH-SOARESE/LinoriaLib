@@ -3831,7 +3831,7 @@ local Slider = {
                 DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, ValueDisplay, Slider.Suffix);  
             else  
                 DisplayLabel.Text = string.format("%s%s%s/%s%s%s",   
-                    Slider.Prefix, ValueDisplay, Slider.Suffix,  
+                    Slider.Prefix, FormattedValue, Slider.Suffix,  
                     Slider.Prefix, tostring(Slider.Max), Slider.Suffix);  
             end  
         end;  
