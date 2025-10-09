@@ -1,28 +1,48 @@
-local repo = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- LINORIALIB COMPREHENSIVE EXAMPLE
+-- A complete guide showcasing all UI components and features
+-- ═══════════════════════════════════════════════════════════════════════════════
 
--- Load libraries with error handling
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))() or error("Failed to load Library")
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))() or error("Failed to load ThemeManager")
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))() or error("Failed to load SaveManager")
+local REPO_URL = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 
--- Shortcuts for quick access
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- LIBRARY INITIALIZATION
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+local function loadLibrary(path)
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(REPO_URL .. path))()
+    end)
+    
+    if not success then
+        error("Failed to load " .. path .. ": " .. tostring(result))
+    end
+    
+    return result
+end
+
+local Library = loadLibrary('Library.lua')
+local ThemeManager = loadLibrary('addons/ThemeManager.lua')
+local SaveManager = loadLibrary('addons/SaveManager.lua')
+
+-- Quick access to library objects
 local Options = Library.Options
 local Toggles = Library.Toggles
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- GLOBAL SETTINGS
+-- LIBRARY CONFIGURATION
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
-Library.NotifySide = 'Left'
+Library.NotifySide = 'Right' -- Notification position: 'Left' or 'Right'
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- MAIN WINDOW CREATION
+-- MAIN WINDOW
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local Window = Library:CreateWindow({
-    Title = 'LinoriaLib Example',
+    Title = 'LinoriaLib | Complete Examples',
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -31,523 +51,576 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- TAB STRUCTURE
+-- ═══════════════════════════════════════════════════════════════════════════════
+
 local Tabs = {
-    Main = Window:AddTab('Main'),
+    Components = Window:AddTab('Components'),
+    Advanced = Window:AddTab('Advanced'),
     Settings = Window:AddTab('Settings')
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- MAIN TAB - UI ELEMENT EXAMPLES
+-- COMPONENTS TAB - BASIC UI ELEMENTS
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- ────────────────────────────────────────────────────────────────────────────────
--- TOGGLE EXAMPLES
--- ────────────────────────────────────────────────────────────────────────────────
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ TOGGLES                                                                   ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
 
-local ToggleGroup = Tabs.Main:AddLeftGroupbox('Toggle Examples', "Left") -- Label alignment: "Left", "Center" or "Right"
+local ToggleBox = Tabs.Components:AddLeftGroupbox('Toggles', 'Center')
 
--- Simple toggle with key picker
-local MyToggle = ToggleGroup:AddToggle('MyToggle', {
-    Text = 'Simple Toggle',
+-- Basic Toggle
+ToggleBox:AddToggle('BasicToggle', {
+    Text = 'Basic Toggle',
     Default = false,
-    Tooltip = 'A basic toggle example',
+    Tooltip = 'Simple on/off switch',
     Callback = function(value)
-        print('Simple Toggle changed to:', value)
+        print('[Basic Toggle] State:', value)
     end
-}):AddKeyPicker('KeyToggle', {
-    Mode = 'Toggle',
-    Default = 'E',
-    Text = 'Toggle with Key',
-    SyncToggleState = true
 })
 
--- Toggle with color picker
-local ColorToggle = ToggleGroup:AddToggle('ColorToggle', {
+-- Toggle with Keybind
+ToggleBox:AddToggle('KeybindToggle', {
+    Text = 'Toggle with Keybind',
+    Default = false,
+    Tooltip = 'Can be toggled via keybind',
+    Callback = function(value)
+        print('[Keybind Toggle] State:', value)
+    end
+}):AddKeyPicker('KeybindTogglePicker', {
+    Mode = 'Toggle', -- Toggle, Hold, Always
+    Default = 'E',
+    Text = 'Toggle Key',
+    SyncToggleState = true,
+    Callback = function(value)
+        print('[Keybind] Key changed to:', value)
+    end
+})
+
+-- Toggle with Color Picker
+local ColorToggle = ToggleBox:AddToggle('ColorToggle', {
     Text = 'Toggle with Color',
     Default = false,
-    Tooltip = 'Toggle that includes a color picker',
+    Tooltip = 'Includes color customization',
     Callback = function(value)
-        print('Color Toggle changed to:', value)
+        print('[Color Toggle] State:', value)
     end
 })
 
 ColorToggle:AddColorPicker('ColorPicker', {
-    Title = 'Custom Color',
-    Default = Color3.fromRGB(255, 0, 0),
+    Title = 'Choose Color',
+    Default = Color3.fromRGB(0, 150, 255),
     Transparency = 0.5,
     Callback = function(color, transparency)
-        print('Color changed to:', color, 'Transparency:', transparency)
+        print('[Color] RGB:', color, '| Alpha:', transparency)
     end
 })
 
--- Risky toggle
-ToggleGroup:AddToggle('RiskyToggle', {
-    Text = 'Dangerous Option',
+-- Risky Toggle (Red text warning)
+ToggleBox:AddToggle('RiskyToggle', {
+    Text = 'Risky Option',
     Default = false,
     Risky = true,
-    Tooltip = 'Use with caution! This is a risky option',
+    Tooltip = 'Potentially dangerous feature - use with caution',
     Callback = function(value)
-        print('Risky Toggle changed to:', value)
+        print('[Risky Toggle] State:', value)
     end
 })
 
--- Disabled toggle
-ToggleGroup:AddToggle('DisabledToggle', {
+-- Disabled Toggle
+ToggleBox:AddToggle('DisabledToggle', {
     Text = 'Disabled Toggle',
     Default = false,
     Disabled = true,
-    DisabledTooltip = 'This toggle is disabled and cannot be changed',
-    Tooltip = 'Example of a disabled toggle'
+    DisabledTooltip = 'This feature is currently unavailable',
+    Tooltip = 'Cannot be modified'
 })
 
--- ────────────────────────────────────────────────────────────────────────────────
--- SLIDER EXAMPLES
--- ────────────────────────────────────────────────────────────────────────────────
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ BUTTONS                                                                   ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
 
-local SliderGroup = Tabs.Main:AddRightGroupbox('Slider Examples')
+local ButtonBox = Tabs.Components:AddLeftGroupbox('Buttons')
 
--- ────────────────────────────────────────────────────────────────────────────────
--- Basic Slider
--- ────────────────────────────────────────────────────────────────────────────────
-SliderGroup:AddSlider('NormalSlider', {
-    Text = 'Normal Slider',
+-- Standard Button
+ButtonBox:AddButton({
+    Text = 'Standard Button',
+    Tooltip = 'Click to execute action',
+    Func = function()
+        Library:Notify('Button clicked!', 3)
+        print('[Button] Standard button pressed')
+    end
+})
+
+-- Double-Click Button (Confirmation)
+ButtonBox:AddButton({
+    Text = 'Confirm Action',
+    DoubleClick = true,
+    Tooltip = 'Double-click to confirm',
+    Func = function()
+        Library:Notify('Action confirmed!', 3)
+        print('[Button] Confirmation button activated')
+    end
+})
+
+-- Disabled Button
+ButtonBox:AddButton({
+    Text = 'Disabled Button',
+    Disabled = true,
+    DisabledTooltip = 'This action is unavailable',
+    Tooltip = 'Cannot be clicked',
+    Func = function()
+        print('[Button] This should never print')
+    end
+})
+
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ SLIDERS                                                                   ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
+
+local SliderBox = Tabs.Components:AddRightGroupbox('Sliders')
+
+-- Integer Slider
+SliderBox:AddSlider('IntegerSlider', {
+    Text = 'Integer Slider',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
     Suffix = '%',
-    Tooltip = 'Basic slider from 0 to 100',
+    Tooltip = 'Whole numbers from 0 to 100',
     Callback = function(value)
-        print('Normal Slider changed to:', value)
+        print('[Slider] Integer value:', value)
     end
 })
 
-
--- ────────────────────────────────────────────────────────────────────────────────
--- Compact Slider (Decimal Values)
--- ────────────────────────────────────────────────────────────────────────────────
-SliderGroup:AddSlider('CompactSlider', {
-    Text = 'Compact Slider',
+-- Decimal Slider
+SliderBox:AddSlider('DecimalSlider', {
+    Text = 'Decimal Slider',
     Default = 0.5,
     Min = 0,
     Max = 1,
     Rounding = 2,
     Compact = true,
-    ValueTextMin = 'Min',
-    ValueTextMax = 'Max',
-    Tooltip = 'Compact slider for precise decimal values (0.00 - 1.00)',
+    Tooltip = 'Precise decimal values (0.00 - 1.00)',
     Callback = function(value)
-        print('Compact Slider changed to:', value)
+        print('[Slider] Decimal value:', value)
     end
 })
 
-
--- ────────────────────────────────────────────────────────────────────────────────
--- Slider with Custom Prefix & Suffix
--- ────────────────────────────────────────────────────────────────────────────────
-SliderGroup:AddSlider('CustomSlider', {
-    Text = 'Custom Slider',
+-- Slider with Custom Prefix/Suffix
+SliderBox:AddSlider('CurrencySlider', {
+    Text = 'Currency Slider',
     Default = 250,
     Min = 1,
-    Max = 500,
+    Max = 1000,
     Rounding = 0,
     Prefix = '$',
-    Suffix = ' coins',
-    Tooltip = 'Slider with custom prefix and suffix text',
+    Suffix = ' USD',
+    Tooltip = 'Value with currency formatting',
     Callback = function(value)
-        print('Custom Slider changed to:', value)
+        print('[Slider] Currency value:', value)
     end
 })
 
-
--- ────────────────────────────────────────────────────────────────────────────────
--- Slider with Text on Min/Max (ValueTextMin / ValueTextMax)
--- ────────────────────────────────────────────────────────────────────────────────
-SliderGroup:AddSlider('TextLimitSlider', {
-    Text = 'Text Limit Slider',
+-- Slider with Min/Max Text
+SliderBox:AddSlider('LimitTextSlider', {
+    Text = 'Min/Max Text',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
-    Suffix = '%',
-    ValueTextMin = 'Min',
-    ValueTextMax = 'Max',
-    Tooltip = 'Displays "Min"/"Max" text when reaching limits',
+    ValueTextMin = 'None',
+    ValueTextMax = 'Full',
+    Tooltip = 'Shows text labels at extremes',
     Callback = function(value)
-        print('Text Limit Slider changed to:', value)
+        print('[Slider] Value:', value)
     end
 })
 
-
--- ────────────────────────────────────────────────────────────────────────────────
--- Slider Without Showing Maximum
--- ────────────────────────────────────────────────────────────────────────────────
-SliderGroup:AddSlider('HiddenMaxSlider', {
-    Text = 'Hidden Max Slider',
-    Default = 25,
-    Min = 1,
-    Max = 100,
+-- Slider Without Max Display
+SliderBox:AddSlider('NoMaxSlider', {
+    Text = 'Hidden Maximum',
+    Default = 50,
+    Min = 0,
+    Max = 200,
     Rounding = 0,
     HideMax = true,
-    Tooltip = 'Slider that hides the maximum value display',
+    Tooltip = 'Maximum value not shown',
     Callback = function(value)
-        print('Hidden Max Slider changed to:', value)
+        print('[Slider] Value:', value)
     end
 })
 
--- ────────────────────────────────────────────────────────────────────────────────
--- DROPDOWN EXAMPLES
--- ────────────────────────────────────────────────────────────────────────────────
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ DROPDOWNS                                                                 ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
 
-local DropdownGroup = Tabs.Main:AddLeftGroupbox('Dropdown Examples')
+local DropdownBox = Tabs.Components:AddRightGroupbox('Dropdowns')
 
--- Simple dropdown
-DropdownGroup:AddDropdown('SimpleDropdown', {
-    Text = 'Simple Dropdown',
-    Values = {'Option 1', 'Option 2', 'Option 3'},
+-- Single Selection
+DropdownBox:AddDropdown('SingleSelect', {
+    Text = 'Single Selection',
+    Values = {'Option A', 'Option B', 'Option C', 'Option D'},
     Default = 1,
-    Tooltip = 'Basic single-select dropdown',
+    Tooltip = 'Choose one option',
     Callback = function(value)
-        print('Simple Dropdown selected:', value)
+        print('[Dropdown] Selected:', value)
     end
 })
 
--- Dropdown with search
-DropdownGroup:AddDropdown('SearchableDropdown', {
-    Text = 'Dropdown with Search',
-    Values = {'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'},
+-- Searchable Dropdown
+DropdownBox:AddDropdown('SearchableDropdown', {
+    Text = 'Searchable List',
+    Values = {'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'},
     Default = 1,
     Searchable = true,
-    Tooltip = 'Dropdown with search functionality',
+    Tooltip = 'Type to filter options',
     Callback = function(value)
-        print('Searchable Dropdown selected:', value)
+        print('[Dropdown] Searched and selected:', value)
     end
 })
 
--- Multiple selection dropdown
-DropdownGroup:AddDropdown('MultiDropdown', {
-    Text = 'Multiple Selection',
-    Values = {'ESP', 'Aimbot', 'Speed', 'Fly'},
-    Default = {['ESP'] = true},
+-- Multi-Selection
+DropdownBox:AddDropdown('MultiSelect', {
+    Text = 'Multi-Selection',
+    Values = {'Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'},
+    Default = {['Feature 1'] = true},
     Multi = true,
-    Tooltip = 'Dropdown allowing multiple selections',
+    Tooltip = 'Select multiple options',
     Callback = function(values)
-        print('Multi Dropdown selections:')
+        print('[Dropdown] Multi-select changed:')
         for item, enabled in pairs(values) do
             if enabled then
-                print('  -', item)
+                print('  ✓', item)
             end
         end
     end
 })
 
--- Player dropdown
-DropdownGroup:AddDropdown('PlayerDropdown', {
+-- Player Dropdown
+DropdownBox:AddDropdown('PlayerSelect', {
     Text = 'Select Player',
     SpecialType = 'Player',
     ExcludeLocalPlayer = true,
     Searchable = true,
-    Tooltip = 'Dropdown listing players on the server',
+    Tooltip = 'Choose from server players',
     Callback = function(player)
-        print('Player Dropdown selected:', player)
+        print('[Dropdown] Selected player:', player)
     end
 })
 
--- ────────────────────────────────────────────────────────────────────────────────
--- INPUT EXAMPLES
--- ────────────────────────────────────────────────────────────────────────────────
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ INPUT FIELDS                                                              ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
 
-local InputGroup = Tabs.Main:AddRightGroupbox('Input Examples')
+local InputBox = Tabs.Components:AddLeftGroupbox('Input Fields')
 
--- Basic input
-InputGroup:AddInput('BasicInput', {
-    Text = 'Basic Input',
-    Default = 'Default text',
+-- Standard Text Input
+InputBox:AddInput('StandardInput', {
+    Text = 'Text Input',
+    Default = '',
     Placeholder = 'Type here...',
-    Tooltip = 'Simple text input field',
+    Tooltip = 'Enter any text',
     Callback = function(value)
-        print('Basic Input changed to:', value)
+        print('[Input] Text entered:', value)
     end
 })
 
--- Input with Enter (Finished)
-InputGroup:AddInput('FinishedInput', {
-    Text = 'Input with Enter',
-    Placeholder = 'Press Enter...',
+-- Input with Enter to Confirm
+InputBox:AddInput('ConfirmInput', {
+    Text = 'Confirm Input',
+    Default = '',
+    Placeholder = 'Press Enter to confirm',
     Finished = true,
-    Tooltip = 'Callback triggers only on Enter key',
+    Tooltip = 'Callback triggers only on Enter',
     Callback = function(value)
-        print('Finished Input confirmed:', value)
-        Library:Notify('Text confirmed: ' .. value)
+        print('[Input] Confirmed text:', value)
+        Library:Notify('Text confirmed: ' .. value, 3)
     end
 })
 
--- Input with character limit
-InputGroup:AddInput('LimitedInput', {
-    Text = 'Limited Input',
-    Placeholder = 'Max 10 characters',
-    MaxLength = 10,
+-- Character Limited Input
+InputBox:AddInput('LimitedInput', {
+    Text = 'Limited Input (15)',
+    Default = '',
+    Placeholder = 'Max 15 characters',
+    MaxLength = 15,
     AllowEmpty = false,
-    EmptyReset = 'Default',
-    Tooltip = 'Input limited to 10 characters',
+    EmptyReset = 'Reset',
+    Tooltip = 'Cannot exceed 15 characters',
     Callback = function(value)
-        print('Limited Input changed to:', value)
+        print('[Input] Limited text:', value)
     end
 })
 
--- Numeric input
-InputGroup:AddInput('NumericInput', {
+-- Numeric Only Input
+InputBox:AddInput('NumericInput', {
     Text = 'Numeric Input',
-    Default = '100',
+    Default = '0',
     Placeholder = 'Numbers only',
     Numeric = true,
-    Tooltip = 'Input that accepts only numeric values',
+    Tooltip = 'Accepts only numbers',
     Callback = function(value)
         local num = tonumber(value)
         if num then
-            print('Numeric Input changed to:', num)
+            print('[Input] Number entered:', num)
         end
     end
 })
 
--- Disabled input
-InputGroup:AddInput('DisabledInput', {
-    Text = 'Disabled Input',
-    Default = 'Read only',
+-- Read-Only Input
+InputBox:AddInput('ReadOnlyInput', {
+    Text = 'Read-Only',
+    Default = 'Cannot be edited',
     Disabled = true,
-    Tooltip = 'Input field that cannot be edited'
+    Tooltip = 'This field is read-only'
 })
 
--- ────────────────────────────────────────────────────────────────────────────────
--- BUTTON EXAMPLES
--- ────────────────────────────────────────────────────────────────────────────────
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ KEYPICKERS                                                                ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
 
-local ButtonGroup = Tabs.Main:AddLeftGroupbox('Button Examples')
+local KeyBox = Tabs.Components:AddRightGroupbox('Key Bindings')
 
--- Simple button
-ButtonGroup:AddButton({
-    Text = 'Simple Button',
-    Tooltip = 'Basic button example',
-    Func = function()
-        print('Simple Button pressed!')
-        Library:Notify('Button clicked!')
-    end
-})
-
--- Button with double click
-ButtonGroup:AddButton({
-    Text = 'Double Click',
-    DoubleClick = true,
-    Tooltip = 'Requires double click to activate',
-    Func = function()
-        print('Double Click Button confirmed!')
-        Library:Notify('Action confirmed with double click!')
-    end
-})
-
--- Disabled button
-ButtonGroup:AddButton({
-    Text = 'Disabled Button',
-    Disabled = true,
-    DisabledTooltip = 'This button is disabled',
-    Tooltip = 'Example of a disabled button',
-    Func = function()
-        print('This should not print as button is disabled')
-    end
-})
-
--- Important action button
-ButtonGroup:AddButton({
-    Text = 'Important Action',
-    Tooltip = 'Triggers a notification for an important action',
-    Func = function()
-        Library:Notify('Executing important action...', 3)
-    end
-})
-
--- ────────────────────────────────────────────────────────────────────────────────
--- KEYPICKER EXAMPLES
--- ────────────────────────────────────────────────────────────────────────────────
-
-local KeyGroup = Tabs.Main:AddRightGroupbox('KeyPicker Examples')
-
--- KeyPicker Toggle
-KeyGroup:AddLabel('KeyPicker Toggle'):AddKeyPicker('ToggleKey', {
+-- Toggle Mode
+KeyBox:AddLabel('Toggle Mode (On/Off)'):AddKeyPicker('ToggleModeKey', {
     Default = 'F',
     Mode = 'Toggle',
-    Text = 'Toggle Mode',
+    Text = 'Toggle',
     Callback = function(value)
-        print('Toggle KeyPicker changed to:', value)
+        print('[KeyPicker] Toggle key changed to:', value)
     end
 })
 
--- KeyPicker Hold
-KeyGroup:AddLabel('KeyPicker Hold'):AddKeyPicker('HoldKey', {
+-- Hold Mode
+KeyBox:AddLabel('Hold Mode (Active while held)'):AddKeyPicker('HoldModeKey', {
     Default = 'LeftShift',
     Mode = 'Hold',
-    Text = 'Hold Mode',
+    Text = 'Hold',
     Callback = function(value)
-        print('Hold KeyPicker changed to:', value)
+        print('[KeyPicker] Hold key changed to:', value)
     end
 })
 
--- KeyPicker Always
-KeyGroup:AddLabel('KeyPicker Always'):AddKeyPicker('AlwaysKey', {
-    Default = 'C',
+-- Always Mode
+KeyBox:AddLabel('Always Mode (Permanent activation)'):AddKeyPicker('AlwaysModeKey', {
+    Default = 'None',
     Mode = 'Always',
-    Text = 'Always Mode',
+    Text = 'Always Active',
     Callback = function(value)
-        print('Always KeyPicker changed to:', value)
+        print('[KeyPicker] Always key changed to:', value)
     end
 })
 
--- ────────────────────────────────────────────────────────────────────────────────
--- IMAGE EXAMPLE
--- ────────────────────────────────────────────────────────────────────────────────
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- ADVANCED TAB - COMPLEX FEATURES
+-- ═══════════════════════════════════════════════════════════════════════════════
 
-local ImageGroup = Tabs.Main:AddLeftGroupbox('Image Example')
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ DEPENDENCY SYSTEM                                                         ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
 
--- Roblox Asset Image
-ImageGroup:AddImage('RobloxImage', {
-    Image = 'rbxassetid://9328294962',
-    Height = 100,
-    Color = Color3.fromRGB(255, 255, 255),
-    ScaleType = Enum.ScaleType.Fit,
-    Transparency = 0,
-    Visible = true,
-    Tooltip = 'Example of displaying a Roblox asset image'
-})
+local DependencyBox = Tabs.Advanced:AddLeftGroupbox('Dependency System')
 
--- ────────────────────────────────────────────────────────────────────────────────
--- LABELS AND DIVIDERS EXAMPLES
--- ────────────────────────────────────────────────────────────────────────────────
+DependencyBox:AddLabel('Enable master toggle to reveal options:')
 
-local LabelGroup = Tabs.Main:AddRightGroupbox('Label & Divider Examples')
-
-LabelGroup:AddLabel('Simple Label')
-LabelGroup:AddLabel('Label with multiple lines:\nLine 2\nLine 3', true)
-LabelGroup:AddDivider()
-LabelGroup:AddLabel('After the divider')
-LabelGroup:AddDivider('Banana')  -- Divider with label
-
--- ────────────────────────────────────────────────────────────────────────────────
--- DEPENDENCY BOX EXAMPLE
--- ────────────────────────────────────────────────────────────────────────────────
-
-local DependencyGroup = Tabs.Main:AddLeftGroupbox('Dependency Box Example')
-
-local MasterToggle = DependencyGroup:AddToggle('MasterToggle', {
-    Text = 'Enable Advanced Options',
+local MasterToggle = DependencyBox:AddToggle('MasterToggle', {
+    Text = 'Enable Advanced Features',
     Default = false,
-    Tooltip = 'Toggles visibility of dependent options',
+    Tooltip = 'Toggle to show/hide dependent options',
     Callback = function(value)
-        print('Master Toggle changed to:', value)
+        print('[Dependency] Master toggle:', value)
     end
 })
 
-local DepBox = DependencyGroup:AddDependencyBox()
-DepBox:SetupDependencies({{Toggles.MasterToggle, true}})
+-- Dependency Container
+local DependentBox = DependencyBox:AddDependencyBox()
+DependentBox:SetupDependencies({{Toggles.MasterToggle, true}})
 
-DepBox:AddSlider('DepSlider', {
+DependentBox:AddToggle('DependentToggle', {
+    Text = 'Dependent Toggle',
+    Default = false,
+    Tooltip = 'Only visible when master is enabled',
+    Callback = function(value)
+        print('[Dependency] Child toggle:', value)
+    end
+})
+
+DependentBox:AddSlider('DependentSlider', {
     Text = 'Dependent Slider',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
-    Tooltip = 'Slider visible only when MasterToggle is enabled',
+    Tooltip = 'Only visible when master is enabled',
     Callback = function(value)
-        print('Dependent Slider changed to:', value)
+        print('[Dependency] Child slider:', value)
     end
 })
 
-DepBox:AddDropdown('DepDropdown', {
+DependentBox:AddDropdown('DependentDropdown', {
     Text = 'Dependent Dropdown',
-    Values = {'A', 'B', 'C'},
+    Values = {'Choice 1', 'Choice 2', 'Choice 3'},
     Default = 1,
-    Tooltip = 'Dropdown visible only when MasterToggle is enabled',
+    Tooltip = 'Only visible when master is enabled',
     Callback = function(value)
-        print('Dependent Dropdown selected:', value)
+        print('[Dependency] Child dropdown:', value)
     end
 })
 
--- ────────────────────────────────────────────────────────────────────────────────
--- TABBOX (NESTED TABS) EXAMPLE
--- ────────────────────────────────────────────────────────────────────────────────
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ NESTED TABS (TABBOX)                                                     ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
 
-local SubTabbox = Tabs.Main:AddRightTabbox()
-local SubTab1 = SubTabbox:AddTab('Sub-Tab 1')
-local SubTab2 = SubTabbox:AddTab('Sub-Tab 2')
+local NestedTabbox = Tabs.Advanced:AddRightTabbox()
+local NestedTab1 = NestedTabbox:AddTab('Sub-Tab 1')
+local NestedTab2 = NestedTabbox:AddTab('Sub-Tab 2')
+local NestedTab3 = NestedTabbox:AddTab('Sub-Tab 3')
 
-SubTab1:AddToggle('SubToggle1', {
-    Text = 'Toggle in Sub-Tab 1',
+-- Sub-Tab 1 Content
+NestedTab1:AddToggle('NestedToggle1', {
+    Text = 'Feature in Sub-Tab 1',
     Default = false,
-    Tooltip = 'Toggle inside a nested tab',
+    Tooltip = 'Toggle within nested tab',
     Callback = function(value)
-        print('Sub-Tab 1 Toggle changed to:', value)
+        print('[Nested] Tab 1 toggle:', value)
     end
 })
 
-SubTab2:AddSlider('SubSlider2', {
+NestedTab1:AddInput('NestedInput1', {
+    Text = 'Input in Sub-Tab 1',
+    Default = '',
+    Placeholder = 'Type something...',
+    Tooltip = 'Input within nested tab',
+    Callback = function(value)
+        print('[Nested] Tab 1 input:', value)
+    end
+})
+
+-- Sub-Tab 2 Content
+NestedTab2:AddSlider('NestedSlider2', {
     Text = 'Slider in Sub-Tab 2',
-    Default = 50,
+    Default = 75,
     Min = 0,
-    Max = 100,
+    Max = 150,
     Rounding = 0,
-    Tooltip = 'Slider inside a nested tab',
+    Tooltip = 'Slider within nested tab',
     Callback = function(value)
-        print('Sub-Tab 2 Slider changed to:', value)
+        print('[Nested] Tab 2 slider:', value)
     end
 })
 
+NestedTab2:AddDropdown('NestedDropdown2', {
+    Text = 'Dropdown in Sub-Tab 2',
+    Values = {'Red', 'Green', 'Blue', 'Yellow'},
+    Default = 1,
+    Tooltip = 'Dropdown within nested tab',
+    Callback = function(value)
+        print('[Nested] Tab 2 dropdown:', value)
+    end
+})
+
+-- Sub-Tab 3 Content
+NestedTab3:AddButton({
+    Text = 'Button in Sub-Tab 3',
+    Tooltip = 'Button within nested tab',
+    Func = function()
+        Library:Notify('Sub-Tab 3 button clicked!', 3)
+        print('[Nested] Tab 3 button pressed')
+    end
+})
+
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ LABELS & DIVIDERS                                                         ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
+
+local LabelBox = Tabs.Advanced:AddLeftGroupbox('Labels & Dividers')
+
+LabelBox:AddLabel('Simple label text')
+LabelBox:AddLabel('Multi-line label:\n• Line 1\n• Line 2\n• Line 3', true)
+LabelBox:AddDivider()
+LabelBox:AddLabel('After divider')
+LabelBox:AddDivider('Section Title')
+LabelBox:AddLabel('After titled divider')
+
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║ IMAGE DISPLAY                                                             ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
+
+local ImageBox = Tabs.Advanced:AddRightGroupbox('Image Display')
+
+ImageBox:AddImage('ExampleImage', {
+    Image = 'rbxassetid://9328294962',
+    Height = 150,
+    Color = Color3.fromRGB(255, 255, 255),
+    ScaleType = Enum.ScaleType.Fit,
+    Transparency = 0,
+    Visible = true,
+    Tooltip = 'Displaying Roblox asset image'
+})
+
+ImageBox:AddLabel('Image from Roblox asset ID')
+
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SETTINGS TAB - MENU CONTROLS AND SAVING
+-- SETTINGS TAB - MENU CONFIGURATION
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-local MenuGroup = Tabs.Settings:AddLeftGroupbox('Menu Controls')
+local MenuBox = Tabs.Settings:AddLeftGroupbox('Menu Configuration')
 
+-- Keybind Frame Visibility
 Library.KeybindFrame.Visible = true
 
-MenuGroup:AddToggle('ShowKeybinds', {
-    Text = 'Show Keybinds',
+MenuBox:AddToggle('ShowKeybindFrame', {
+    Text = 'Show Keybind List',
     Default = true,
-    Tooltip = 'Toggles visibility of the keybind frame',
+    Tooltip = 'Display active keybinds frame',
     Callback = function(value)
         Library.KeybindFrame.Visible = value
     end
 })
 
-MenuGroup:AddToggle('ShowWatermark', {
+-- Watermark Visibility
+MenuBox:AddToggle('ShowWatermark', {
     Text = 'Show Watermark',
     Default = true,
-    Tooltip = 'Toggles visibility of the watermark',
+    Tooltip = 'Display watermark with info',
     Callback = function(value)
         Library:SetWatermarkVisibility(value)
     end
 })
 
-MenuGroup:AddLabel('Menu Keybind'):AddKeyPicker('MenuKeybind', {
+-- Menu Toggle Keybind
+MenuBox:AddLabel('Menu Toggle Keybind'):AddKeyPicker('MenuKeybind', {
     Default = 'RightShift',
     NoUI = true,
     Text = 'Toggle Menu',
     Callback = function(value)
-        print('Menu Keybind changed to:', value)
+        print('[Menu] Keybind changed to:', value)
     end
 })
 
-MenuGroup:AddDivider()
+MenuBox:AddDivider()
 
-MenuGroup:AddButton({
+-- Notification Test
+MenuBox:AddButton({
     Text = 'Test Notification',
-    Tooltip = 'Displays a test notification',
+    Tooltip = 'Display test notification',
     Func = function()
-        Library:Notify('This is a test notification!')
+        Library:Notify('This is a test notification message!', 5)
     end
 })
 
-MenuGroup:AddButton({
-    Text = 'Unload Menu',
-    Tooltip = 'Unloads the entire UI library',
+-- Unload UI
+MenuBox:AddButton({
+    Text = 'Unload UI',
+    DoubleClick = true,
+    Tooltip = 'Double-click to unload entire UI',
     Func = function()
+        Library:Notify('Unloading UI...', 2)
+        task.wait(0.5)
         Library:Unload()
     end
 })
@@ -558,19 +631,19 @@ MenuGroup:AddButton({
 
 Library:SetWatermarkVisibility(true)
 
-local function updateWatermark()
+local function InitializeWatermark()
     local RunService = game:GetService('RunService')
     local Stats = game:GetService('Stats')
     
     local frameStart = tick()
     local frameCount = 0
-    local FPS = 60
+    local currentFPS = 60
     
     RunService.Heartbeat:Connect(function()
         frameCount = frameCount + 1
         
         if tick() - frameStart >= 1 then
-            FPS = frameCount
+            currentFPS = frameCount
             frameStart = tick()
             frameCount = 0
         end
@@ -578,29 +651,42 @@ local function updateWatermark()
         local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
         
         Library:SetWatermark(string.format(
-            'LinoriaLib Example | %d FPS | %dms',
-            math.floor(FPS),
+            'LinoriaLib Examples | %d FPS | %dms Ping',
+            math.floor(currentFPS),
             math.floor(ping)
         ))
     end)
 end
 
-updateWatermark()
+InitializeWatermark()
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SAVING SYSTEM
+-- SAVE SYSTEM CONFIGURATION
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 
+-- Ignore theme settings in configs
 SaveManager:IgnoreThemeSettings()
+
+-- Ignore menu keybind from being saved
 SaveManager:SetIgnoreIndexes({'MenuKeybind'})
 
-ThemeManager:SetFolder('MyScript')
-SaveManager:SetFolder('MyScript/configs')
+-- Set save folders
+ThemeManager:SetFolder('LinoriaExamples')
+SaveManager:SetFolder('LinoriaExamples/configs')
 
+-- Build UI for save system
 SaveManager:BuildConfigSection(Tabs.Settings)
 ThemeManager:ApplyToTab(Tabs.Settings)
 
+-- Load autoload config if exists
 SaveManager:LoadAutoloadConfig()
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- FINAL MESSAGE
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+Library:Notify('LinoriaLib Examples loaded successfully!', 5)
+print('[LinoriaLib] All examples initialized')
