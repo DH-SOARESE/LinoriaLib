@@ -3077,92 +3077,108 @@ do
     local Groupbox = self
     local Container = self.Container
 
-    local Divider = {
-        Type = 'Divider',
-    }
+    local Divider = {  
+    Type = 'Divider',  
+}  
 
-    Groupbox:AddBlank(2)
+Groupbox:AddBlank(2);  
 
-    -- Frame base do divisor
-    local DividerOuter = Library:Create('Frame', {
-        BackgroundColor3 = Color3.new(0, 0, 0);
-        BorderColor3 = Color3.new(0, 0, 0);
-        Size = UDim2.new(1, -4, 0, 5);
-        ZIndex = 5;
-        Parent = Container;
-    })
+local TextService = game:GetService("TextService")
+local fontSize = Library.FontSize or 14
+local font = Library.Font or Enum.Font.SourceSans
+local dividerHeight = 5
+local textBounds = Vector2.zero
 
-    if not LabelText or LabelText == "" then
-        -- Divider simples (sem texto)
-        local DividerLine = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.OutlineColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 0, 5);
-            Position = UDim2.new(0, 0, 0.5, -2);
-            ZIndex = 6;
-            Parent = DividerOuter;
-        })
+if text and typeof(text) == "string" and text ~= "" then
+    textBounds = TextService:GetTextSize(text, fontSize, font, Vector2.new(10000, 10000))
+    dividerHeight = math.max(dividerHeight, textBounds.Y)
+end
 
-        Library:AddToRegistry(DividerLine, {
-            BackgroundColor3 = 'MainColor';
-            BorderColor3 = 'OutlineColor';
-        })
-    else
-        -- Label centralizado
-        local Label = Library:Create('TextLabel', {
-            BackgroundTransparency = 1;
-            Text = tostring(LabelText);
-            Font = Enum.Font.Code;
-            TextSize = 13;
-            TextColor3 = Library.FontColor;
-            TextStrokeTransparency = 0;
-            ZIndex = 7;
-            Parent = DividerOuter;
-        })
+local DividerContainer = Library:Create('Frame', {  
+    BackgroundTransparency = 1,  
+    Size = UDim2.new(1, -4, 0, dividerHeight),  
+    ZIndex = 5,  
+    Parent = Container,  
+});  
 
-        -- Centraliza horizontalmente e ajusta largura
-        Label.Size = UDim2.new(0, Label.TextBounds.X + 10, 1, 0)
-        Label.Position = UDim2.new(0.5, -Label.Size.X.Offset / 2, 0, 0)
+local ListLayout = Library:Create('UIListLayout', {  
+    FillDirection = Enum.FillDirection.Horizontal,  
+    VerticalAlignment = Enum.VerticalAlignment.Center,  
+    HorizontalAlignment = Enum.HorizontalAlignment.Left,  
+    Padding = UDim.new(0, 5),  
+    Parent = DividerContainer,  
+});  
 
-        -- Linhas laterais
-        local LeftLine = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.OutlineColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 4, 0, 5);
-            Position = UDim2.new(0, 0, 0.5, -2);
-            ZIndex = 6;
-            Parent = DividerOuter;
-        })
+local function CreateLineSide()
+    local LineOuter = Library:Create('Frame', {  
+        BackgroundColor3 = Color3.new(0, 0, 0),  
+        BorderColor3 = Color3.new(0, 0, 0),  
+        Size = UDim2.new(0, 0, 0, 5),  
+        ZIndex = 5,  
+        Parent = DividerContainer,  
+    });  
 
-        local RightLine = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.OutlineColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 4, 0, 5);
-            Position = UDim2.new(0.5, Label.Size.X.Offset / 2 + 4, 0.5, -2);
-            ZIndex = 6;
-            Parent = DividerOuter;
-        })
+    local LineInner = Library:Create('Frame', {  
+        BackgroundColor3 = Library.MainColor,  
+        BorderColor3 = Library.OutlineColor,  
+        BorderMode = Enum.BorderMode.Inset,  
+        Size = UDim2.new(1, 0, 1, 0),  
+        ZIndex = 6,  
+        Parent = LineOuter,  
+    });  
 
-        Library:AddToRegistry(Label, {
-            TextColor3 = 'FontColor';
-        })
+    Library:AddToRegistry(LineOuter, {  
+        BorderColor3 = 'Black';  
+    });  
 
-        Library:AddToRegistry(LeftLine, {
-            BackgroundColor3 = 'MainColor';
-            BorderColor3 = 'OutlineColor';
-        })
+    Library:AddToRegistry(LineInner, {  
+        BackgroundColor3 = 'MainColor';  
+        BorderColor3 = 'OutlineColor';  
+    });  
 
-        Library:AddToRegistry(RightLine, {
-            BackgroundColor3 = 'MainColor';
-            BorderColor3 = 'OutlineColor';
-        })
+    return LineOuter
+end
+
+local leftLine = CreateLineSide()
+local rightLine = nil
+local label = nil
+
+if text and typeof(text) == "string" and text ~= "" then
+    label = Library:Create('TextLabel', {  
+        BackgroundTransparency = 1,  
+        Text = text,  
+        Font = font,  
+        TextColor3 = Library.FontColor,  
+        TextSize = fontSize,  
+        Size = UDim2.new(0, textBounds.X, 0, textBounds.Y),  
+        ZIndex = 7,  
+        Parent = DividerContainer,  
+    });  
+
+    rightLine = CreateLineSide()
+end
+
+local function UpdateSizes()
+    local totalWidth = DividerContainer.AbsoluteSize.X
+    local gapSize = ListLayout.Padding.Offset
+    local numGaps = (text and typeof(text) == "string" and text ~= "") and 2 or 0
+    local totalGapWidth = gapSize * numGaps
+    local labelWidth = (text and typeof(text) == "string" and text ~= "") and textBounds.X or 0
+    local remainingWidth = totalWidth - labelWidth - totalGapWidth
+    local numLines = (text and typeof(text) == "string" and text ~= "") and 2 or 1
+    local lineWidth = math.max(0, remainingWidth / numLines)
+
+    leftLine.Size = UDim2.new(0, lineWidth, 0, 5)
+    if rightLine then
+        rightLine.Size = UDim2.new(0, lineWidth, 0, 5)
     end
+end
 
-    Groupbox:AddBlank(9)
-    Groupbox:Resize()
+UpdateSizes()
+DividerContainer:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateSizes)
+
+Groupbox:AddBlank(9);  
+Groupbox:Resize();
 end
     
     function BaseGroupboxFuncs:AddInput(Idx, Info)
