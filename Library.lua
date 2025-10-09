@@ -3086,7 +3086,7 @@ do
     
     local DividerOuter = Library:Create('Frame', {
         BackgroundTransparency = 1;
-        Size = UDim2.new(1, -4, 0, 18); -- antes 8 → agora 18 (mais alto)
+        Size = UDim2.new(1, -4, 0, 5); 
         ZIndex = 5;
         Parent = Container;
     })
@@ -3110,7 +3110,6 @@ do
     else
         -- Label centralizado (sem alterar altura)
         local Label = Library:Create('TextLabel', {
-            BackgroundTransparency = 1;
             Text = tostring(LabelText);
             Font = Enum.Font.Code;
             TextSize = 14; -- levemente maior
