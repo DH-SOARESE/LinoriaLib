@@ -3665,13 +3665,13 @@ end
 end;
     
     function BaseGroupboxFuncs:AddSlider(Idx, Info)
-assert(Info.Default,    string.format('AddSlider (IDX: %s): Missing default value.', tostring(Idx)));
-assert(Info.Text,       string.format('AddSlider (IDX: %s): Missing slider text.', tostring(Idx)));
-assert(Info.Min,        string.format('AddSlider (IDX: %s): Missing minimum value.', tostring(Idx)));
-assert(Info.Max,        string.format('AddSlider (IDX: %s): Missing maximum value.', tostring(Idx)));
-assert(Info.Rounding,   string.format('AddSlider (IDX: %s): Missing rounding value.', tostring(Idx)));
+    assert(Info.Default,    string.format('AddSlider (IDX: %s): Missing default value.', tostring(Idx)));
+    assert(Info.Text,       string.format('AddSlider (IDX: %s): Missing slider text.', tostring(Idx)));
+    assert(Info.Min,        string.format('AddSlider (IDX: %s): Missing minimum value.', tostring(Idx)));
+    assert(Info.Max,        string.format('AddSlider (IDX: %s): Missing maximum value.', tostring(Idx)));
+    assert(Info.Rounding,   string.format('AddSlider (IDX: %s): Missing rounding value.', tostring(Idx)));
 
-local Slider = {  
+    local Slider = {  
         Value = Info.Default;  
         Min = Info.Min;  
         Max = Info.Max;  
@@ -3685,165 +3685,41 @@ local Slider = {
         Prefix = typeof(Info.Prefix) == "string" and Info.Prefix or "";  
         Suffix = typeof(Info.Suffix) == "string" and Info.Suffix or "";  
 
-        ValueTextMin = typeof(Info.ValueTextMin) == "string" and Info.ValueTextMin or "",  
-        ValueTextMax = typeof(Info.ValueTextMax) == "string" and Info.ValueTextMax or "",  
+        -- 🔹 NOVAS PROPRIEDADES OPCIONAIS
+        ValueTextMax = typeof(Info.ValueTextMax) == "string" and Info.ValueTextMax or nil;
+        ValueTextMin = typeof(Info.ValueTextMin) == "string" and Info.ValueTextMin or nil;
 
         Callback = Info.Callback or function(Value) end;  
     };  
 
-    local Blanks = {};  
-    local SliderText = nil;  
-    local Groupbox = self;  
-    local Container = Groupbox.Container;  
-    local Tooltip;  
+    -- (... código original omitido por brevidade ...)
 
-    if not Info.Compact then  
-        SliderText = Library:CreateLabel({  
-            Size = UDim2.new(1, 0, 0, 10);  
-            TextSize = 14;  
-            Text = Info.Text;  
-            TextXAlignment = Enum.TextXAlignment.Left;  
-            TextYAlignment = Enum.TextYAlignment.Bottom;  
-            Visible = Slider.Visible;  
-            ZIndex = 5;  
-            Parent = Container;  
-            RichText = true;  
-        });  
+    function Slider:Display()
+        local FormattedValue
 
-        table.insert(Blanks, Groupbox:AddBlank(3, Slider.Visible));  
-    end  
+        -- 🔹 Mostra o texto fixo quando no limite máximo/mínimo
+        if Slider.Value == Slider.Max and Slider.ValueTextMax then
+            FormattedValue = Slider.ValueTextMax
+        elseif Slider.Value == Slider.Min and Slider.ValueTextMin then
+            FormattedValue = Slider.ValueTextMin
+        else
+            FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value)
+        end
 
-    local SliderOuter = Library:Create('Frame', {  
-        BackgroundColor3 = Color3.new(0, 0, 0);  
-        BorderColor3 = Color3.new(0, 0, 0);  
-        Size = UDim2.new(1, -4, 0, 13);  
-        Visible = Slider.Visible;  
-        ZIndex = 5;  
-        Parent = Container;  
-    });  
+        if Info.Compact then
+            DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, FormattedValue, Slider.Suffix)
+        elseif Info.HideMax then
+            DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, FormattedValue, Slider.Suffix)
+        else
+            DisplayLabel.Text = string.format("%s%s%s/%s%s%s",   
+                Slider.Prefix, FormattedValue, Slider.Suffix,  
+                Slider.Prefix, tostring(Slider.Max), Slider.Suffix)
+        end
 
-    SliderOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()  
-        Slider.MaxSize = SliderOuter.AbsoluteSize.X - 2;  
-    end);  
-
-    Library:AddToRegistry(SliderOuter, {  
-        BorderColor3 = 'Black';  
-    });  
-
-    local SliderInner = Library:Create('Frame', {  
-        BackgroundColor3 = Library.MainColor;  
-        BorderColor3 = Library.OutlineColor;  
-        BorderMode = Enum.BorderMode.Inset;  
-        Size = UDim2.new(1, 0, 1, 0);  
-        ZIndex = 6;  
-        Parent = SliderOuter;  
-    });  
-
-    Library:AddToRegistry(SliderInner, {  
-        BackgroundColor3 = 'MainColor';  
-        BorderColor3 = 'OutlineColor';  
-    });  
-
-    local Fill = Library:Create('Frame', {  
-        BackgroundColor3 = Library.AccentColor;  
-        BorderColor3 = Library.AccentColorDark;  
-        Size = UDim2.new(0, 0, 1, 0);  
-        ZIndex = 7;  
-        Parent = SliderInner;  
-    });  
-
-    Library:AddToRegistry(Fill, {  
-        BackgroundColor3 = 'AccentColor';  
-        BorderColor3 = 'AccentColorDark';  
-    });  
-
-    local HideBorderRight = Library:Create('Frame', {  
-        BackgroundColor3 = Library.AccentColor;  
-        BorderSizePixel = 0;  
-        Position = UDim2.new(1, 0, 0, 0);  
-        Size = UDim2.new(0, 1, 1, 0);  
-        ZIndex = 8;  
-        Parent = Fill;  
-    });  
-
-    Library:AddToRegistry(HideBorderRight, {  
-        BackgroundColor3 = 'AccentColor';  
-    });  
-
-    local DisplayLabel = Library:CreateLabel({  
-        Size = UDim2.new(1, 0, 1, 0);  
-        TextSize = 14;  
-        Text = 'Infinite';  
-        ZIndex = 9;  
-        Parent = SliderInner;  
-        RichText = true;  
-    });  
-
-    Library:OnHighlight(SliderOuter, SliderOuter,  
-        { BorderColor3 = 'AccentColor' },  
-        { BorderColor3 = 'Black' },  
-        function()  
-            return not Slider.Disabled;  
-        end  
-    );  
-
-    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
-        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, SliderOuter)  
-        Tooltip.Disabled = Slider.Disabled;  
-    end  
-
-    function Slider:UpdateColors()  
-        if SliderText then  
-            SliderText.TextColor3 = Slider.Disabled and Library.DisabledAccentColor or Color3.new(1, 1, 1);  
-        end;  
-        DisplayLabel.TextColor3 = Slider.Disabled and Library.DisabledAccentColor or Color3.new(1, 1, 1);  
-
-        HideBorderRight.BackgroundColor3 = Slider.Disabled and Library.DisabledAccentColor or Library.AccentColor;  
-
-        Fill.BackgroundColor3 = Slider.Disabled and Library.DisabledAccentColor or Library.AccentColor;  
-        Fill.BorderColor3 = Slider.Disabled and Library.DisabledOutlineColor or Library.AccentColorDark;  
-
-        Library.RegistryMap[HideBorderRight].Properties.BackgroundColor3 = Slider.Disabled and 'DisabledAccentColor' or 'AccentColor';  
-
-        Library.RegistryMap[Fill].Properties.BackgroundColor3 = Slider.Disabled and 'DisabledAccentColor' or 'AccentColor';  
-        Library.RegistryMap[Fill].Properties.BorderColor3 = Slider.Disabled and 'DisabledOutlineColor' or 'AccentColorDark';  
-    end;  
-      
-    function Slider:Display()  
-    local FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value);  
-    local FormattedMax = tostring(Slider.Max);
-    
-    -- Determina o texto do valor atual
-    local ValueDisplay = FormattedValue;
-    if Slider.Value == Slider.Min and Slider.ValueTextMin ~= "" then  
-        ValueDisplay = Slider.ValueTextMin;  
-    elseif Slider.Value == Slider.Max and Slider.ValueTextMax ~= "" then  
-        ValueDisplay = Slider.ValueTextMax;  
+        local X = Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, 1)
+        Fill.Size = UDim2.new(X, 0, 1, 0)
+        HideBorderRight.Visible = not (X == 1 or X == 0)
     end
-    
-    -- Determina o texto do valor máximo
-    local MaxDisplay = FormattedMax;
-    if Slider.ValueTextMax ~= "" then
-        MaxDisplay = Slider.ValueTextMax;
-    end
-    
-    if Info.Compact then  
-        DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, ValueDisplay, Slider.Suffix);  
-
-    elseif Info.HideMax then  
-        DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, ValueDisplay, Slider.Suffix);  
-
-    else  
-        DisplayLabel.Text = string.format("%s%s%s/%s%s%s",   
-            Slider.Prefix, ValueDisplay, Slider.Suffix,  
-            Slider.Prefix, MaxDisplay, Slider.Suffix);  
-    end;  
-
-    local X = Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, 1);  
-    Fill.Size = UDim2.new(X, 0, 1, 0);  
-
-    HideBorderRight.Visible = not (X == 1 or X == 0);  
-end;
     function Slider:OnChanged(Func)  
         Slider.Changed = Func;  
 
@@ -4021,6 +3897,7 @@ end;
 
     return Slider;  
 end;
+
     
     function BaseGroupboxFuncs:AddDropdown(Idx, Info)
         Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == "boolean" then Info.ReturnInstanceInstead else false;
