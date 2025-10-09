@@ -3073,45 +3073,95 @@ do
         return Button;
     end;
 
-    function BaseGroupboxFuncs:AddDivider()
-        local Groupbox = self;
-        local Container = self.Container
+    function BaseGroupboxFuncs:AddDivider(LabelText)
+    local Groupbox = self
+    local Container = self.Container
 
-        local Divider = {
-            Type = 'Divider',
-        }
+    local Divider = {
+        Type = 'Divider',
+    }
 
-        Groupbox:AddBlank(2);
-        local DividerOuter = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(0, 0, 0);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Size = UDim2.new(1, -4, 0, 5);
-            ZIndex = 5;
-            Parent = Container;
-        });
+    Groupbox:AddBlank(2)
 
-        local DividerInner = Library:Create('Frame', {
+    -- Container principal do divider
+    local DividerOuter = Library:Create('Frame', {
+        BackgroundTransparency = 1;
+        Size = UDim2.new(1, -4, 0, 10);
+        ZIndex = 5;
+        Parent = Container;
+    })
+
+    -- Se não houver label, cria uma linha completa
+    if not LabelText or LabelText == "" then
+        local DividerLine = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
             BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 1, 0);
+            Size = UDim2.new(1, 0, 0, 1);
+            Position = UDim2.new(0, 0, 0.5, -0.5);
             ZIndex = 6;
             Parent = DividerOuter;
-        });
+        })
 
-        Library:AddToRegistry(DividerOuter, {
-            BorderColor3 = 'Black';
-        });
-
-        Library:AddToRegistry(DividerInner, {
+        Library:AddToRegistry(DividerLine, {
             BackgroundColor3 = 'MainColor';
             BorderColor3 = 'OutlineColor';
-        });
+        })
+    else
+        -- Container com linhas laterais + label central
+        local Label = Library:Create('TextLabel', {
+            BackgroundTransparency = 1;
+            Text = tostring(LabelText);
+            Font = Enum.Font.Code;
+            TextSize = 13;
+            TextColor3 = Library.FontColor;
+            TextStrokeTransparency = 0;
+            ZIndex = 7;
+            Parent = DividerOuter;
+        })
 
-        Groupbox:AddBlank(9);
-        Groupbox:Resize();
+        -- Atualiza o tamanho do label automaticamente
+        Label.Size = UDim2.new(0, Label.TextBounds.X + 10, 1, 0)
+        Label.Position = UDim2.new(0.5, -Label.Size.X.Offset / 2, 0, 0)
+
+        local LeftLine = Library:Create('Frame', {
+            BackgroundColor3 = Library.MainColor;
+            BorderColor3 = Library.OutlineColor;
+            BorderMode = Enum.BorderMode.Inset;
+            Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 4, 0, 1);
+            Position = UDim2.new(0, 0, 0.5, -0.5);
+            ZIndex = 6;
+            Parent = DividerOuter;
+        })
+
+        local RightLine = Library:Create('Frame', {
+            BackgroundColor3 = Library.MainColor;
+            BorderColor3 = Library.OutlineColor;
+            BorderMode = Enum.BorderMode.Inset;
+            Size = UDim2.new(0.5, -Label.Size.X.Offset / 2 - 4, 0, 1);
+            Position = UDim2.new(0.5, Label.Size.X.Offset / 2 + 4, 0.5, -0.5);
+            ZIndex = 6;
+            Parent = DividerOuter;
+        })
+
+        Library:AddToRegistry(LeftLine, {
+            BackgroundColor3 = 'MainColor';
+            BorderColor3 = 'OutlineColor';
+        })
+
+        Library:AddToRegistry(RightLine, {
+            BackgroundColor3 = 'MainColor';
+            BorderColor3 = 'OutlineColor';
+        })
+
+        Library:AddToRegistry(Label, {
+            TextColor3 = 'FontColor';
+        })
     end
 
+    Groupbox:AddBlank(9)
+    Groupbox:Resize()
+end
     
     function BaseGroupboxFuncs:AddInput(Idx, Info)
         assert(Info.Text, string.format('AddInput (IDX: %s): Missing `Text` string.', tostring(Idx)));
