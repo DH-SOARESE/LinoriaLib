@@ -952,40 +952,48 @@ do
         });
 
         local function updatePickerPosition()
-    task.wait() -- aguarda o frame ter um AbsoluteSize atualizado
+    task.wait()
+
     local displayPos = DisplayFrame.AbsolutePosition
     local displaySize = DisplayFrame.AbsoluteSize
     local pickerSize = PickerFrameOuter.AbsoluteSize
     local viewportSize = workspace.CurrentCamera.ViewportSize
 
-    local x = displayPos.X
-    local y = displayPos.Y + displaySize.Y + 4 -- aparece logo abaixo
+    local x, y = displayPos.X, displayPos.Y + displaySize.Y + 4 -- padrão: abaixo do menu
 
-    -- Se passar da direita, move pra esquerda
-    if x + pickerSize.X > viewportSize.X then
-        x = viewportSize.X - pickerSize.X - 6
+    -- Espaço disponível nas direções
+    local spaceBelow = viewportSize.Y - (displayPos.Y + displaySize.Y)
+    local spaceAbove = displayPos.Y
+    local spaceRight = viewportSize.X - (displayPos.X + displaySize.X)
+    local spaceLeft = displayPos.X
+
+    -- Decide se mostra acima ou abaixo (onde couber melhor)
+    if spaceBelow < pickerSize.Y and spaceAbove > pickerSize.Y then
+        y = displayPos.Y - pickerSize.Y - 4 -- aparece acima
+    elseif spaceBelow < pickerSize.Y and spaceAbove < pickerSize.Y then
+        -- Se não couber nem acima nem abaixo, ajusta pra caber
+        y = math.clamp(y, 4, viewportSize.Y - pickerSize.Y - 4)
     end
 
-    -- Se passar da esquerda
-    if x < 0 then
-        x = 6
+    -- Ajuste horizontal
+    if spaceRight < pickerSize.X and spaceLeft > pickerSize.X then
+        -- move para a esquerda do menu
+        x = displayPos.X - pickerSize.X - 4
+    elseif spaceRight < pickerSize.X and spaceLeft < pickerSize.X then
+        -- não cabe de nenhum lado, centraliza no menu
+        x = math.clamp(displayPos.X + displaySize.X / 2 - pickerSize.X / 2, 4, viewportSize.X - pickerSize.X - 4)
     end
 
-    -- Se não couber pra baixo, aparece acima
-    if y + pickerSize.Y > viewportSize.Y then
-        y = displayPos.Y - pickerSize.Y - 4
-    end
-
-    -- Se ainda sair pra cima, força dentro
-    if y < 0 then
-        y = 6
-    end
+    -- Clamp final para nunca sair da viewport
+    x = math.clamp(x, 4, viewportSize.X - pickerSize.X - 4)
+    y = math.clamp(y, 4, viewportSize.Y - pickerSize.Y - 4)
 
     PickerFrameOuter.Position = UDim2.fromOffset(x, y)
 end
 
-DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updatePickerPosition)
-PickerFrameOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(updatePickerPosition)
+DisplayFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(updatePickerPosition)
+PickerFrameOuter:GetPropertyChangedSignal("AbsoluteSize"):Connect(updatePickerPosition)
+updatePickerPosition()
 
 updatePickerPosition() 
 
