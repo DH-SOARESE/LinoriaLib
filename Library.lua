@@ -6058,10 +6058,7 @@ function Library:CreateWindow(...)
         function Tab:AddGroupbox(Info)
     local Groupbox = {}
 
-    -- Garantir que Info.Side e Info.Align existam
-    Info.Side = Info.Side or 1
-    Info.Align = (Info.Align and Info.Align:lower()) or "left" -- left, center, right
-
+    -- Cria o contêiner externo
     local BoxOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor,
         BorderColor3 = Library.OutlineColor,
@@ -6076,6 +6073,7 @@ function Library:CreateWindow(...)
         BorderColor3 = 'OutlineColor',
     })
 
+    -- Cria o contêiner interno
     local BoxInner = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor,
         BorderColor3 = Color3.new(0, 0, 0),
@@ -6089,6 +6087,7 @@ function Library:CreateWindow(...)
         BackgroundColor3 = 'BackgroundColor',
     })
 
+    -- Linha de destaque superior
     local Highlight = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor,
         BorderSizePixel = 0,
@@ -6101,34 +6100,35 @@ function Library:CreateWindow(...)
         BackgroundColor3 = 'AccentColor',
     })
 
+    -- Define a altura e alinhamento do label
     local LabelHeight = 0
     if Info.Name and Info.Name ~= "" then
         LabelHeight = 20
 
-        -- Ajuste de alinhamento do texto
-        local alignment = Enum.TextXAlignment.Left
-        local position = UDim2.new(0, 4, 0, 2)
-
-        if Info.Align == "center" then
-            alignment = Enum.TextXAlignment.Center
-            position = UDim2.new(0.5, 0, 0, 2)
-        elseif Info.Align == "right" then
-            alignment = Enum.TextXAlignment.Right
-            position = UDim2.new(1, -4, 0, 2)
+        -- Define alinhamento do texto
+        local Alignment = Enum.TextXAlignment.Left
+        if Info.LabelAlign then
+            local align = string.lower(Info.LabelAlign)
+            if align == "center" then
+                Alignment = Enum.TextXAlignment.Center
+            elseif align == "right" then
+                Alignment = Enum.TextXAlignment.Right
+            end
         end
 
+        -- Label
         local GroupboxLabel = Library:CreateLabel({
             Size = UDim2.new(1, -8, 0, 18),
-            Position = position,
-            AnchorPoint = Info.Align == "center" and Vector2.new(0.5, 0) or Vector2.new(0, 0),
+            Position = UDim2.new(0, 4, 0, 2),
             TextSize = 14,
             Text = Info.Name,
-            TextXAlignment = alignment,
+            TextXAlignment = Alignment,
             ZIndex = 5,
             Parent = BoxInner,
         })
     end
 
+    -- Container de elementos dentro do grupo
     local Container = Library:Create('Frame', {
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 4, 0, LabelHeight),
@@ -6143,6 +6143,7 @@ function Library:CreateWindow(...)
         Parent = Container,
     })
 
+    -- Função de redimensionamento automático
     function Groupbox:Resize()
         local Size = 0
         for _, Element in next, Groupbox.Container:GetChildren() do
@@ -6164,14 +6165,13 @@ function Library:CreateWindow(...)
     return Groupbox
 end
 
-
--- Funções auxiliares simplificadas
-function Tab:AddLeftGroupbox(Name, Align)
-    return Tab:AddGroupbox({ Side = 1, Name = Name, Align = Align })
+-- Funções auxiliares
+function Tab:AddLeftGroupbox(Name, LabelAlign)
+    return Tab:AddGroupbox({ Side = 1, Name = Name, LabelAlign = LabelAlign })
 end
 
-function Tab:AddRightGroupbox(Name, Align)
-    return Tab:AddGroupbox({ Side = 2, Name = Name, Align = Align })
+function Tab:AddRightGroupbox(Name, LabelAlign)
+    return Tab:AddGroupbox({ Side = 2, Name = Name, LabelAlign = LabelAlign })
 end
        
         function Tab:AddTabbox(Info)
