@@ -6432,7 +6432,6 @@ function Library:Toggle(Toggling)
 	local FadeTime = Config.MenuFadeTime
 	Fading = true
 	Toggled = (not Toggled);
-	uiVisible = (not uiVisible);
 	Library.Toggled = Toggled
 	ModalElement.Modal = Toggled
 
@@ -6665,6 +6664,7 @@ end
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 
 ToggleUIButton.MouseButton1Down:Connect(function()
+    uiVisible = not uiVisible
     Library:Toggle()
 end)
 
