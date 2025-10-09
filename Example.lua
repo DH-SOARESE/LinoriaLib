@@ -1,27 +1,11 @@
---[[
-    ╔══════════════════════════════════════════════════════════════════════════╗
-    ║                         LinoriaLib v3.0.0 - Template                     ║
-    ║                      Complete and Documented Example                     ║
-    ╠══════════════════════════════════════════════════════════════════════════╣
-    ║  Modern and responsive interface                                        ║
-    ║  Compatible with PC and Mobile                                           ║
-    ║  Automatic saving system                                                 ║
-    ║  Customizable themes                                                     ║
-    ║  All components available                                                ║
-    ╚══════════════════════════════════════════════════════════════════════════╝
-]]
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- INITIAL CONFIGURATION
--- ═══════════════════════════════════════════════════════════════════════════════
-
 local repo = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+-- Load libraries with error handling
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))() or error("Failed to load Library")
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))() or error("Failed to load ThemeManager")
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))() or error("Failed to load SaveManager")
 
--- Shortcuts for quick access to values
+-- Shortcuts for quick access
 local Options = Library.Options
 local Toggles = Library.Toggles
 
@@ -34,11 +18,11 @@ Library.ShowCustomCursor = true
 Library.NotifySide = 'Right'
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- CREATION OF THE MAIN WINDOW
+-- MAIN WINDOW CREATION
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local Window = Library:CreateWindow({
-    Title = 'My Script v1.0',
+    Title = 'LinoriaLib Example',
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -47,61 +31,43 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- CREATION OF TABS
--- ═══════════════════════════════════════════════════════════════════════════════
-
 local Tabs = {
     Main = Window:AddTab('Main'),
-    Visuals = Window:AddTab('Visuals'),
     Settings = Window:AddTab('Settings')
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- MAIN TAB - EXAMPLES OF ALL COMPONENTS
+-- MAIN TAB - UI ELEMENT EXAMPLES
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- TOGGLE (On/Off Button)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- TOGGLE EXAMPLES
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local ToggleGroup = Tabs.Main:AddLeftGroupbox('Toggle Examples')
 
--- Simple toggle
+-- Simple toggle with key picker
 local MyToggle = ToggleGroup:AddToggle('MyToggle', {
     Text = 'Simple Toggle',
     Default = false,
-    Tooltip = 'A basic toggle',
+    Tooltip = 'A basic toggle example',
     Callback = function(value)
-        print('Toggle:', value)
+        print('Simple Toggle changed to:', value)
     end
-})
-
--- Toggle with KeyPicker
-local KeyToggle = ToggleGroup:AddToggle('KeyToggle', {
-    Text = 'Toggle with Key',
-    Default = false,
-    Callback = function(value)
-        print('Toggle with key:', value)
-    end
-})
-
-KeyToggle:AddKeyPicker('KeyTogglePicker', {
-    Default = 'E',
+}):AddKeyPicker('KeyToggle', {
     Mode = 'Toggle',
-    Text = 'Toggle Shortcut',
-    SyncToggleState = true,
-    Callback = function(value)
-        print('Key pressed:', value)
-    end
+    Default = 'E',
+    Text = 'Toggle with Key',
+    SyncToggleState = true
 })
 
--- Toggle with ColorPicker
+-- Toggle with color picker
 local ColorToggle = ToggleGroup:AddToggle('ColorToggle', {
     Text = 'Toggle with Color',
     Default = false,
+    Tooltip = 'Toggle that includes a color picker',
     Callback = function(value)
-        print('Colored toggle:', value)
+        print('Color Toggle changed to:', value)
     end
 })
 
@@ -110,7 +76,7 @@ ColorToggle:AddColorPicker('ColorPicker', {
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.5,
     Callback = function(color, transparency)
-        print('Color:', color, 'Transparency:', transparency)
+        print('Color changed to:', color, 'Transparency:', transparency)
     end
 })
 
@@ -119,7 +85,10 @@ ToggleGroup:AddToggle('RiskyToggle', {
     Text = 'Dangerous Option',
     Default = false,
     Risky = true,
-    Tooltip = 'Use with caution!'
+    Tooltip = 'Use with caution! This is a risky option',
+    Callback = function(value)
+        print('Risky Toggle changed to:', value)
+    end
 })
 
 -- Disabled toggle
@@ -127,12 +96,13 @@ ToggleGroup:AddToggle('DisabledToggle', {
     Text = 'Disabled Toggle',
     Default = false,
     Disabled = true,
-    DisabledTooltip = 'This toggle is disabled'
+    DisabledTooltip = 'This toggle is disabled and cannot be changed',
+    Tooltip = 'Example of a disabled toggle'
 })
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- SLIDER (Slider Bar)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- SLIDER EXAMPLES
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local SliderGroup = Tabs.Main:AddRightGroupbox('Slider Examples')
 
@@ -144,9 +114,9 @@ SliderGroup:AddSlider('NormalSlider', {
     Max = 100,
     Rounding = 0,
     Suffix = '%',
-    Tooltip = 'Slider from 0 to 100',
+    Tooltip = 'Basic slider from 0 to 100',
     Callback = function(value)
-        print('Normal slider:', value)
+        print('Normal Slider changed to:', value)
     end
 })
 
@@ -158,9 +128,9 @@ SliderGroup:AddSlider('CompactSlider', {
     Max = 1,
     Rounding = 2,
     Compact = true,
-    Tooltip = 'Compact format',
+    Tooltip = 'Compact slider for precise decimal values',
     Callback = function(value)
-        print('Compact slider:', value)
+        print('Compact Slider changed to:', value)
     end
 })
 
@@ -173,9 +143,9 @@ SliderGroup:AddSlider('CustomSlider', {
     Rounding = 0,
     Prefix = '$',
     Suffix = ' coins',
-    Tooltip = 'With prefix and suffix',
+    Tooltip = 'Slider with custom prefix and suffix',
     Callback = function(value)
-        print('Custom value:', value)
+        print('Custom Slider changed to:', value)
     end
 })
 
@@ -187,15 +157,15 @@ SliderGroup:AddSlider('HiddenMaxSlider', {
     Max = 100,
     Rounding = 0,
     HideMax = true,
-    Tooltip = 'Does not show the maximum value',
+    Tooltip = 'Slider that hides the maximum value display',
     Callback = function(value)
-        print('Slider without max:', value)
+        print('Hidden Max Slider changed to:', value)
     end
 })
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- DROPDOWN (Dropdown Menu)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- DROPDOWN EXAMPLES
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local DropdownGroup = Tabs.Main:AddLeftGroupbox('Dropdown Examples')
 
@@ -204,9 +174,9 @@ DropdownGroup:AddDropdown('SimpleDropdown', {
     Text = 'Simple Dropdown',
     Values = {'Option 1', 'Option 2', 'Option 3'},
     Default = 1,
-    Tooltip = 'Select an option',
+    Tooltip = 'Basic single-select dropdown',
     Callback = function(value)
-        print('Selected option:', value)
+        print('Simple Dropdown selected:', value)
     end
 })
 
@@ -216,9 +186,9 @@ DropdownGroup:AddDropdown('SearchableDropdown', {
     Values = {'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'},
     Default = 1,
     Searchable = true,
-    Tooltip = 'Type to search',
+    Tooltip = 'Dropdown with search functionality',
     Callback = function(value)
-        print('Search selected:', value)
+        print('Searchable Dropdown selected:', value)
     end
 })
 
@@ -226,13 +196,15 @@ DropdownGroup:AddDropdown('SearchableDropdown', {
 DropdownGroup:AddDropdown('MultiDropdown', {
     Text = 'Multiple Selection',
     Values = {'ESP', 'Aimbot', 'Speed', 'Fly'},
-    Default = {'ESP'},
+    Default = {['ESP'] = true},
     Multi = true,
-    Tooltip = 'Select multiple items',
+    Tooltip = 'Dropdown allowing multiple selections',
     Callback = function(values)
-        print('Selected items:')
+        print('Multi Dropdown selections:')
         for item, enabled in pairs(values) do
-            print('  ', item, enabled)
+            if enabled then
+                print('  -', item)
+            end
         end
     end
 })
@@ -243,15 +215,15 @@ DropdownGroup:AddDropdown('PlayerDropdown', {
     SpecialType = 'Player',
     ExcludeLocalPlayer = true,
     Searchable = true,
-    Tooltip = 'List of players on the server',
+    Tooltip = 'Dropdown listing players on the server',
     Callback = function(player)
-        print('Selected player:', player)
+        print('Player Dropdown selected:', player)
     end
 })
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- INPUT (Text Field)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- INPUT EXAMPLES
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local InputGroup = Tabs.Main:AddRightGroupbox('Input Examples')
 
@@ -260,9 +232,9 @@ InputGroup:AddInput('BasicInput', {
     Text = 'Basic Input',
     Default = 'Default text',
     Placeholder = 'Type here...',
-    Tooltip = 'Simple text field',
+    Tooltip = 'Simple text input field',
     Callback = function(value)
-        print('Basic input:', value)
+        print('Basic Input changed to:', value)
     end
 })
 
@@ -271,9 +243,9 @@ InputGroup:AddInput('FinishedInput', {
     Text = 'Input with Enter',
     Placeholder = 'Press Enter...',
     Finished = true,
-    Tooltip = 'Callback only on pressing Enter',
+    Tooltip = 'Callback triggers only on Enter key',
     Callback = function(value)
-        print('Enter pressed:', value)
+        print('Finished Input confirmed:', value)
         Library:Notify('Text confirmed: ' .. value)
     end
 })
@@ -285,9 +257,9 @@ InputGroup:AddInput('LimitedInput', {
     MaxLength = 10,
     AllowEmpty = false,
     EmptyReset = 'Default',
-    Tooltip = 'Maximum of 10 characters',
+    Tooltip = 'Input limited to 10 characters',
     Callback = function(value)
-        print('Limited input:', value)
+        print('Limited Input changed to:', value)
     end
 })
 
@@ -297,11 +269,11 @@ InputGroup:AddInput('NumericInput', {
     Default = '100',
     Placeholder = 'Numbers only',
     Numeric = true,
-    Tooltip = 'Accepts only numbers',
+    Tooltip = 'Input that accepts only numeric values',
     Callback = function(value)
         local num = tonumber(value)
         if num then
-            print('Inserted number:', num)
+            print('Numeric Input changed to:', num)
         end
     end
 })
@@ -311,21 +283,21 @@ InputGroup:AddInput('DisabledInput', {
     Text = 'Disabled Input',
     Default = 'Read only',
     Disabled = true,
-    Tooltip = 'This field cannot be edited'
+    Tooltip = 'Input field that cannot be edited'
 })
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- BUTTON (Buttons)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- BUTTON EXAMPLES
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local ButtonGroup = Tabs.Main:AddLeftGroupbox('Button Examples')
 
 -- Simple button
 ButtonGroup:AddButton({
     Text = 'Simple Button',
-    Tooltip = 'Click to execute',
+    Tooltip = 'Basic button example',
     Func = function()
-        print('Button pressed!')
+        print('Simple Button pressed!')
         Library:Notify('Button clicked!')
     end
 })
@@ -334,9 +306,9 @@ ButtonGroup:AddButton({
 ButtonGroup:AddButton({
     Text = 'Double Click',
     DoubleClick = true,
-    Tooltip = 'Requires double click for safety',
+    Tooltip = 'Requires double click to activate',
     Func = function()
-        print('Double click confirmed!')
+        print('Double Click Button confirmed!')
         Library:Notify('Action confirmed with double click!')
     end
 })
@@ -346,23 +318,24 @@ ButtonGroup:AddButton({
     Text = 'Disabled Button',
     Disabled = true,
     DisabledTooltip = 'This button is disabled',
+    Tooltip = 'Example of a disabled button',
     Func = function()
-        print('This button should not work')
+        print('This should not print as button is disabled')
     end
 })
 
 -- Important action button
 ButtonGroup:AddButton({
     Text = 'Important Action',
-    Tooltip = 'Executes a critical action',
+    Tooltip = 'Triggers a notification for an important action',
     Func = function()
         Library:Notify('Executing important action...', 3)
     end
 })
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- KEYPICKER (Key Selector)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- KEYPICKER EXAMPLES
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local KeyGroup = Tabs.Main:AddRightGroupbox('KeyPicker Examples')
 
@@ -372,7 +345,7 @@ KeyGroup:AddLabel('KeyPicker Toggle'):AddKeyPicker('ToggleKey', {
     Mode = 'Toggle',
     Text = 'Toggle Mode',
     Callback = function(value)
-        print('Toggle Key:', value)
+        print('Toggle KeyPicker changed to:', value)
     end
 })
 
@@ -382,7 +355,7 @@ KeyGroup:AddLabel('KeyPicker Hold'):AddKeyPicker('HoldKey', {
     Mode = 'Hold',
     Text = 'Hold Mode',
     Callback = function(value)
-        print('Hold Key:', value)
+        print('Hold KeyPicker changed to:', value)
     end
 })
 
@@ -392,13 +365,13 @@ KeyGroup:AddLabel('KeyPicker Always'):AddKeyPicker('AlwaysKey', {
     Mode = 'Always',
     Text = 'Always Mode',
     Callback = function(value)
-        print('Always Key:', value)
+        print('Always KeyPicker changed to:', value)
     end
 })
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- IMAGE (Images)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- IMAGE EXAMPLE
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local ImageGroup = Tabs.Main:AddLeftGroupbox('Image Example')
 
@@ -410,12 +383,12 @@ ImageGroup:AddImage('RobloxImage', {
     ScaleType = Enum.ScaleType.Fit,
     Transparency = 0,
     Visible = true,
-    Tooltip = 'Roblox Image'
+    Tooltip = 'Example of displaying a Roblox asset image'
 })
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- LABELS AND DIVIDERS
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- LABELS AND DIVIDERS EXAMPLES
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local LabelGroup = Tabs.Main:AddRightGroupbox('Label & Divider Examples')
 
@@ -423,41 +396,51 @@ LabelGroup:AddLabel('Simple Label')
 LabelGroup:AddLabel('Label with multiple lines:\nLine 2\nLine 3', true)
 LabelGroup:AddDivider()
 LabelGroup:AddLabel('After the divider')
+LabelGroup:AddDivider('Banana')  -- Divider with label
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- DEPENDENCY BOX (Dependency Box)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- DEPENDENCY BOX EXAMPLE
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local DependencyGroup = Tabs.Main:AddLeftGroupbox('Dependency Box Example')
 
 local MasterToggle = DependencyGroup:AddToggle('MasterToggle', {
     Text = 'Enable Advanced Options',
     Default = false,
-    Tooltip = 'Enables additional settings'
+    Tooltip = 'Toggles visibility of dependent options',
+    Callback = function(value)
+        print('Master Toggle changed to:', value)
+    end
 })
 
 local DepBox = DependencyGroup:AddDependencyBox()
 DepBox:SetupDependencies({{Toggles.MasterToggle, true}})
 
 DepBox:AddSlider('DepSlider', {
-    Text = 'Dependent Option',
+    Text = 'Dependent Slider',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
-    Tooltip = 'Only appears when MasterToggle is active'
+    Tooltip = 'Slider visible only when MasterToggle is enabled',
+    Callback = function(value)
+        print('Dependent Slider changed to:', value)
+    end
 })
 
 DepBox:AddDropdown('DepDropdown', {
     Text = 'Dependent Dropdown',
     Values = {'A', 'B', 'C'},
     Default = 1,
-    Tooltip = 'Option dependent on the toggle'
+    Tooltip = 'Dropdown visible only when MasterToggle is enabled',
+    Callback = function(value)
+        print('Dependent Dropdown selected:', value)
+    end
 })
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- TABBOX (Nested Tabs)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ────────────────────────────────────────────────────────────────────────────────
+-- TABBOX (NESTED TABS) EXAMPLE
+-- ────────────────────────────────────────────────────────────────────────────────
 
 local SubTabbox = Tabs.Main:AddRightTabbox()
 local SubTab1 = SubTabbox:AddTab('Sub-Tab 1')
@@ -465,7 +448,11 @@ local SubTab2 = SubTabbox:AddTab('Sub-Tab 2')
 
 SubTab1:AddToggle('SubToggle1', {
     Text = 'Toggle in Sub-Tab 1',
-    Default = false
+    Default = false,
+    Tooltip = 'Toggle inside a nested tab',
+    Callback = function(value)
+        print('Sub-Tab 1 Toggle changed to:', value)
+    end
 })
 
 SubTab2:AddSlider('SubSlider2', {
@@ -473,51 +460,25 @@ SubTab2:AddSlider('SubSlider2', {
     Default = 50,
     Min = 0,
     Max = 100,
-    Rounding = 0
-})
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- VISUALS TAB - PRACTICAL EXAMPLES
--- ═══════════════════════════════════════════════════════════════════════════════
-
-local ESPGroup = Tabs.Visuals:AddLeftGroupbox('ESP Settings')
-
-local PlayerESP = ESPGroup:AddToggle('PlayerESP', {
-    Text = 'Player ESP',
-    Default = false,
-    Tooltip = 'Shows players through walls'
-})
-
-PlayerESP:AddColorPicker('ESPColor', {
-    Title = 'ESP Color',
-    Default = Color3.fromRGB(0, 255, 0),
-    Transparency = 0.5
-})
-
-ESPGroup:AddSlider('ESPDistance', {
-    Text = 'Maximum Distance',
-    Default = 500,
-    Min = 100,
-    Max = 2000,
     Rounding = 0,
-    Suffix = ' studs'
-})
-
-ESPGroup:AddDropdown('ESPStyle', {
-    Text = 'ESP Style',
-    Values = {'Box', 'Highlight', 'Outline', 'Glow'},
-    Default = 1
+    Tooltip = 'Slider inside a nested tab',
+    Callback = function(value)
+        print('Sub-Tab 2 Slider changed to:', value)
+    end
 })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SETTINGS TAB - SETTINGS AND SAVING
+-- SETTINGS TAB - MENU CONTROLS AND SAVING
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local MenuGroup = Tabs.Settings:AddLeftGroupbox('Menu Controls')
 
+Library.KeybindFrame.Visible = true
+
 MenuGroup:AddToggle('ShowKeybinds', {
     Text = 'Show Keybinds',
     Default = true,
+    Tooltip = 'Toggles visibility of the keybind frame',
     Callback = function(value)
         Library.KeybindFrame.Visible = value
     end
@@ -526,6 +487,7 @@ MenuGroup:AddToggle('ShowKeybinds', {
 MenuGroup:AddToggle('ShowWatermark', {
     Text = 'Show Watermark',
     Default = true,
+    Tooltip = 'Toggles visibility of the watermark',
     Callback = function(value)
         Library:SetWatermarkVisibility(value)
     end
@@ -534,13 +496,17 @@ MenuGroup:AddToggle('ShowWatermark', {
 MenuGroup:AddLabel('Menu Keybind'):AddKeyPicker('MenuKeybind', {
     Default = 'RightShift',
     NoUI = true,
-    Text = 'Toggle Menu'
+    Text = 'Toggle Menu',
+    Callback = function(value)
+        print('Menu Keybind changed to:', value)
+    end
 })
 
 MenuGroup:AddDivider()
 
 MenuGroup:AddButton({
     Text = 'Test Notification',
+    Tooltip = 'Displays a test notification',
     Func = function()
         Library:Notify('This is a test notification!')
     end
@@ -548,6 +514,7 @@ MenuGroup:AddButton({
 
 MenuGroup:AddButton({
     Text = 'Unload Menu',
+    Tooltip = 'Unloads the entire UI library',
     Func = function()
         Library:Unload()
     end
@@ -579,7 +546,7 @@ local function updateWatermark()
         local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
         
         Library:SetWatermark(string.format(
-            'My Script v1.0 | %d FPS | %dms',
+            'LinoriaLib Example | %d FPS | %dms',
             math.floor(FPS),
             math.floor(ping)
         ))
@@ -605,34 +572,3 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 ThemeManager:ApplyToTab(Tabs.Settings)
 
 SaveManager:LoadAutoloadConfig()
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- ADVANCED USAGE EXAMPLES
--- ═══════════════════════════════════════════════════════════════════════════════
-
--- Monitor changes in real time
-Toggles.PlayerESP:OnChanged(function()
-    print('PlayerESP changed to:', Toggles.PlayerESP.Value)
-end)
-
--- Access values
-task.spawn(function()
-    while true do
-        wait(1)
-        -- Example of how to access component values
-        if Toggles.PlayerESP and Toggles.PlayerESP.Value then
-            local distance = Options.ESPDistance.Value
-            print('ESP active with distance:', distance)
-        end
-    end
-end)
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- FINALIZATION
--- ═══════════════════════════════════════════════════════════════════════════════
-
-print('Menu loaded successfully!')
-print('User:', game.Players.LocalPlayer.Name)
-print('Press', Options.MenuKeybind.Value, 'to open/close the menu')
-
-Library:Notify('Menu loaded successfully!')
