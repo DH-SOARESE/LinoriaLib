@@ -6058,6 +6058,10 @@ function Library:CreateWindow(...)
         function Tab:AddGroupbox(Info)
     local Groupbox = {}
 
+    -- Garantir que Info.Side e Info.Align existam
+    Info.Side = Info.Side or 1
+    Info.Align = (Info.Align and Info.Align:lower()) or "left" -- left, center, right
+
     local BoxOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor,
         BorderColor3 = Library.OutlineColor,
@@ -6100,12 +6104,26 @@ function Library:CreateWindow(...)
     local LabelHeight = 0
     if Info.Name and Info.Name ~= "" then
         LabelHeight = 20
+
+        -- Ajuste de alinhamento do texto
+        local alignment = Enum.TextXAlignment.Left
+        local position = UDim2.new(0, 4, 0, 2)
+
+        if Info.Align == "center" then
+            alignment = Enum.TextXAlignment.Center
+            position = UDim2.new(0.5, 0, 0, 2)
+        elseif Info.Align == "right" then
+            alignment = Enum.TextXAlignment.Right
+            position = UDim2.new(1, -4, 0, 2)
+        end
+
         local GroupboxLabel = Library:CreateLabel({
-            Size = UDim2.new(1, 0, 0, 18),
-            Position = UDim2.new(0, 4, 0, 2),
+            Size = UDim2.new(1, -8, 0, 18),
+            Position = position,
+            AnchorPoint = Info.Align == "center" and Vector2.new(0.5, 0) or Vector2.new(0, 0),
             TextSize = 14,
             Text = Info.Name,
-            TextXAlignment = Enum.TextXAlignment.Left,
+            TextXAlignment = alignment,
             ZIndex = 5,
             Parent = BoxInner,
         })
@@ -6146,12 +6164,14 @@ function Library:CreateWindow(...)
     return Groupbox
 end
 
-function Tab:AddLeftGroupbox(Name)
-    return Tab:AddGroupbox({ Side = 1, Name = Name })
+
+-- Funções auxiliares simplificadas
+function Tab:AddLeftGroupbox(Name, Align)
+    return Tab:AddGroupbox({ Side = 1, Name = Name, Align = Align })
 end
 
-function Tab:AddRightGroupbox(Name)
-    return Tab:AddGroupbox({ Side = 2, Name = Name })
+function Tab:AddRightGroupbox(Name, Align)
+    return Tab:AddGroupbox({ Side = 2, Name = Name, Align = Align })
 end
        
         function Tab:AddTabbox(Info)
