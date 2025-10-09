@@ -3810,41 +3810,52 @@ end;
     
 function Slider:Display()    
     local FormattedValue;
+    local IsFixedText = false
     
     -- Verifica se está no valor máximo e se há texto customizado
     if Slider.Value == Slider.Max and Slider.ValueTextMax ~= "" then
-        FormattedValue = Slider.ValueTextMax;
+        FormattedValue = Slider.ValueTextMax
+        IsFixedText = true
     -- Verifica se está no valor mínimo e se há texto customizado
     elseif Slider.Value == Slider.Min and Slider.ValueTextMin ~= "" then
-        FormattedValue = Slider.ValueTextMin;
+        FormattedValue = Slider.ValueTextMin
+        IsFixedText = true
     else
-        FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value);
+        FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value)
     end
-    
-if Info.Compact then    
-    DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, FormattedValue, Slider.Suffix);    
 
-elseif Info.HideMax then    
-    DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, FormattedValue, Slider.Suffix);    
+    if Info.Compact then    
+        DisplayLabel.Text = string.format("%s: %s%s%s",
+            Slider.Text,
+            Slider.Prefix,
+            FormattedValue,
+            (IsFixedText and "" or Slider.Suffix)
+        )
 
-else
-    -- Se estiver usando ValueTextMin ou ValueTextMax, mostra só o texto fixo (sem /Max)
-    if (Slider.Value == Slider.Max and Slider.ValueTextMax ~= "") or 
-       (Slider.Value == Slider.Min and Slider.ValueTextMin ~= "") then
-        DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, FormattedValue, Slider.Suffix);
+    elseif Info.HideMax then    
+        DisplayLabel.Text = string.format("%s%s%s",
+            Slider.Prefix,
+            FormattedValue,
+            (IsFixedText and "" or Slider.Suffix)
+        )
+
     else
-        DisplayLabel.Text = string.format("%s%s%s/%s%s%s",     
-            Slider.Prefix, FormattedValue, Slider.Suffix,    
-            Slider.Prefix, tostring(Slider.Max), Slider.Suffix);
+        -- Se estiver usando ValueTextMin ou ValueTextMax, mostra só o texto fixo (sem /Max)
+        if IsFixedText then
+            DisplayLabel.Text = string.format("%s%s", Slider.Prefix, FormattedValue)
+        else
+            DisplayLabel.Text = string.format("%s%s%s/%s%s%s",     
+                Slider.Prefix, FormattedValue, Slider.Suffix,    
+                Slider.Prefix, tostring(Slider.Max), Slider.Suffix
+            )
+        end
     end
+
+    local X = Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, 1)    
+    Fill.Size = UDim2.new(X, 0, 1, 0)    
+
+    HideBorderRight.Visible = not (X == 1 or X == 0)
 end
-
-    local X = Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, 1);    
-    Fill.Size = UDim2.new(X, 0, 1, 0);    
-
-    -- I have no idea what this is    
-    HideBorderRight.Visible = not (X == 1 or X == 0);    
-end;    
 
 function Slider:OnChanged(Func)    
     Slider.Changed = Func;    
