@@ -505,7 +505,7 @@ MenuControls:AddButton({
 ## 🔧 Complete Example  
 [Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
 
-## 🔧 Complete Example  
+## 🔧 UI library Code 
 [UI Library](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Library.lua)
 
 
