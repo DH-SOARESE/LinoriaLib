@@ -187,6 +187,17 @@ local MultiSelect = Groupbox:AddDropdown("MultiItem", {
         end
     end
 })
+
+local MultiSelect = Groupbox:AddDropdown("EspTracerOrigin", {
+    Text = 'Example",
+    Values = { "Banana", "Jery", "Bold" },
+    Multi = false,
+    DictMulti = true, -- New
+    Default = {Banana = true, Jery = true, Bold = true}, --New
+    Callback = function(value)
+        print("Options:", value)
+    end
+})
 ```
 
 #### Player Dropdown
