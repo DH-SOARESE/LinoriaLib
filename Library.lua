@@ -6616,14 +6616,15 @@ end
         });
     
 
--- Torna os botões arrastáveis usando os pais
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
+
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible
-    Library:Toggle() 
+    Library:Toggle(uiVisible)
 end)
+
 LockUIButton.MouseButton1Down:Connect(function()
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
