@@ -6619,13 +6619,12 @@ end
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
-
-ToggleUIButton.MouseButton1Down:Connect(function()
+ToggleUIButton.MouseButton1Click:Connect(function()
     uiVisible = not uiVisible
     Library:Toggle(uiVisible)
 end)
 
-LockUIButton.MouseButton1Down:Connect(function()
+LockUIButton.MouseButton1Click:Connect(function()
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
 end)
