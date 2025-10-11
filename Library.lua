@@ -1,26 +1,30 @@
-local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
-local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
-local TextService: TextService = cloneref(game:GetService('TextService'));
-local CoreGui: CoreGui = cloneref(game:GetService('CoreGui'));
-local Teams: Teams = cloneref(game:GetService('Teams'));
-local Players: Players = cloneref(game:GetService('Players'));
-local RunService: RunService = cloneref(game:GetService('RunService'));
-local TweenService: TweenService = cloneref(game:GetService('TweenService'));
+local cloneref = cloneref or clonereference or function(instance: any) return instance end
 
-local RenderStepped = RunService.RenderStepped;
-local LocalPlayer = Players.LocalPlayer;
-local Mouse = LocalPlayer:GetMouse();
-local uiVisible = true;
+local Players       = cloneref(game:GetService("Players"))
+local RunService    = cloneref(game:GetService("RunService"))
+local UserInputService = cloneref(game:GetService("UserInputService"))
+local TextService   = cloneref(game:GetService("TextService"))
+local CoreGui       = cloneref(game:GetService("CoreGui"))
+local Teams         = cloneref(game:GetService("Teams"))
+local TweenService  = cloneref(game:GetService("TweenService"))
 
-local getgenv = getgenv or (function() return shared end);
-local ProtectGui = protectgui or (function() end);
-local GetHUI = gethui or (function() return CoreGui end);
 
-local assert = function(condition, errorMessage) 
-    if (not condition) then
-        error(if errorMessage then errorMessage else "assert failed", 3);
-    end;
-end;
+local LocalPlayer   = Players.LocalPlayer
+local Mouse         = LocalPlayer:GetMouse()
+local RenderStepped = RunService.RenderStepped
+local uiVisible     = true
+
+
+local getgenv      = getgenv or function() return shared end
+local ProtectGui   = protectgui or function() end
+local GetHUI       = gethui or function() return CoreGui end
+
+
+local assert = function(condition, errorMessage)
+    if not condition then
+        error(errorMessage or "assert failed", 3)
+    end
+end
 
 local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instance)
     local success, _error = pcall(function()
@@ -93,84 +97,67 @@ getgenv().Buttons = Buttons;
 
 local LibraryMainOuterFrame = nil;
 local Library = {
+    --[[ Registry ]]--
     Registry = {};
     RegistryMap = {};
     HudRegistry = {};
 
-    -- colors and font --
+    --[[ Colors ]]--
     FontColor = Color3.fromRGB(255, 255, 255);
     MainColor = Color3.fromRGB(30, 30, 30);
     BackgroundColor = Color3.fromRGB(35, 35, 35);
-
     AccentColor = Color3.fromRGB(0, 33, 255);
     DisabledAccentColor = Color3.fromRGB(142, 142, 142);
-
     OutlineColor = Color3.fromRGB(20, 20, 20);
     DisabledOutlineColor = Color3.fromRGB(70, 70, 70);
-
     DisabledTextColor = Color3.fromRGB(142, 142, 142);
-
     RiskColor = Color3.fromRGB(255, 50, 50);
-
     Black = Color3.new(0, 0, 0);
-    Font = Enum.Font.Code,
 
-    -- frames --
+    Font = Enum.Font.Code;
+
+    --[[ Frames ]]--
     OpenedFrames = {};
     DependencyBoxes = {};
 
-    -- signals --
+    --[[ Signals ]]--
     UnloadSignals = {};
     Signals = {};
 
-    -- gui --
+    --[[ GUI ]]--
     ActiveTab = nil;
     TotalTabs = 0;
-
     ScreenGui = ScreenGui;
     KeybindFrame = nil;
     KeybindContainer = nil;
     Window = { Holder = nil; Tabs = {}; };
 
-    -- variables --
+    --[[ Variables ]]--
     VideoLink = "";
-    
     Toggled = false;
     ToggleKeybind = nil;
-
     IsMobile = false;
     DevicePlatform = Enum.Platform.None;
-
     CanDrag = true;
     CantDragForced = false;
 
-    -- notification --
+    --[[ Notification ]]--
     Notify = nil;
     NotifySide = "Left";
     ShowCustomCursor = true;
     ShowToggleFrameInKeybinds = true;
     NotifyOnError = false; -- true = Library:Notify for SafeCallback (still warns in the developer console)
 
-    -- addons --
+    --[[ Addons ]]--
     SaveManager = nil;
     ThemeManager = nil;
 
-    -- for better usage --
+    --[[ For better usage ]]--
     Toggles = Toggles;
     Options = Options;
     Labels = Labels;
     Buttons = Buttons;
 };
-
-local TransparencyCache = {}
-local Toggled = false
-local Fading = false
-local OldMouseIconState = nil
-local CursorGui = nil
-local CursorImage = nil
-
-local CURSOR_IMAGE = "rbxassetid://12230889708"
-local CURSOR_SIZE = 24
 
 if RunService:IsStudio() then
    Library.IsMobile = InputService.TouchEnabled and not InputService.MouseEnabled 
@@ -3456,7 +3443,7 @@ end
     });  
 
     local ToggleLabel = Library:CreateLabel({  
-        Size = UDim2.new(1, -19, 0, 11); -- size of toggle box (13) + size offset of previous layout (6)  
+        Size = UDim2.new(1, -19, 0, 11);
         Position = UDim2.new(0, 19, 0, 0);  
         TextSize = 14;  
         Text = Info.Text;  
@@ -6379,8 +6366,17 @@ end
         return Tab;
     end;
     
+    local TransparencyCache = {}
+    local Toggled = false
+    local Fading = false
+    local OldMouseIconState = nil
+    local CursorGui = nil
+    local CursorImage = nil
 
-function Library:Toggle(Toggling)
+    local CURSOR_IMAGE = "rbxassetid://12230889708"
+    local CURSOR_SIZE = 19
+    
+   function Library:Toggle(Toggling)
 	if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
 	if Fading then return end
 
