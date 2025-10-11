@@ -503,7 +503,7 @@ MenuControls:AddButton({
 })
 ```
 ## 🔧 Complete Example  
-[Example.lua no GitHub](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
+[Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
 
 
 ### Playbook Tips
