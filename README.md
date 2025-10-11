@@ -502,60 +502,9 @@ MenuControls:AddButton({
     end
 })
 ```
+## 🔧 Complete Example  
+[Example.lua no GitHub](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
 
-## 🔧 Complete Example
-```lua
--- === INITIAL SETUP ===
-local repo = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
-
-local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
-local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
-local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
-
--- === CREATING INTERFACE ===
-local Window = Library:CreateWindow({
-    Title = 'LinoriaLib v1.0',
-    Center = true,
-    AutoShow = true,
-    Resizable = true
-})
-
-local Tabs = {
-    Player = Window:AddTab('Player'),
-    Settings = Window:AddTab('Settings')
-}
-
--- === PLAYER FEATURES ===
-local PlayerGroup = Tabs.Player:AddLeftGroupbox('Player Features')
-
-local SpeedToggle = PlayerGroup:AddToggle('Speed', {
-    Text = 'Extra Speed',
-    Default = false,
-    Callback = function(value)
-        if value then
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50
-        else
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
-        end
-    end
-})
-
-SpeedToggle:AddKeyPicker('SpeedKey', {
-    Default = 'LeftShift',
-    Mode = 'Toggle',
-    Text = 'Speed Shortcut'
-})
-
--- === SETTINGS ===
-ThemeManager:SetLibrary(Library)
-SaveManager:SetLibrary(Library)
-SaveManager:SetFolder('MyScript/Configs')
-SaveManager:BuildConfigSection(Tabs.Settings)
-ThemeManager:ApplyToTab(Tabs.Settings)
-SaveManager:LoadAutoloadConfig()
-
-print('Script loaded successfully!')
-```
 
 ### Playbook Tips
 - Organize features in groupboxes for readability.
