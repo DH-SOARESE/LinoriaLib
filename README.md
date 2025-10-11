@@ -505,6 +505,10 @@ MenuControls:AddButton({
 ## 🔧 Complete Example  
 [Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
 
+## 🔧 Complete Example  
+[UI Library](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Library.lua)
+
+
 
 ### Playbook Tips
 - Organize features in groupboxes for readability.
