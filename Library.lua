@@ -1,30 +1,26 @@
-local cloneref = cloneref or clonereference or function(instance: any) return instance end
+local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
+local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
+local TextService: TextService = cloneref(game:GetService('TextService'));
+local CoreGui: CoreGui = cloneref(game:GetService('CoreGui'));
+local Teams: Teams = cloneref(game:GetService('Teams'));
+local Players: Players = cloneref(game:GetService('Players'));
+local RunService: RunService = cloneref(game:GetService('RunService'));
+local TweenService: TweenService = cloneref(game:GetService('TweenService'));
 
-local Players       = cloneref(game:GetService("Players"))
-local RunService    = cloneref(game:GetService("RunService"))
-local UserInputService = cloneref(game:GetService("UserInputService"))
-local TextService   = cloneref(game:GetService("TextService"))
-local CoreGui       = cloneref(game:GetService("CoreGui"))
-local Teams         = cloneref(game:GetService("Teams"))
-local TweenService  = cloneref(game:GetService("TweenService"))
+local RenderStepped = RunService.RenderStepped;
+local LocalPlayer = Players.LocalPlayer;
+local Mouse = LocalPlayer:GetMouse();
+local uiVisible = true;
 
+local getgenv = getgenv or (function() return shared end);
+local ProtectGui = protectgui or (function() end);
+local GetHUI = gethui or (function() return CoreGui end);
 
-local LocalPlayer   = Players.LocalPlayer
-local Mouse         = LocalPlayer:GetMouse()
-local RenderStepped = RunService.RenderStepped
-local uiVisible     = true
-
-
-local getgenv      = getgenv or function() return shared end
-local ProtectGui   = protectgui or function() end
-local GetHUI       = gethui or function() return CoreGui end
-
-
-local assert = function(condition, errorMessage)
-    if not condition then
-        error(errorMessage or "assert failed", 3)
-    end
-end
+local assert = function(condition, errorMessage) 
+    if (not condition) then
+        error(if errorMessage then errorMessage else "assert failed", 3);
+    end;
+end;
 
 local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instance)
     local success, _error = pcall(function()
@@ -97,67 +93,84 @@ getgenv().Buttons = Buttons;
 
 local LibraryMainOuterFrame = nil;
 local Library = {
-    --[[ Registry ]]--
     Registry = {};
     RegistryMap = {};
     HudRegistry = {};
 
-    --[[ Colors ]]--
+    -- colors and font --
     FontColor = Color3.fromRGB(255, 255, 255);
     MainColor = Color3.fromRGB(30, 30, 30);
     BackgroundColor = Color3.fromRGB(35, 35, 35);
+
     AccentColor = Color3.fromRGB(0, 33, 255);
     DisabledAccentColor = Color3.fromRGB(142, 142, 142);
+
     OutlineColor = Color3.fromRGB(20, 20, 20);
     DisabledOutlineColor = Color3.fromRGB(70, 70, 70);
+
     DisabledTextColor = Color3.fromRGB(142, 142, 142);
+
     RiskColor = Color3.fromRGB(255, 50, 50);
+
     Black = Color3.new(0, 0, 0);
+    Font = Enum.Font.Code,
 
-    Font = Enum.Font.Code;
-
-    --[[ Frames ]]--
+    -- frames --
     OpenedFrames = {};
     DependencyBoxes = {};
 
-    --[[ Signals ]]--
+    -- signals --
     UnloadSignals = {};
     Signals = {};
 
-    --[[ GUI ]]--
+    -- gui --
     ActiveTab = nil;
     TotalTabs = 0;
+
     ScreenGui = ScreenGui;
     KeybindFrame = nil;
     KeybindContainer = nil;
     Window = { Holder = nil; Tabs = {}; };
 
-    --[[ Variables ]]--
+    -- variables --
     VideoLink = "";
+    
     Toggled = false;
     ToggleKeybind = nil;
+
     IsMobile = false;
     DevicePlatform = Enum.Platform.None;
+
     CanDrag = true;
     CantDragForced = false;
 
-    --[[ Notification ]]--
+    -- notification --
     Notify = nil;
     NotifySide = "Left";
     ShowCustomCursor = true;
     ShowToggleFrameInKeybinds = true;
     NotifyOnError = false; -- true = Library:Notify for SafeCallback (still warns in the developer console)
 
-    --[[ Addons ]]--
+    -- addons --
     SaveManager = nil;
     ThemeManager = nil;
 
-    --[[ For better usage ]]--
+    -- for better usage --
     Toggles = Toggles;
     Options = Options;
     Labels = Labels;
     Buttons = Buttons;
 };
+
+local TransparencyCache = {}
+local Toggled = false
+local Fading = false
+local OldMouseIconState = nil
+local CursorGui = nil
+local CursorImage = nil
+
+local CURSOR_IMAGE = "rbxassetid://12230889708"
+local CURSOR_SIZE = 24
 
 if RunService:IsStudio() then
    Library.IsMobile = InputService.TouchEnabled and not InputService.MouseEnabled 
@@ -6366,17 +6379,8 @@ end
         return Tab;
     end;
     
-    local TransparencyCache = {}
-    local Toggled = false
-    local Fading = false
-    local OldMouseIconState = nil
-    local CursorGui = nil
-    local CursorImage = nil
 
-    local CURSOR_IMAGE = "rbxassetid://12230889708"
-    local CURSOR_SIZE = 19
-    
-   function Library:Toggle(Toggling)
+function Library:Toggle(Toggling)
 	if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
 	if Fading then return end
 
@@ -6612,19 +6616,18 @@ end
         });
     
 
+-- Torna os botões arrastáveis usando os pais
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
+Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
 ToggleUIButton.MouseButton1Down:Connect(function()
     uiVisible = not uiVisible
-    Library:Toggle()
+    Library:Toggle() 
 end)
-
-Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
-
 LockUIButton.MouseButton1Down:Connect(function()
-       Library.CantDragForced = not Library.CantDragForced
-       LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
-  end)
+    Library.CantDragForced = not Library.CantDragForced
+    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+end)
 end;
     if Config.AutoShow then task.spawn(Library.Toggle) end
     Window.Holder = Outer;
