@@ -56,12 +56,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 99999;
+ScreenGui.DisplayOrder = 10^5;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 99999;
+ModalScreenGui.DisplayOrder = 10^5;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
@@ -6381,55 +6381,62 @@ end
     
 
 function Library:Toggle(Toggling)
-	if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
-	if Fading then return end
+    if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
+    if Fading then return end
 
-	local FadeTime = Config.MenuFadeTime
-	Fading = true
-	Toggled = (not Toggled);
-	Library.Toggled = Toggled
-	ModalElement.Modal = Toggled
+    local FadeTime = Config.MenuFadeTime
+    Fading = true
+    Toggled = not Toggled
+    uiVisible = not uiVisible
+    Library.Toggled = Toggled
+    ModalElement.Modal = Toggled
 
-	if uiVisible then
-		Outer.Visible = true
- 
-		if not CursorGui then
-			CursorGui = Instance.new("ScreenGui")
-			CursorGui.Name = "TopCursor"
-			CursorGui.IgnoreGuiInset = true
-			CursorGui.ResetOnSpawn = false
-			CursorGui.DisplayOrder = 10^6 
-			CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-			CursorGui.Parent = GetHUI()
-			ProtectGui(CursorGui)
+    if uiVisible then
+        Outer.Visible = true
 
-			CursorImage = Instance.new("ImageLabel")
-			CursorImage.Size = UDim2.fromOffset(CURSOR_SIZE, CURSOR_SIZE)
-			CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-			CursorImage.BackgroundTransparency = 1
-			CursorImage.Image = CURSOR_IMAGE
-			CursorImage.ImageColor3 = Library.AccentColor
-			CursorImage.ZIndex = 9999
-			CursorImage.Visible = Library.ShowCustomCursor
-			CursorImage.Parent = CursorGui
-		end
+        if not CursorGui then
+            CursorGui = Instance.new("ScreenGui")
+            CursorGui.Name = "TopCursor"
+            CursorGui.IgnoreGuiInset = true
+            CursorGui.ResetOnSpawn = false
+            CursorGui.DisplayOrder = 10^6
+            CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            CursorGui.Parent = GetHUI()
+            ProtectGui(CursorGui)
 
-		OldMouseIconState = InputService.MouseIconEnabled
-		InputService.MouseIconEnabled = not Library.ShowCustomCursor
+            CursorImage = Instance.new("ImageLabel")
+            CursorImage.Size = UDim2.fromOffset(CURSOR_SIZE, CURSOR_SIZE)
+            CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+            CursorImage.BackgroundTransparency = 1
+            CursorImage.Image = CURSOR_IMAGE
+            CursorImage.ImageColor3 = Library.AccentColor
+            CursorImage.ZIndex = 9999
+            CursorImage.Visible = Library.ShowCustomCursor
+            CursorImage.Parent = CursorGui
+        end
 
-		RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-			local pos = InputService:GetMouseLocation()
-			CursorImage.Position = UDim2.new(0, pos.X, 0, pos.Y)
-			CursorImage.ImageColor3 = Library.AccentColor
-			CursorImage.Visible = Library.ShowCustomCursor
+        
+        OldMouseIconState = InputService.MouseIconEnabled
+        InputService.MouseIconEnabled = not Library.ShowCustomCursor
 
-			if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
-				InputService.MouseIconEnabled = OldMouseIconState
-				RunService:UnbindFromRenderStep("LinoriaCursor")
-				if CursorGui then CursorGui:Destroy() CursorGui = nil CursorImage = nil end
-			end
-		end)
-	end
+        RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
+            local pos = InputService:GetMouseLocation()
+            CursorImage.Position = UDim2.new(0, pos.X, 0, pos.Y)
+            CursorImage.ImageColor3 = Library.AccentColor
+            CursorImage.Visible = Library.ShowCustomCursor
+
+            if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
+                InputService.MouseIconEnabled = OldMouseIconState
+                RunService:UnbindFromRenderStep("LinoriaCursor")
+                if CursorGui then 
+                    CursorGui:Destroy() 
+                    CursorGui = nil 
+                    CursorImage = nil 
+                end
+            end
+        end)
+    end
+end
 
 	for _, Option in pairs(Options) do
 		task.spawn(function()
@@ -6620,7 +6627,6 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
 ToggleUIButton.MouseButton1Click:Connect(function()
-    uiVisible = not uiVisible
     Library:Toggle(uiVisible)
 end)
 
