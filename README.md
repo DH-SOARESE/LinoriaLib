@@ -50,8 +50,8 @@ local Tabs = {
 
 ### Groupboxes
 ```lua
-local Left  = Tabs.Main:AddLeftGroupbox('Left')
-local Right = Tabs.Main:AddRightGroupbox('Right')
+local Left  = Tabs.Main:AddLeftGroupbox("Left", "Center") -- Optional name, side position can be {Left, Center, Right}
+local Right = Tabs.Main:AddRightGroupbox("Right")
 ```
 
 ### 🎨 Tabboxes
@@ -348,12 +348,12 @@ Groupbox:AddColorPicker("ColorPicker", {
 
 ### ⌨️ KeyPicker
 ```lua
-Groupbox:AddKeyPicker("ToggleESP", {
+Groupbox:AddKeyPicker("KeyPicker", {
     Default = "E",
     Mode = "Toggle",
-    Text = "Enable ESP",
+    Text = "Enable",
     Callback = function(isActive)
-        print("ESP Toggle:", isActive)
+        
     end
 })
 
@@ -363,7 +363,7 @@ Groupbox:AddKeyPicker("ESPKey", {
     Text = "Primary ESP",
     SyncToggleState = true,
     Callback = function(Toggled)
-        print("ESP KeyPicker Toggle:", Toggled)
+        print("KeyPicker Toggle:", Toggled)
     end
 }):AddKeyPicker("KeyESPKEY", {
     Default = "N",
@@ -371,7 +371,7 @@ Groupbox:AddKeyPicker("ESPKey", {
     Text = "M",
     SyncToggleState = true,
     Callback = function(Toggled)
-        print("ESP KEYKeyPicker Toggle:", Toggled)
+        print("KEYKeyPicker Toggle:", Toggled)
     end
 })
 ```
@@ -450,36 +450,36 @@ local Banner = Groupbox:AddImage("PromoBanner", {
 ### 🔗 DependencyBox
 ```lua
 local ToggleESP = Groupbox:AddToggle("ShowESP", {
-    Text = "Enable ESP",
+    Text = "Toggle Example",
     Default = false,
     Tooltip = "Enables the ESP system.",
     Callback = function(Value)
-        print("ESP:", Value)
+        print("Toggled:", Value)
     end
 })
 
 local ESPDepBox = Groupbox:AddDependencyBox()
 ESPDepBox:SetupDependencies({ { ToggleESP, true } })
 
-ESPDepBox:AddSlider("ESPTransparency", {
-    Text = "ESP Transparency",
+ESPDepBox:AddSlider("Example", {
+    Text = "Example",
     Default = 0.5,
     Min = 0,
     Max = 1,
     Rounding = 2,
     Tooltip = "Adjusts ESP opacity.",
     Callback = function(Value)
-        print("Transparency:", Value)
+        print("Ex:", Value)
     end
 })
 
-ESPDepBox:AddDropdown("ESPMode", {
-    Text = "Highlight Mode",
-    Values = { "Outline", "Fill", "Both" },
-    Default = "Outline",
-    Tooltip = "Sets ESP style.",
+ESPDepBox:AddDropdown("Example", {
+    Text = "Example",
+    Values = { "A", "B", "C" },
+    Default = "A",
+    Tooltip = "ABC",
     Callback = function(Value)
-        print("Mode:", Value)
+        print("Selected:", Value)
     end
 })
 ```
