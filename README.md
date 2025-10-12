@@ -156,63 +156,25 @@ VolumeSlider:SetMax(2.0)
 VolumeSlider:SetValue(1.2)
 ```
 
-### ⌨️ Dropdown
-#### Basic Dropdown
-```lua
-local MyDropdown = Groupbox:AddDropdown("SelectItem", {
-    Text = "Test Item",
-    Values = {"Sword", "Shield", "Potion"},
-    Default = "Sword",
-    Tooltip = "Select an item from the list.",
-    Callback = function(Value)
-        print("Selected:", Value)
-    end
-})
-```
+⌨️ Dropdown - Properties
 
-#### Multi-Select Dropdown
-```lua
-local MultiSelect = Groupbox:AddDropdown("MultiItem", {
-    Text = "Active Items",
-    Values = {"ESP", "Aimbot", "TriggerBot"},
-    Multi = true,
-    Disabled = false,
-    DisabledTooltip = false,
-    Default = {"ESP"},
-    Tooltip = "Select multiple features.",
-    Callback = function(Values)
-        print("Selected:", Values)
-        for item, enabled in pairs(Values) do
-            print(item, enabled)
-        end
-    end
-})
+Property	Type	Default	Description
 
-local MultiSelect = Groupbox:AddDropdown("EspTracerOrigin", {
-    Text = 'Example",
-    Values = { "Banana", "Jery", "Bold" },
-    Multi = false,
-    DictMulti = true, -- New
-    Default = {Banana = true, Jery = true, Bold = true}, --New
-    Callback = function(value)
-        print("Options:", value)
-    end
-})
-```
-
-#### Player Dropdown
-```lua
-local PlayerSelect = Groupbox:AddDropdown("Players", {
-    Text = "Select Player",
-    SpecialType = "Player",
-    ExcludeLocalPlayer = true,
-    Searchable = true,
-    Tooltip = "Select a player from the list.",
-    Callback = function(Player)
-        print("Selected player:", Player)
-    end
-})
-```
+Text	string	""	The text displayed on the dropdown.
+Values	table	nil	List of options for the dropdown. Ignored if SpecialType is "Player" or "Team".
+Default	string/number/table	nil	Initial selected value. For multi-select, use a table or dictionary {Value = true}.
+Multi	boolean	false	Allows multiple selections if true.
+DictMulti	boolean	false	Allows using a dictionary with boolean values for multi-select (new format).
+SpecialType	string	nil	"Player" or "Team" to automatically populate options.
+ExcludeLocalPlayer	boolean	false	Used with SpecialType = "Player" to exclude the local player.
+ReturnInstanceInstead	boolean	false	Returns the Instance of the player or team instead of the name.
+Searchable	boolean	false	Allows searching within the dropdown.
+Disabled	boolean	false	Disables the dropdown.
+AllowNull	boolean	false	Allows no option to be selected.
+DisabledValues	table	{}	List of values that cannot be selected.
+Tooltip	string	nil	Tooltip text shown when hovering over the dropdown.
+DisabledTooltip	string	nil	Tooltip text shown when the dropdown is disabled.
+MaxVisibleDropdownItems	number	8	Maximum number of items visible when the dropdown is open.
 
 ### ⌨️ Input
 #### Basic Input
