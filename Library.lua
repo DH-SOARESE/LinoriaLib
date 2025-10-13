@@ -56,12 +56,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 10^5;
+ScreenGui.DisplayOrder = 99^98;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 10^5;
+ModalScreenGui.DisplayOrder = 99^98;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
@@ -86,7 +86,7 @@ getgenv().Linoria = {
     Buttons = Buttons;
 }
 
-getgenv().Toggles = Toggles; -- if you load infinite yeild after you executed any script with LinoriaLib it will just break the whole UI lib :/ (thats why I added getgenv().Linoria)
+getgenv().Toggles = Toggles;.
 getgenv().Options = Options;
 getgenv().Labels = Labels;
 getgenv().Buttons = Buttons;
@@ -137,7 +137,6 @@ local Library = {
     
     Toggled = false;
     ToggleKeybind = nil;
-    Tooltip = true,
 
     IsMobile = false;
     DevicePlatform = Enum.Platform.None;
@@ -609,145 +608,113 @@ function Library:MakeResizable(Instance, MinSize)
 end;
 
 function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
-    InfoStr = typeof(InfoStr) == "string" and InfoStr or nil
-    DisabledInfoStr = typeof(DisabledInfoStr) == "string" and DisabledInfoStr or nil
+InfoStr = typeof(InfoStr) == "string" and InfoStr or nil
+DisabledInfoStr = typeof(DisabledInfoStr) == "string" and DisabledInfoStr or nil
 
-    local Tooltip = Library:Create('Frame', {  
-        BackgroundColor3 = Library.MainColor,  
-        BorderColor3 = Library.OutlineColor,  
-        ZIndex = 100,  
-        Parent = Library.ScreenGui,  
-        Visible = false,  
-    })  
+local Tooltip = Library:Create('Frame', {  
+    BackgroundColor3 = Library.MainColor,  
+    BorderColor3 = Library.OutlineColor,  
+    ZIndex = 100,  
+    Parent = Library.ScreenGui,  
+    Visible = false,  
+})  
 
-    local Label = Library:CreateLabel({  
-        Position = UDim2.fromOffset(3, 1),  
-        TextSize = 14,  
-        Text = InfoStr,  
-        TextColor3 = Library.FontColor,  
-        TextXAlignment = Enum.TextXAlignment.Left,  
-        ZIndex = Tooltip.ZIndex + 1,  
-        Parent = Tooltip,  
-    })  
+local Label = Library:CreateLabel({  
+    Position = UDim2.fromOffset(3, 1),  
+    TextSize = 14,  
+    Text = InfoStr,  
+    TextColor3 = Library.FontColor,  
+    TextXAlignment = Enum.TextXAlignment.Left,  
+    ZIndex = Tooltip.ZIndex + 1,  
+    Parent = Tooltip,  
+})  
 
-    Library:AddToRegistry(Tooltip, {  
-        BackgroundColor3 = 'MainColor',  
-        BorderColor3 = 'OutlineColor',  
-    })  
+Library:AddToRegistry(Tooltip, {  
+    BackgroundColor3 = 'MainColor',  
+    BorderColor3 = 'OutlineColor',  
+})  
 
-    Library:AddToRegistry(Label, {  
-        TextColor3 = 'FontColor',  
-    })  
+Library:AddToRegistry(Label, {  
+    TextColor3 = 'FontColor',  
+})  
 
-    local TooltipTable = {  
-        Tooltip = Tooltip,  
-        Disabled = false,  
-        Signals = {},  
-    }  
+local TooltipTable = {  
+    Tooltip = Tooltip,  
+    Disabled = false,  
+    Signals = {},  
+}  
 
-    local IsHovering = false  
+local IsHovering = false  
 
-    local function UpdateText(Text)  
-        if Text == nil then return end  
-        local X, Y = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale)  
-        Label.Text = Text  
-        Tooltip.Size = UDim2.fromOffset(X + 5, Y + 4)  
-        Label.Size = UDim2.fromOffset(X, Y)  
+local function UpdateText(Text)  
+    if Text == nil then return end  
+    local X, Y = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale)  
+    Label.Text = Text  
+    Tooltip.Size = UDim2.fromOffset(X + 5, Y + 4)  
+    Label.Size = UDim2.fromOffset(X, Y)  
+end  
+UpdateText(InfoStr)  
+
+table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()  
+    -- Checa se a UI não está visível  
+    if Library:MouseIsOverOpenedFrame() or not uiVisible then  
+        Tooltip.Visible = false  
+        return  
     end  
-    UpdateText(InfoStr)  
 
-    table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()  
-        -- Checa se tooltips estão desabilitados globalmente
-        if not Library.Tooltip then  
-            return  
-        end
-
-        -- Checa se a UI não está visível  
-        if Library:MouseIsOverOpenedFrame() or not uiVisible then  
+    if not TooltipTable.Disabled then  
+        if InfoStr == nil or InfoStr == "" then  
             Tooltip.Visible = false  
             return  
         end  
-
-        if not TooltipTable.Disabled then  
-            if InfoStr == nil or InfoStr == "" then  
-                Tooltip.Visible = false  
-                return  
-            end  
-            if Label.Text ~= InfoStr then UpdateText(InfoStr) end  
-        else  
-            if DisabledInfoStr == nil or DisabledInfoStr == "" then  
-                Tooltip.Visible = false  
-                return  
-            end  
-            if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr) end  
+        if Label.Text ~= InfoStr then UpdateText(InfoStr) end  
+    else  
+        if DisabledInfoStr == nil or DisabledInfoStr == "" then  
+            Tooltip.Visible = false  
+            return  
         end  
-
-        IsHovering = true  
-        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)  
-        Tooltip.Visible = true  
-
-        while IsHovering do  
-            -- Verifica se tooltips foram desabilitados durante a exibição
-            if not Library.Tooltip then 
-                Tooltip.Visible = false
-                break 
-            end
-            if TooltipTable.Disabled == true and DisabledInfoStr == nil then break end  
-            if not uiVisible then break end  
-
-            RunService.Heartbeat:Wait()  
-            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)  
-        end  
-
-        IsHovering = false  
-        Tooltip.Visible = false  
-    end))  
-
-    table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()  
-        IsHovering = false  
-        Tooltip.Visible = false  
-    end))  
-
-    if LibraryMainOuterFrame then  
-        table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()  
-            if LibraryMainOuterFrame.Visible == false then  
-                IsHovering = false  
-                Tooltip.Visible = false  
-            end  
-        end))  
+        if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr) end  
     end  
 
-    function TooltipTable:Destroy()  
-        Tooltip:Destroy()  
-        for Idx = #TooltipTable.Signals, 1, -1 do  
-            local Connection = table.remove(TooltipTable.Signals, Idx)  
-            Connection:Disconnect()  
+    IsHovering = true  
+    Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)  
+    Tooltip.Visible = true  
+
+    while IsHovering do  
+        if TooltipTable.Disabled == true and DisabledInfoStr == nil then break end  
+        if not uiVisible then break end -- <<< encerra se a UI não estiver visível  
+
+        RunService.Heartbeat:Wait()  
+        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)  
+    end  
+
+    IsHovering = false  
+    Tooltip.Visible = false  
+end))  
+
+table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()  
+    IsHovering = false  
+    Tooltip.Visible = false  
+end))  
+
+if LibraryMainOuterFrame then  
+    table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()  
+        if LibraryMainOuterFrame.Visible == false then  
+            IsHovering = false  
+            Tooltip.Visible = false  
         end  
-    end
-    
-    -- Registra este tooltip na Library para controle global
-    if not Library.Tooltips then
-        Library.Tooltips = {}
-    end
-    table.insert(Library.Tooltips, TooltipTable)
+    end))  
+end  
 
-    return TooltipTable  
+function TooltipTable:Destroy()  
+    Tooltip:Destroy()  
+    for Idx = #TooltipTable.Signals, 1, -1 do  
+        local Connection = table.remove(TooltipTable.Signals, Idx)  
+        Connection:Disconnect()  
+    end  
+end  
+return TooltipTable
 end
-
--- Função para esconder todos os tooltips quando Library.Tooltip = false
-function Library:UpdateTooltipsVisibility()
-    if not self.Tooltips then return end
-    
-    for _, tooltipTable in ipairs(self.Tooltips) do
-        if tooltipTable.Tooltip and tooltipTable.Tooltip.Parent then
-            if not self.Tooltip then
-                -- Esconde o tooltip se Library.Tooltip for false
-                tooltipTable.Tooltip.Visible = false
-            end
-        end
-    end
-end
-
 function Library:OnHighlight(HighlightInstance, Instance, Properties, PropertiesDefault, condition)
     local function undoHighlight()
         local Reg = Library.RegistryMap[Instance];
@@ -6429,7 +6396,7 @@ function Library:Toggle(Toggling)
 			CursorGui.Name = "TopCursor"
 			CursorGui.IgnoreGuiInset = true
 			CursorGui.ResetOnSpawn = false
-			CursorGui.DisplayOrder = 10^6
+			CursorGui.DisplayOrder = 99^99
 			CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 			CursorGui.Parent = GetHUI()
 			ProtectGui(CursorGui)
