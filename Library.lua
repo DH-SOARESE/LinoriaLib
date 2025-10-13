@@ -2854,7 +2854,12 @@ do
                 ZIndex = 6;
                 Parent = Inner;
                 RichText = true;
-            });
+
+                ClipsDescendants = true;
+                TextTruncate = Enum.TextTruncate.AtEnd;
+                TextXAlignment = Enum.TextXAlignment.Center;
+                TextYAlignment = Enum.TextYAlignment.Center;
+});
 
             Library:Create('UIGradient', {
                 Color = ColorSequence.new({
