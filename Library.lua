@@ -612,142 +612,117 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     InfoStr = typeof(InfoStr) == "string" and InfoStr or nil
     DisabledInfoStr = typeof(DisabledInfoStr) == "string" and DisabledInfoStr or nil
 
-    local Tooltip = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        ZIndex = 100,
-        Parent = Library.ScreenGui,
-        Visible = false,
-    })
+    local Tooltip = Library:Create('Frame', {  
+        BackgroundColor3 = Library.MainColor,  
+        BorderColor3 = Library.OutlineColor,  
+        ZIndex = 100,  
+        Parent = Library.ScreenGui,  
+        Visible = false,  
+    })  
 
-    local Label = Library:CreateLabel({
-        Position = UDim2.fromOffset(3, 1),
-        TextSize = 14,
-        Text = InfoStr,
-        TextColor3 = Library.FontColor,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = Tooltip.ZIndex + 1,
-        Parent = Tooltip,
-    })
+    local Label = Library:CreateLabel({  
+        Position = UDim2.fromOffset(3, 1),  
+        TextSize = 14,  
+        Text = InfoStr,  
+        TextColor3 = Library.FontColor,  
+        TextXAlignment = Enum.TextXAlignment.Left,  
+        ZIndex = Tooltip.ZIndex + 1,  
+        Parent = Tooltip,  
+    })  
 
-    Library:AddToRegistry(Tooltip, {
-        BackgroundColor3 = 'MainColor',
-        BorderColor3 = 'OutlineColor',
-    })
+    Library:AddToRegistry(Tooltip, {  
+        BackgroundColor3 = 'MainColor',  
+        BorderColor3 = 'OutlineColor',  
+    })  
 
-    Library:AddToRegistry(Label, {
-        TextColor3 = 'FontColor',
-    })
+    Library:AddToRegistry(Label, {  
+        TextColor3 = 'FontColor',  
+    })  
 
-    local TooltipTable = {
-        Tooltip = Tooltip,
-        Disabled = false,
-        Signals = {},
-    }
+    local TooltipTable = {  
+        Tooltip = Tooltip,  
+        Disabled = false,  
+        Signals = {},  
+    }  
 
-    local IsHovering = false
-    local MouseIsOver = false 
+    local IsHovering = false  
 
-    local function UpdateText(Text)
-        if Text == nil then return end
-        local X, Y = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale)
-        Label.Text = Text
-        Tooltip.Size = UDim2.fromOffset(X + 5, Y + 4)
-        Label.Size = UDim2.fromOffset(X, Y)
-    end
-    UpdateText(InfoStr)
+    local function UpdateText(Text)  
+        if Text == nil then return end  
+        local X, Y = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale)  
+        Label.Text = Text  
+        Tooltip.Size = UDim2.fromOffset(X + 5, Y + 4)  
+        Label.Size = UDim2.fromOffset(X, Y)  
+    end  
+    UpdateText(InfoStr)  
 
-    local function CanShowTooltip()
-        return Library.Tooltip == true and uiVisible ~= false
-    end
-
-    local function TryShowTooltip()
-        if not MouseIsOver or not CanShowTooltip() then
+    table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()  
+        -- Verifica se Library.Tooltip está habilitado
+        if not Library.Tooltip then
             Tooltip.Visible = false
             return
         end
 
-        if Library:MouseIsOverOpenedFrame() then
-            Tooltip.Visible = false
-            return
-        end
+        -- Checa se a UI não está visível  
+        if Library:MouseIsOverOpenedFrame() or not uiVisible then  
+            Tooltip.Visible = false  
+            return  
+        end  
 
-        if not TooltipTable.Disabled then
-            if InfoStr == nil or InfoStr == "" then
-                Tooltip.Visible = false
-                return
-            end
-            if Label.Text ~= InfoStr then UpdateText(InfoStr) end
-        else
-            if DisabledInfoStr == nil or DisabledInfoStr == "" then
-                Tooltip.Visible = false
-                return
-            end
-            if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr) end
-        end
+        if not TooltipTable.Disabled then  
+            if InfoStr == nil or InfoStr == "" then  
+                Tooltip.Visible = false  
+                return  
+            end  
+            if Label.Text ~= InfoStr then UpdateText(InfoStr) end  
+        else  
+            if DisabledInfoStr == nil or DisabledInfoStr == "" then  
+                Tooltip.Visible = false  
+                return  
+            end  
+            if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr) end  
+        end  
 
-        IsHovering = true
-        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-        Tooltip.Visible = true
+        IsHovering = true  
+        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)  
+        Tooltip.Visible = true  
 
-        while IsHovering do
-            if not CanShowTooltip() then break end
-            if TooltipTable.Disabled and DisabledInfoStr == nil then break end
-            RunService.Heartbeat:Wait()
-            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-        end
+        while IsHovering do  
+            if not Library.Tooltip then break end -- Verifica durante o loop
+            if TooltipTable.Disabled == true and DisabledInfoStr == nil then break end  
+            if not uiVisible then break end  
 
-        IsHovering = false
-        Tooltip.Visible = false
-    end
+            RunService.Heartbeat:Wait()  
+            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)  
+        end  
 
-    table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
-        MouseIsOver = true
-        TryShowTooltip()
-    end))
+        IsHovering = false  
+        Tooltip.Visible = false  
+    end))  
 
-    table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
-        MouseIsOver = false
-        IsHovering = false
-        Tooltip.Visible = false
-    end))
+    table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()  
+        IsHovering = false  
+        Tooltip.Visible = false  
+    end))  
 
-    if typeof(Library.Tooltip) == "boolean" then
-        task.spawn(function()
-            local LastTooltipState = Library.Tooltip
-            while Tooltip.Parent do
-                if Library.Tooltip ~= LastTooltipState then
-                    LastTooltipState = Library.Tooltip
-                    if Library.Tooltip == true and MouseIsOver then
-                        TryShowTooltip()
-                    elseif Library.Tooltip == false then
-                        IsHovering = false
-                        Tooltip.Visible = false
-                    end
-                end
-                task.wait(0.1)
-            end
-        end)
-    end
+    if LibraryMainOuterFrame then  
+        table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()  
+            if LibraryMainOuterFrame.Visible == false then  
+                IsHovering = false  
+                Tooltip.Visible = false  
+            end  
+        end))  
+    end  
 
-    if LibraryMainOuterFrame then
-        table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-            if LibraryMainOuterFrame.Visible == false then
-                IsHovering = false
-                Tooltip.Visible = false
-            end
-        end))
-    end
+    function TooltipTable:Destroy()  
+        Tooltip:Destroy()  
+        for Idx = #TooltipTable.Signals, 1, -1 do  
+            local Connection = table.remove(TooltipTable.Signals, Idx)  
+            Connection:Disconnect()  
+        end  
+    end  
 
-    function TooltipTable:Destroy()
-        Tooltip:Destroy()
-        for Idx = #TooltipTable.Signals, 1, -1 do
-            local Connection = table.remove(TooltipTable.Signals, Idx)
-            Connection:Disconnect()
-        end
-    end
-
-    return TooltipTable
+    return TooltipTable  
 end
 
 function Library:OnHighlight(HighlightInstance, Instance, Properties, PropertiesDefault, condition)
