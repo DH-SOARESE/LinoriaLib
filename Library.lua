@@ -646,7 +646,8 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     }  
 
     local IsHovering = false
-    local MouseIsOver = false -- Nova variável para rastrear se o mouse está sobre o elemento
+    local MouseIsOver = false
+    local PositionUpdateLoop = nil
 
     local function UpdateText(Text)  
         if Text == nil then return end  
@@ -657,85 +658,130 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     end  
     UpdateText(InfoStr)  
 
-    local function ShouldShowTooltip()
-        -- Verifica todas as condições para mostrar o tooltip
-        if not Library.Tooltip then return false end
-        if not MouseIsOver then return false end
-        if Library:MouseIsOverOpenedFrame() or not uiVisible then return false end
-        
-        if not TooltipTable.Disabled then
-            if InfoStr == nil or InfoStr == "" then return false end
-        else
-            if DisabledInfoStr == nil or DisabledInfoStr == "" then return false end
+    local function StopPositionLoop()
+        if PositionUpdateLoop then
+            PositionUpdateLoop = false
         end
-        
-        return true
     end
 
-    local function UpdateTooltipVisibility()
-        if ShouldShowTooltip() then
-            if not IsHovering then
-                -- Atualiza o texto apropriado
-                if not TooltipTable.Disabled then
-                    if Label.Text ~= InfoStr then UpdateText(InfoStr) end
-                else
-                    if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr) end
+    local function StartPositionLoop()
+        if PositionUpdateLoop then return end
+        PositionUpdateLoop = true
+        
+        task.spawn(function()
+            while PositionUpdateLoop and MouseIsOver do
+                if not Library.Tooltip or not uiVisible then
+                    break
                 end
-                
-                IsHovering = true
-                Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-                Tooltip.Visible = true
-                
-                -- Inicia o loop de atualização de posição
-                task.spawn(function()
-                    while IsHovering and ShouldShowTooltip() do
-                        RunService.Heartbeat:Wait()
-                        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-                    end
-                    
-                    IsHovering = false
-                    Tooltip.Visible = false
-                end)
+                RunService.Heartbeat:Wait()
+                if PositionUpdateLoop then
+                    Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
+                end
             end
-        else
-            IsHovering = false
+            PositionUpdateLoop = false
+        end)
+    end
+
+    local function TryShowTooltip()
+        -- Verifica se Library.Tooltip está habilitado
+        if not Library.Tooltip then
             Tooltip.Visible = false
+            StopPositionLoop()
+            IsHovering = false
+            return
         end
+
+        -- Verifica se o mouse está sobre o elemento
+        if not MouseIsOver then
+            return
+        end
+
+        -- Checa se a UI não está visível  
+        if Library:MouseIsOverOpenedFrame() or not uiVisible then  
+            Tooltip.Visible = false
+            StopPositionLoop()
+            IsHovering = false
+            return  
+        end  
+
+        -- Determina qual texto usar
+        local textToShow
+        if not TooltipTable.Disabled then  
+            if InfoStr == nil or InfoStr == "" then  
+                Tooltip.Visible = false
+                StopPositionLoop()
+                IsHovering = false
+                return  
+            end  
+            textToShow = InfoStr
+        else  
+            if DisabledInfoStr == nil or DisabledInfoStr == "" then  
+                Tooltip.Visible = false
+                StopPositionLoop()
+                IsHovering = false
+                return  
+            end  
+            textToShow = DisabledInfoStr
+        end
+
+        -- Atualiza o texto se necessário
+        if Label.Text ~= textToShow then 
+            UpdateText(textToShow) 
+        end
+
+        -- Mostra o tooltip
+        IsHovering = true  
+        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)  
+        Tooltip.Visible = true
+        StartPositionLoop()
     end
 
     table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()  
         MouseIsOver = true
-        UpdateTooltipVisibility()
+        TryShowTooltip()
     end))  
 
     table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()  
         MouseIsOver = false
         IsHovering = false  
-        Tooltip.Visible = false  
+        Tooltip.Visible = false
+        StopPositionLoop()
     end))  
 
     if LibraryMainOuterFrame then  
         table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()  
             if LibraryMainOuterFrame.Visible == false then  
                 IsHovering = false  
-                Tooltip.Visible = false  
+                Tooltip.Visible = false
+                StopPositionLoop()
             end  
         end))  
     end
-    
-    -- Monitora mudanças no estado de Library.Tooltip
-    task.spawn(function()
-        local lastTooltipState = Library.Tooltip
-        while Tooltip.Parent do
-            RunService.Heartbeat:Wait()
-            if Library.Tooltip ~= lastTooltipState then
-                lastTooltipState = Library.Tooltip
-                UpdateTooltipVisibility()
-            end
+
+    -- Monitora mudanças em Library.Tooltip usando Heartbeat
+    local heartbeatConnection
+    heartbeatConnection = RunService.Heartbeat:Connect(function()
+        if not Tooltip.Parent then
+            heartbeatConnection:Disconnect()
+            return
+        end
+        
+        -- Se o tooltip está desabilitado e está visível, esconde
+        if not Library.Tooltip and Tooltip.Visible then
+            Tooltip.Visible = false
+            StopPositionLoop()
+            IsHovering = false
+        end
+        
+        -- Se o tooltip foi reabilitado e o mouse está sobre o elemento, mostra
+        if Library.Tooltip and MouseIsOver and not IsHovering then
+            TryShowTooltip()
         end
     end)
+    table.insert(TooltipTable.Signals, heartbeatConnection)
 
     function TooltipTable:Destroy()  
+        StopPositionLoop()
         Tooltip:Destroy()  
         for Idx = #TooltipTable.Signals, 1, -1 do  
             local Connection = table.remove(TooltipTable.Signals, Idx)  
