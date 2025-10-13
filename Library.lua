@@ -3687,6 +3687,7 @@ Prefix = typeof(Info.Prefix) == "string" and Info.Prefix or "";
     Suffix = typeof(Info.Suffix) == "string" and Info.Suffix or "";    
     ValueTextMax = typeof(Info.ValueTextMax) == "string" and Info.ValueTextMax or "";    
     ValueTextMin = typeof(Info.ValueTextMin) == "string" and Info.ValueTextMin or "";    
+    ValueText = typeof(Info.ValueText) == "table" and Info.ValueText or {}; 
 
     Callback = Info.Callback or function(Value) end;    
 };    
@@ -3813,17 +3814,30 @@ function Slider:Display()
     local FormattedValue;
     local IsFixedText = false
     
-    -- Verifica se está no valor máximo e se há texto customizado
+    local foundText = false
+
+-- Checa se o valor atual corresponde a algum ValueText
+for _, entry in ipairs(Slider.ValueText) do
+    if Slider.Value == entry.Value then
+        FormattedValue = entry.Text
+        IsFixedText = true
+        foundText = true
+        break
+    end
+end
+
+-- Se não encontrou nenhum texto customizado, usa Min/Max ou valor normal
+if not foundText then
     if Slider.Value == Slider.Max and Slider.ValueTextMax ~= "" then
         FormattedValue = Slider.ValueTextMax
         IsFixedText = true
-    -- Verifica se está no valor mínimo e se há texto customizado
     elseif Slider.Value == Slider.Min and Slider.ValueTextMin ~= "" then
         FormattedValue = Slider.ValueTextMin
         IsFixedText = true
     else
         FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value)
     end
+end
 
     if Info.Compact then    
         DisplayLabel.Text = string.format("%s: %s%s%s",
