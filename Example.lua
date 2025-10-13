@@ -1,17 +1,8 @@
--- ═══════════════════════════════════════════════════════════════════════════════
--- LINORIALIB COMPREHENSIVE EXAMPLE
--- A complete guide showcasing all UI components and features
--- ═══════════════════════════════════════════════════════════════════════════════
-
-local REPO_URL = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- LIBRARY INITIALIZATION
--- ═══════════════════════════════════════════════════════════════════════════════
+local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 
 local function loadLibrary(path)
     local success, result = pcall(function()
-        return loadstring(game:HttpGet(REPO_URL .. path))()
+        return loadstring(game:HttpGet(LinoriaLib .. path))()
     end)
     
     if not success then
@@ -25,22 +16,14 @@ local Library = loadLibrary('Library.lua')
 local ThemeManager = loadLibrary('addons/ThemeManager.lua')
 local SaveManager = loadLibrary('addons/SaveManager.lua')
 
--- Quick access to library objects
 local Options = Library.Options
 local Toggles = Library.Toggles
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- LIBRARY CONFIGURATION
--- ═══════════════════════════════════════════════════════════════════════════════
 
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
 Library.NotifySide = 'Right' -- Notification position: 'Left' or 'Right'
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- MAIN WINDOW
--- ═══════════════════════════════════════════════════════════════════════════════
-
+-- Create Window
 local Window = Library:CreateWindow({
     Title = 'LinoriaLib | Complete Examples',
     Center = true,
@@ -51,25 +34,17 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- TAB STRUCTURE
--- ═══════════════════════════════════════════════════════════════════════════════
-
+-- Create Tabs
 local Tabs = {
     Components = Window:AddTab('Components'),
     Advanced = Window:AddTab('Advanced'),
     Settings = Window:AddTab('Settings')
 }
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- COMPONENTS TAB - BASIC UI ELEMENTS
--- ═══════════════════════════════════════════════════════════════════════════════
+-- UI Elements
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ TOGGLES                                                                   ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
-local ToggleBox = Tabs.Components:AddLeftGroupbox('Toggles', 'Center')
+-- Toggles
+local ToggleBox = Tabs.Components:AddLeftGroupbox('Toggles')
 
 -- Basic Toggle
 ToggleBox:AddToggle('BasicToggle', {
@@ -138,14 +113,11 @@ ToggleBox:AddToggle('DisabledToggle', {
     Tooltip = 'Cannot be modified'
 })
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ BUTTONS                                                                   ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
+-- Buttons
 local ButtonBox = Tabs.Components:AddLeftGroupbox('Buttons')
 
--- Standard Button
-ButtonBox:AddButton({
+-- Standard and Double-Click Buttons (side-by-side)
+local StandardButton = ButtonBox:AddButton({
     Text = 'Standard Button',
     Tooltip = 'Click to execute action',
     Func = function()
@@ -154,8 +126,7 @@ ButtonBox:AddButton({
     end
 })
 
--- Double-Click Button (Confirmation)
-ButtonBox:AddButton({
+StandardButton:AddButton({
     Text = 'Confirm Action',
     DoubleClick = true,
     Tooltip = 'Double-click to confirm',
@@ -165,7 +136,7 @@ ButtonBox:AddButton({
     end
 })
 
--- Disabled Button
+-- Disabled Button (standalone, as limit is 2 per row)
 ButtonBox:AddButton({
     Text = 'Disabled Button',
     Disabled = true,
@@ -176,10 +147,7 @@ ButtonBox:AddButton({
     end
 })
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ SLIDERS                                                                   ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
+-- Sliders
 local SliderBox = Tabs.Components:AddRightGroupbox('Sliders')
 
 -- Integer Slider
@@ -240,6 +208,24 @@ SliderBox:AddSlider('LimitTextSlider', {
     end
 })
 
+-- Slider with Value Text
+SliderBox:AddSlider('ValueTextSlider', {
+    Text = 'Value Text',
+    Default = 0,
+    Min = 0,
+    Max = 20,
+    Rounding = 0,
+    ValueText = {
+        {Value = 0, Text = "Safe"},
+        {Value = 10, Text = "Risk"},
+        {Value = 20, Text = "Warn"}
+    },
+    Tooltip = 'Shows text labels at extremes',
+    Callback = function(value)
+        print('[Slider] Value:', value)
+    end
+})
+
 -- Slider Without Max Display
 SliderBox:AddSlider('NoMaxSlider', {
     Text = 'Hidden Maximum',
@@ -254,10 +240,7 @@ SliderBox:AddSlider('NoMaxSlider', {
     end
 })
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ DROPDOWNS                                                                 ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
+-- Dropdowns
 local DropdownBox = Tabs.Components:AddRightGroupbox('Dropdowns')
 
 -- Single Selection
@@ -312,10 +295,7 @@ DropdownBox:AddDropdown('PlayerSelect', {
     end
 })
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ INPUT FIELDS                                                              ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
+-- Input Fields
 local InputBox = Tabs.Components:AddLeftGroupbox('Input Fields')
 
 -- Standard Text Input
@@ -379,10 +359,7 @@ InputBox:AddInput('ReadOnlyInput', {
     Tooltip = 'This field is read-only'
 })
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ KEYPICKERS                                                                ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
+-- Key Bindings
 local KeyBox = Tabs.Components:AddRightGroupbox('Key Bindings')
 
 -- Toggle Mode
@@ -415,14 +392,9 @@ KeyBox:AddLabel('Always Mode (Permanent activation)'):AddKeyPicker('AlwaysModeKe
     end
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- ADVANCED TAB - COMPLEX FEATURES
--- ═══════════════════════════════════════════════════════════════════════════════
+-- Advanced Tab - Complex Features
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ DEPENDENCY SYSTEM                                                         ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
+-- Dependency System
 local DependencyBox = Tabs.Advanced:AddLeftGroupbox('Dependency System')
 
 DependencyBox:AddLabel('Enable master toggle to reveal options:')
@@ -471,10 +443,17 @@ DependentBox:AddDropdown('DependentDropdown', {
     end
 })
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ NESTED TABS (TABBOX)                                                     ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
+-- Labels and Dividers
+local LabelBox = Tabs.Advanced:AddLeftGroupbox('Labels & Dividers')
 
+LabelBox:AddLabel('Simple label text')
+LabelBox:AddLabel('Multi-line label:\n• Line 1\n• Line 2\n• Line 3', true)
+LabelBox:AddDivider()
+LabelBox:AddLabel('After divider')
+LabelBox:AddDivider('Section Title')
+LabelBox:AddLabel('After titled divider')
+
+-- Nested Tabs (Tabbox)
 local NestedTabbox = Tabs.Advanced:AddRightTabbox()
 local NestedTab1 = NestedTabbox:AddTab('Sub-Tab 1')
 local NestedTab2 = NestedTabbox:AddTab('Sub-Tab 2')
@@ -533,23 +512,7 @@ NestedTab3:AddButton({
     end
 })
 
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ LABELS & DIVIDERS                                                         ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
-local LabelBox = Tabs.Advanced:AddLeftGroupbox('Labels & Dividers')
-
-LabelBox:AddLabel('Simple label text')
-LabelBox:AddLabel('Multi-line label:\n• Line 1\n• Line 2\n• Line 3', true)
-LabelBox:AddDivider()
-LabelBox:AddLabel('After divider')
-LabelBox:AddDivider('Section Title')
-LabelBox:AddLabel('After titled divider')
-
--- ╔═══════════════════════════════════════════════════════════════════════════╗
--- ║ IMAGE DISPLAY                                                             ║
--- ╚═══════════════════════════════════════════════════════════════════════════╝
-
+-- Image Display
 local ImageBox = Tabs.Advanced:AddRightGroupbox('Image Display')
 
 ImageBox:AddImage('ExampleImage', {
@@ -564,9 +527,7 @@ ImageBox:AddImage('ExampleImage', {
 
 ImageBox:AddLabel('Image from Roblox asset ID')
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- SETTINGS TAB - MENU CONFIGURATION
--- ═══════════════════════════════════════════════════════════════════════════════
+-- Settings Tab - Menu Configuration
 
 local MenuBox = Tabs.Settings:AddLeftGroupbox('Menu Configuration')
 
@@ -604,8 +565,8 @@ MenuBox:AddLabel('Menu Toggle Keybind'):AddKeyPicker('MenuKeybind', {
 
 MenuBox:AddDivider()
 
--- Notification Test
-MenuBox:AddButton({
+-- Notification Test and Unload UI Buttons (side-by-side)
+local TestNotifyButton = MenuBox:AddButton({
     Text = 'Test Notification',
     Tooltip = 'Display test notification',
     Func = function()
@@ -613,8 +574,7 @@ MenuBox:AddButton({
     end
 })
 
--- Unload UI
-MenuBox:AddButton({
+TestNotifyButton:AddButton({
     Text = 'Unload UI',
     DoubleClick = true,
     Tooltip = 'Double-click to unload entire UI',
@@ -625,10 +585,7 @@ MenuBox:AddButton({
     end
 })
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- DYNAMIC WATERMARK
--- ═══════════════════════════════════════════════════════════════════════════════
-
+-- Dynamic Watermark
 Library:SetWatermarkVisibility(true)
 
 local function InitializeWatermark()
@@ -660,10 +617,7 @@ end
 
 InitializeWatermark()
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- SAVE SYSTEM CONFIGURATION
--- ═══════════════════════════════════════════════════════════════════════════════
-
+-- Save System Configuration
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 
@@ -684,9 +638,6 @@ ThemeManager:ApplyToTab(Tabs.Settings)
 -- Load autoload config if exists
 SaveManager:LoadAutoloadConfig()
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- FINAL MESSAGE
--- ═══════════════════════════════════════════════════════════════════════════════
-
+-- Final Message
 Library:Notify('LinoriaLib Examples loaded successfully!', 5)
 print('[LinoriaLib] All examples initialized')
