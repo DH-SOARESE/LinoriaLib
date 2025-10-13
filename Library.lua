@@ -56,12 +56,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 1e6;
+ScreenGui.DisplayOrder = 10^5;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 1e6;
+ModalScreenGui.DisplayOrder = 10^5;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
@@ -86,7 +86,7 @@ getgenv().Linoria = {
     Buttons = Buttons;
 }
 
-getgenv().Toggles = Toggles;.
+getgenv().Toggles = Toggles; -- if you load infinite yeild after you executed any script with LinoriaLib it will just break the whole UI lib :/ (thats why I added getgenv().Linoria)
 getgenv().Options = Options;
 getgenv().Labels = Labels;
 getgenv().Buttons = Buttons;
@@ -608,13 +608,10 @@ function Library:MakeResizable(Instance, MinSize)
 end;
 
 function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
-    -- Verificação de tipos
     InfoStr = typeof(InfoStr) == "string" and InfoStr or nil
     DisabledInfoStr = typeof(DisabledInfoStr) == "string" and DisabledInfoStr or nil
-    if typeof(HoverInstance) ~= "Instance" then return warn("[Tooltip] HoverInstance inválido") end
 
-    -- Cria o container principal do tooltip
-    local Tooltip = Library:Create("Frame", {
+    local Tooltip = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor,
         BorderColor3 = Library.OutlineColor,
         ZIndex = 100,
@@ -622,27 +619,25 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
         Visible = false,
     })
 
-    -- Cria o rótulo do texto
     local Label = Library:CreateLabel({
         Position = UDim2.fromOffset(3, 1),
         TextSize = 14,
-        Text = InfoStr or "",
+        Text = InfoStr,
         TextColor3 = Library.FontColor,
         TextXAlignment = Enum.TextXAlignment.Left,
         ZIndex = Tooltip.ZIndex + 1,
         Parent = Tooltip,
     })
 
-    -- Registro de cores dinâmicas
     Library:AddToRegistry(Tooltip, {
-        BackgroundColor3 = "MainColor",
-        BorderColor3 = "OutlineColor",
-    })
-    Library:AddToRegistry(Label, {
-        TextColor3 = "FontColor",
+        BackgroundColor3 = 'MainColor',
+        BorderColor3 = 'OutlineColor',
     })
 
-    -- Estrutura de controle
+    Library:AddToRegistry(Label, {
+        TextColor3 = 'FontColor',
+    })
+
     local TooltipTable = {
         Tooltip = Tooltip,
         Disabled = false,
@@ -651,80 +646,77 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
 
     local IsHovering = false
 
-    -- Atualiza o texto e redimensiona
     local function UpdateText(Text)
-        if not Text or Text == "" then return end
+        if Text == nil then return end
         local X, Y = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale)
         Label.Text = Text
-        Tooltip.Size = UDim2.fromOffset(X + 8, Y + 6)
+        Tooltip.Size = UDim2.fromOffset(X + 5, Y + 4)
         Label.Size = UDim2.fromOffset(X, Y)
     end
-
     UpdateText(InfoStr)
 
-    -- Evento ao entrar com o mouse
     table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
+        -- Checa se a UI não está visível
         if Library:MouseIsOverOpenedFrame() or not uiVisible then
             Tooltip.Visible = false
             return
         end
 
-        local CurrentText
-        if TooltipTable.Disabled then
-            CurrentText = DisabledInfoStr
+        if not TooltipTable.Disabled then
+            if InfoStr == nil or InfoStr == "" then
+                Tooltip.Visible = false
+                return
+            end
+            if Label.Text ~= InfoStr then UpdateText(InfoStr) end
         else
-            CurrentText = InfoStr
+            if DisabledInfoStr == nil or DisabledInfoStr == "" then
+                Tooltip.Visible = false
+                return
+            end
+            if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr) end
         end
 
-        if not CurrentText or CurrentText == "" then
-            Tooltip.Visible = false
-            return
-        end
-
-        UpdateText(CurrentText)
         IsHovering = true
+        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         Tooltip.Visible = true
 
-        -- Loop para acompanhar o mouse
         while IsHovering do
-            if not uiVisible then break end
-            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
+            if TooltipTable.Disabled == true and DisabledInfoStr == nil then break end
+            if not uiVisible then break end -- <<< encerra se a UI não estiver visível
+
             RunService.Heartbeat:Wait()
+            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         end
 
-        Tooltip.Visible = false
         IsHovering = false
+        Tooltip.Visible = false
     end))
 
-    -- Evento ao sair do hover
     table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
         IsHovering = false
         Tooltip.Visible = false
     end))
 
-    -- Esconde o tooltip caso o menu principal feche
     if LibraryMainOuterFrame then
-        table.insert(TooltipTable.Signals,
-            LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-                if not LibraryMainOuterFrame.Visible then
-                    IsHovering = false
-                    Tooltip.Visible = false
-                end
-            end)
-        )
+        table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+            if LibraryMainOuterFrame.Visible == false then
+                IsHovering = false
+                Tooltip.Visible = false
+            end
+        end))
     end
 
-    -- Função de destruição segura
     function TooltipTable:Destroy()
         Tooltip:Destroy()
-        for i = #self.Signals, 1, -1 do
-            local Conn = table.remove(self.Signals, i)
-            if Conn.Disconnect then Conn:Disconnect() end
+        for Idx = #TooltipTable.Signals, 1, -1 do
+            local Connection = table.remove(TooltipTable.Signals, Idx)
+            Connection:Disconnect()
         end
     end
 
     return TooltipTable
 end
+
 function Library:OnHighlight(HighlightInstance, Instance, Properties, PropertiesDefault, condition)
     local function undoHighlight()
         local Reg = Library.RegistryMap[Instance];
@@ -3367,30 +3359,29 @@ end
             end);
         end
 
-        -- https://devforum.roblox.com/t/how-to-make-textboxes-follow-current-cursor-position/1368429/6
-        -- thank you nicemike40 :)
-
         local function Update()
-            local PADDING = 2
-            local reveal = Container.AbsoluteSize.X
+    local PADDING = 2
+    local reveal = Container.AbsoluteSize.X
+    local textWidth = TextService:GetTextSize(Box.Text, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
 
-            if not Box:IsFocused() or Box.TextBounds.X <= reveal - 2 * PADDING then
-                Box.Position = UDim2.new(0, PADDING, 0, 0)
-            else
-                local cursor = Box.CursorPosition
-                if cursor ~= -1 then
-                    local subtext = string.sub(Box.Text, 1, cursor-1)
-                    local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
-                    local currentCursorPos = Box.Position.X.Offset + width
-                    if currentCursorPos < PADDING then
-                        Box.Position = UDim2.fromOffset(PADDING-width, 0)
-                    elseif currentCursorPos > reveal - PADDING - 1 then
-                        Box.Position = UDim2.fromOffset(reveal-width-PADDING-1, 0)
-                    end
-                end
-            end
-        end
+    -- Se o texto for menor que o espaço disponível, mantém fixo no início
+    if textWidth <= reveal - 2 * PADDING then
+        Box.Position = UDim2.fromOffset(PADDING, 0)
+        return
+    end
 
+    local cursor = Box.CursorPosition
+    if cursor == -1 then return end
+
+    -- Calcula o tamanho do texto até a posição do cursor
+    local subtext = string.sub(Box.Text, 1, cursor - 1)
+    local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
+
+    -- Calcula o deslocamento horizontal, limitando para não sair da borda
+    local offset = math.clamp(reveal - width - PADDING - 5, -textWidth + reveal - PADDING, PADDING)
+
+    Box.Position = UDim2.fromOffset(offset, 0)
+end
         task.spawn(Update)
 
         Box:GetPropertyChangedSignal('Text'):Connect(Update)
@@ -6406,7 +6397,7 @@ function Library:Toggle(Toggling)
 			CursorGui.Name = "TopCursor"
 			CursorGui.IgnoreGuiInset = true
 			CursorGui.ResetOnSpawn = false
-			CursorGui.DisplayOrder = 1e7
+			CursorGui.DisplayOrder = 10^6
 			CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 			CursorGui.Parent = GetHUI()
 			ProtectGui(CursorGui)
