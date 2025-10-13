@@ -3363,23 +3363,26 @@ end
     local PADDING = 2
     local reveal = Container.AbsoluteSize.X
     local textWidth = TextService:GetTextSize(Box.Text, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
-
-    -- Se o texto for menor que o espaço disponível, mantém fixo no início
+    
+ 
     if textWidth <= reveal - 2 * PADDING then
         Box.Position = UDim2.fromOffset(PADDING, 0)
         return
     end
-
+    
     local cursor = Box.CursorPosition
     if cursor == -1 then return end
 
-    -- Calcula o tamanho do texto até a posição do cursor
+
     local subtext = string.sub(Box.Text, 1, cursor - 1)
     local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
 
-    -- Calcula o deslocamento horizontal, limitando para não sair da borda
-    local offset = math.clamp(reveal - width - PADDING - 5, -textWidth + reveal - PADDING, PADDING)
-
+    local desiredOffset = reveal - width - PADDING - 5
+    local minOffset = -(textWidth - reveal + PADDING)
+    local maxOffset = PADDING
+    
+    local offset = math.clamp(desiredOffset, minOffset, maxOffset)
+    
     Box.Position = UDim2.fromOffset(offset, 0)
 end
         task.spawn(Update)
