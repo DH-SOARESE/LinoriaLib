@@ -56,12 +56,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 99^98;
+ScreenGui.DisplayOrder = 1e6;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 99^98;
+ModalScreenGui.DisplayOrder = 1e6;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
@@ -6396,7 +6396,7 @@ function Library:Toggle(Toggling)
 			CursorGui.Name = "TopCursor"
 			CursorGui.IgnoreGuiInset = true
 			CursorGui.ResetOnSpawn = false
-			CursorGui.DisplayOrder = 99^99
+			CursorGui.DisplayOrder = 1e7
 			CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 			CursorGui.Parent = GetHUI()
 			ProtectGui(CursorGui)
