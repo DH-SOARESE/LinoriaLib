@@ -137,6 +137,7 @@ local Library = {
     
     Toggled = false;
     ToggleKeybind = nil;
+    Tooltip = true,
 
     IsMobile = false;
     DevicePlatform = Enum.Platform.None;
@@ -655,9 +656,19 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     end
     UpdateText(InfoStr)
 
+    -- 🟢 Adiciona checagem global de Library.Tooltip
+    local function CanShowTooltip()
+        return Library.Tooltip == true and uiVisible ~= false
+    end
+
     table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
-        -- Checa se a UI não está visível
-        if Library:MouseIsOverOpenedFrame() or not uiVisible then
+        -- se o recurso Tooltip estiver desativado globalmente, não mostra
+        if not CanShowTooltip() then
+            Tooltip.Visible = false
+            return
+        end
+
+        if Library:MouseIsOverOpenedFrame() then
             Tooltip.Visible = false
             return
         end
@@ -681,9 +692,8 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
         Tooltip.Visible = true
 
         while IsHovering do
-            if TooltipTable.Disabled == true and DisabledInfoStr == nil then break end
-            if not uiVisible then break end -- <<< encerra se a UI não estiver visível
-
+            if not CanShowTooltip() then break end
+            if TooltipTable.Disabled and DisabledInfoStr == nil then break end
             RunService.Heartbeat:Wait()
             Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         end
