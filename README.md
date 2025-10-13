@@ -180,8 +180,7 @@ VolumeSlider:SetValue(1.2)
 | Disabled         | boolean | false                | Whether the slider is disabled. |
 | Prefix           | string  | ""                   | Text displayed before the value. |
 | Suffix           | string  | ""                   | Text displayed after the value. |
-| ValueTextMin     | string  | ""                   | Custom text displayed when the slider is at minimum. |
-| ValueTextMax     | string  | ""                   | Custom text displayed when the slider is at maximum. |
+| ValueText        | Table   | {}                   | Custom text displayed when the slider is at the value set in table |
 | Callback         | function| function() end       | Function called when the slider value changes. |
 | Compact          | boolean | false                | If true, displays text and value in a compact format. |
 | HideMax          | boolean | false                | If true, hides the maximum value display. |
