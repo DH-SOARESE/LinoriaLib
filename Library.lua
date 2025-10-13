@@ -646,6 +646,7 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     }
 
     local IsHovering = false
+    local MouseIsOver = false 
 
     local function UpdateText(Text)
         if Text == nil then return end
@@ -656,14 +657,12 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     end
     UpdateText(InfoStr)
 
-    -- 🟢 Adiciona checagem global de Library.Tooltip
     local function CanShowTooltip()
         return Library.Tooltip == true and uiVisible ~= false
     end
 
-    table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
-        -- se o recurso Tooltip estiver desativado globalmente, não mostra
-        if not CanShowTooltip() then
+    local function TryShowTooltip()
+        if not MouseIsOver or not CanShowTooltip() then
             Tooltip.Visible = false
             return
         end
@@ -700,12 +699,36 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
 
         IsHovering = false
         Tooltip.Visible = false
+    end
+
+    table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
+        MouseIsOver = true
+        TryShowTooltip()
     end))
 
     table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
+        MouseIsOver = false
         IsHovering = false
         Tooltip.Visible = false
     end))
+
+    if typeof(Library.Tooltip) == "boolean" then
+        task.spawn(function()
+            local LastTooltipState = Library.Tooltip
+            while Tooltip.Parent do
+                if Library.Tooltip ~= LastTooltipState then
+                    LastTooltipState = Library.Tooltip
+                    if Library.Tooltip == true and MouseIsOver then
+                        TryShowTooltip()
+                    elseif Library.Tooltip == false then
+                        IsHovering = false
+                        Tooltip.Visible = false
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
 
     if LibraryMainOuterFrame then
         table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
