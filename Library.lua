@@ -3359,30 +3359,29 @@ end
             end);
         end
 
-        -- https://devforum.roblox.com/t/how-to-make-textboxes-follow-current-cursor-position/1368429/6
-        -- thank you nicemike40 :)
-
         local function Update()
-            local PADDING = 2
-            local reveal = Container.AbsoluteSize.X
+    local PADDING = 2
+    local reveal = Container.AbsoluteSize.X
+    local textWidth = TextService:GetTextSize(Box.Text, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
 
-            if not Box:IsFocused() or Box.TextBounds.X <= reveal - 2 * PADDING then
-                Box.Position = UDim2.new(0, PADDING, 0, 0)
-            else
-                local cursor = Box.CursorPosition
-                if cursor ~= -1 then
-                    local subtext = string.sub(Box.Text, 1, cursor-1)
-                    local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
-                    local currentCursorPos = Box.Position.X.Offset + width
-                    if currentCursorPos < PADDING then
-                        Box.Position = UDim2.fromOffset(PADDING-width, 0)
-                    elseif currentCursorPos > reveal - PADDING - 1 then
-                        Box.Position = UDim2.fromOffset(reveal-width-PADDING-1, 0)
-                    end
-                end
-            end
-        end
+    -- Se o texto for menor que o espaço disponível, mantém fixo no início
+    if textWidth <= reveal - 2 * PADDING then
+        Box.Position = UDim2.fromOffset(PADDING, 0)
+        return
+    end
 
+    local cursor = Box.CursorPosition
+    if cursor == -1 then return end
+
+    -- Calcula o tamanho do texto até a posição do cursor
+    local subtext = string.sub(Box.Text, 1, cursor - 1)
+    local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
+
+    -- Calcula o deslocamento horizontal, limitando para não sair da borda
+    local offset = math.clamp(reveal - width - PADDING - 5, -textWidth + reveal - PADDING, PADDING)
+
+    Box.Position = UDim2.fromOffset(offset, 0)
+end
         task.spawn(Update)
 
         Box:GetPropertyChangedSignal('Text'):Connect(Update)
