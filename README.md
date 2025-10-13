@@ -624,11 +624,14 @@ MenuControls:AddButton({
     end
 })
 ```
-## 🔧 Complete Example  
+## Complete Example  
 [Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
 
-## 🔧 UI library Code 
+## UI library Code 
 [UI Library](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Library.lua)
+
+## Original design 
+[Ir para Original design](https://github.com/mstudio45/LinoriaLib)
 
 ### Playbook Tips
 - Organize features in groupboxes for readability.
