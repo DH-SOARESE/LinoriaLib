@@ -193,21 +193,6 @@ SliderBox:AddSlider('CurrencySlider', {
     end
 })
 
--- Slider with Min/Max Text
-SliderBox:AddSlider('LimitTextSlider', {
-    Text = 'Min/Max Text',
-    Default = 50,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
-    ValueTextMin = 'None',
-    ValueTextMax = 'Full',
-    Tooltip = 'Shows text labels at extremes',
-    Callback = function(value)
-        print('[Slider] Value:', value)
-    end
-})
-
 -- Slider with Value Text
 SliderBox:AddSlider('ValueTextSlider', {
     Text = 'Value Text',
