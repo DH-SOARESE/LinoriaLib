@@ -75,16 +75,14 @@ ToggleBox:AddToggle('KeybindToggle', {
 })
 
 -- Toggle with Color Picker
-local ColorToggle = ToggleBox:AddToggle('ColorToggle', {
+ToggleBox:AddToggle('ColorToggle', {
     Text = 'Toggle with Color',
     Default = false,
     Tooltip = 'Includes color customization',
     Callback = function(value)
         print('[Color Toggle] State:', value)
     end
-})
-
-ColorToggle:AddColorPicker('ColorPicker', {
+}):AddColorPicker('ColorPicker', {
     Title = 'Choose Color',
     Default = Color3.fromRGB(0, 150, 255),
     Transparency = 0.5,
@@ -124,9 +122,7 @@ local StandardButton = ButtonBox:AddButton({
         Library:Notify('Button clicked!', 3)
         print('[Button] Standard button pressed')
     end
-})
-
-StandardButton:AddButton({
+}):AddButton({
     Text = 'Confirm Action',
     DoubleClick = true,
     Tooltip = 'Double-click to confirm',
@@ -557,9 +553,7 @@ local TestNotifyButton = MenuBox:AddButton({
     Func = function()
         Library:Notify('This is a test notification message!', 5)
     end
-})
-
-TestNotifyButton:AddButton({
+}):AddButton({
     Text = 'Unload UI',
     DoubleClick = true,
     Tooltip = 'Double-click to unload entire UI',
