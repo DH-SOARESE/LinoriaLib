@@ -631,7 +631,7 @@ MenuControls:AddButton({
 [UI Library](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Library.lua)
 
 ## Original design 
-[Ir para Original design](https://github.com/mstudio45/LinoriaLib)
+[go to original project](https://github.com/mstudio45/LinoriaLib)
 
 ### Playbook Tips
 - Organize features in groupboxes for readability.
