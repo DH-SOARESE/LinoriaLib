@@ -46,7 +46,7 @@ local Tabs = {
 }
 ```
 
-## 🎛️ Available Components
+## Available Components
 
 ### Groupboxes
 ```lua
@@ -61,7 +61,7 @@ local Tab1 = SubTabs:AddTab('Sub tab1')
 local Tab2 = SubTabs:AddTab('Sub tab2')
 ```
 
-## 📋 Interface Elements
+##  Interface Elements
 
 ### Toggle
 ```lua
@@ -91,9 +91,7 @@ local ToggleExample = Groupbox:AddToggle("ExampleToggle", {
     Callback = function(Value)
         print("ESP:", Value and "Enabled" or "Disabled")
     end
-})
-
-Groupbox:AddKeyPicker("ESPKeyPicker", {
+}):AddKeyPicker("ESPKeyPicker", {
     Default = "E",
     Mode = "Toggle",
     Text = "ESP",
@@ -101,9 +99,7 @@ Groupbox:AddKeyPicker("ESPKeyPicker", {
     Callback = function(Toggled)
         print("ESP KeyPicker Toggle:", Toggled)
     end
-})
-
-Groupbox:AddColorPicker("ESPColor", {
+}):AddColorPicker("ESPColor", {
     Title = "ESP Color",
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.1,
@@ -131,7 +127,7 @@ Groupbox:AddColorPicker("ESPColor", {
 | Tooltip      | string   | nil                  | Tooltip text shown on hover. |
 | DisabledTooltip | string | nil                | Tooltip text shown when disabled. |
 
-### 🎚️ Slider
+### Slider
 ```lua
 local BrightnessSlider = Groupbox:AddSlider("ScreenBrightness", {
     Text = "Screen Brightness",
@@ -346,7 +342,7 @@ Groupbox:AddColorPicker("ColorPicker", {
 | DisabledTooltip | string | nil                       | Tooltip text shown when disabled. |
 | Callback     | function | function(Color, Transparency) end | Called when color or transparency changes. |
 
-### ⌨️ KeyPicker
+###  KeyPicker
 ```lua
 Groupbox:AddKeyPicker("KeyPicker", {
     Default = "E",
@@ -391,7 +387,7 @@ Groupbox:AddKeyPicker("ESPKey", {
 | DisabledTooltip  | string  | nil                  | Tooltip text shown when disabled. |
 | Callback         | function| function(Value) end  | Called when the key is pressed or state changes. |
 
-### 🖼️ Image
+### Image
 #### Roblox Asset Image
 ```lua
 local Logo = Groupbox:AddImage("MainLogo", {
@@ -447,7 +443,7 @@ local Banner = Groupbox:AddImage("PromoBanner", {
 | Visible      | boolean          | true                 | Whether the image is visible. |
 | Tooltip      | string           | nil                  | Tooltip text shown on hover. |
 
-### 🔗 DependencyBox
+###  DependencyBox
 ```lua
 local ToggleESP = Groupbox:AddToggle("ShowESP", {
     Text = "Toggle Example",
@@ -491,7 +487,7 @@ ESPDepBox:AddDropdown("Example", {
 | Dependencies | table    | {}                   | Table of dependencies, e.g., { { Toggle, true } }. Visibility depends on these. |
 | Visible       | boolean  | true                 | Whether the dependency box and its children are visible (overridden by dependencies). |
 
-### 🔲 Buttons
+###  Buttons
 ```lua
 Groupbox:AddButton({
     Text = 'Execute Action',
@@ -530,7 +526,7 @@ Groupbox:AddButton({
 | DisabledTooltip | string   | nil                  | Tooltip shown when the button is disabled. |
 | Visible         | boolean  | true                 | Whether the button is visible. |
 
-### 📝 Labels and Dividers
+###  Labels and Dividers
 ```lua
 Groupbox:AddLabel('Status: Connected')
 Groupbox:AddLabel('Multi-line:\nEverything working!', true)
@@ -554,7 +550,7 @@ Groupbox:AddDivider("Divider with label")
 | Text     | string | nil      | Optional text displayed on the divider. |
 | Visible  | boolean| true     | Whether the divider is visible. |
 
-## 💾 Save System and Themes
+##  Save System and Themes
 ```lua
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
@@ -571,7 +567,7 @@ ThemeManager:ApplyToTab(Tabs.Settings)
 SaveManager:LoadAutoloadConfig()
 ```
 
-## 🎪 Special Features
+##  Special Features
 
 ### Watermark
 ```lua
@@ -594,7 +590,7 @@ Library:Notify('Success message!')
 Library:Notify('Error detected!', 10, 4590657391)
 ```
 
-## 🎯 Accessing and Manipulating Values
+##  Accessing and Manipulating Values
 ```lua
 print(Toggles.MyToggle.Value)
 print(Options.Speed.Value)
@@ -605,7 +601,7 @@ Options.Speed:SetValue(50)
 Options.GameMode:SetValue('Fast')
 ```
 
-## 📱 Menu Controls
+##  Menu Controls
 ```lua
 local MenuControls = Tabs.Settings:AddLeftGroupbox('Menu Controls')
 
