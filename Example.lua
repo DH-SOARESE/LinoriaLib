@@ -496,8 +496,8 @@ NestedTab3:AddButton({
 local ImageBox = Tabs.Advanced:AddRightGroupbox('Image Display')
 
 ImageBox:AddImage('ExampleImage', {
-    Image = 'rbxassetid://9328294962',
-    Height = 150,
+    Image = 'rbxassetid://10511855986',
+    Height = 250,
     Color = Color3.fromRGB(255, 255, 255),
     ScaleType = Enum.ScaleType.Fit,
     Transparency = 0,
@@ -506,7 +506,7 @@ ImageBox:AddImage('ExampleImage', {
 })
 
 ImageBox:AddVideo("DemoVideo", {
-    Video = "rbxassetid://5608268502",
+    Video = "rbxassetid://5670824523",
     Height = 250,
     Looped = true,
     Playing = true,
@@ -514,7 +514,7 @@ ImageBox:AddVideo("DemoVideo", {
     Visible = true
 })
 
-ImageBox:AddLabel('Image from Roblox asset ID')
+ImageBox:AddLabel('Image & Video from Roblox asset ID')
 
 -- Settings Tab - Menu Configuration
 
