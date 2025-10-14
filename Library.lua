@@ -51,24 +51,30 @@ local function ParentUI(UI: Instance, SkipHiddenUI: boolean?)
 end
 
 
-local ScreenGui = Instance.new('ScreenGui');
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 1e6;
-ScreenGui.ResetOnSpawn = false;
-ParentUI(ScreenGui);
-
-local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 1e6;
-ModalScreenGui.ResetOnSpawn = false;
-ParentUI(ModalScreenGui, true);
-
 local function getFunc(name)
     return getfenv()[name]
 end
-if not pcall(function()
-    ScreenGui.Parent = game.CoreGui
-    ModalScreenGui.Parent = game.CoreGui
-end)
+
+local function ParentUI(GUI, isModal)
+    if not pcall(function()
+        GUI.Parent = game.CoreGui
+    end) then
+        GUI.Parent = getFunc("MyNewRoot") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)
+    end
+    GUI.DisplayOrder = 1e6 
+    GUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    pcall(function()
+        GUI.OnTopOfCoreBlur = isModal or false
+    end)
+end
+
+local ScreenGui = Instance.new('ScreenGui')
+ScreenGui.ResetOnSpawn = false
+ParentUI(ScreenGui)
+
+local ModalScreenGui = Instance.new("ScreenGui")
+ModalScreenGui.ResetOnSpawn = false
+ParentUI(ModalScreenGui, true)
 
 pcall(function()
     ScreenGui.OnTopOfCoreBlur = true
@@ -6553,36 +6559,36 @@ function Library:Toggle(Toggling)
 	if uiVisible then
 		Outer.Visible = true
  
-		if not CursorGui then
-			CursorGui = Instance.new("ScreenGui")
-			CursorGui.Name = "LinoriaCursor"
-			CursorGui.IgnoreGuiInset = true
-			CursorGui.ResetOnSpawn = false
-			CursorGui.DisplayOrder = 1e7
-			CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-			CursorGui.Parent = GetHUI()
-			ProtectGui(CursorGui)
-			
-			local function getFunc(name)
-                return getfenv()[name]
-                  end
-                if not pcall(function()
-                   CursorGui.Parent = game.CoreGui
-               end)
-               pcall(function()
-            CursorGui.OnTopOfCoreBlur = true
-        end)
+	if not CursorGui then
+    CursorGui = Instance.new("ScreenGui")
+    CursorGui.Name = "LinoriaCursor"
+    CursorGui.IgnoreGuiInset = true
+    CursorGui.ResetOnSpawn = false
+    CursorGui.DisplayOrder = 1e7
+    CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-			CursorImage = Instance.new("ImageLabel")
-			CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
-			CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-			CursorImage.BackgroundTransparency = 1
-			CursorImage.Image = CursorID
-			CursorImage.ImageColor3 = Library.AccentColor
-			CursorImage.ZIndex = 9999
-			CursorImage.Visible = Library.ShowCustomCursor
-			CursorImage.Parent = CursorGui
-		end
+
+    if not pcall(function()
+        CursorGui.Parent = game.CoreGui
+    end) then
+        CursorGui.Parent = GetHUI()
+    end
+    pcall(function()
+        CursorGui.OnTopOfCoreBlur = true
+    end)
+
+ 
+
+    CursorImage = Instance.new("ImageLabel")
+    CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
+    CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+    CursorImage.BackgroundTransparency = 1
+    CursorImage.Image = CursorID
+    CursorImage.ImageColor3 = Library.AccentColor
+    CursorImage.ZIndex = 9999
+    CursorImage.Visible = Library.ShowCustomCursor
+    CursorImage.Parent = CursorGui
+end
 
 		OldMouseIconState = InputService.MouseIconEnabled
 		InputService.MouseIconEnabled = not Library.ShowCustomCursor
