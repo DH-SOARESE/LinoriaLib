@@ -58,7 +58,7 @@ local function getFunc(name)
     return getfenv()[name]
 end
 
-local function ParentUI(GUI, isModal, Layer)
+local function ParentUI(GUI, isModal)
     local success = pcall(function()
         GUI.Parent = GetHUI()
     end)
@@ -72,7 +72,7 @@ local function ParentUI(GUI, isModal, Layer)
     if not GUI.Parent then
         GUI.Parent = getFunc("MyNewRoot") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)
     end
-    GUI.DisplayOrder = Layer
+    GUI.DisplayOrder = 9e9^98
     GUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
     
     pcall(function()
@@ -82,11 +82,11 @@ end
 
 local ScreenGui = Instance.new('ScreenGui')
 ScreenGui.ResetOnSpawn = false
-ParentUI(ScreenGui, false, 99e99^99e98)
+ParentUI(ScreenGui)
 
 local ModalScreenGui = Instance.new("ScreenGui")
 ModalScreenGui.ResetOnSpawn = false
-ParentUI(ModalScreenGui, true, 99e99^99e98)
+ParentUI(ModalScreenGui, true)
 
 pcall(function()
     ScreenGui.OnTopOfCoreBlur = true
@@ -6578,7 +6578,16 @@ function Library:Toggle(Toggling)
     CursorGui.ResetOnSpawn = false
     CursorGui.DisplayOrder = 1e7
     CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ParentUI(CursorGui, false, 99e99^99e99)
+
+    if not pcall(function()
+        CursorGui.Parent = GetHUI()
+    end) then
+        CursorGui.Parent = game.CoreGui
+    end
+
+    pcall(function()
+        CursorGui.OnTopOfCoreBlur = true
+    end)
 
     CursorImage = Instance.new("ImageLabel")
     CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
