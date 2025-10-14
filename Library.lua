@@ -48,35 +48,33 @@ local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instanc
     end
 end
 
-local function ParentUI(UI: Instance, SkipHiddenUI: boolean?)
-    if SkipHiddenUI then
-        SafeParentUI(UI, CoreGui)
-        return
-    end
-
-    pcall(ProtectGui, UI)
-    SafeParentUI(UI, GetHUI)
-end
-
 local function getFunc(name)
     return getfenv()[name]
 end
 
-local function ParentUI(GUI, Layer, isModal)
+local function ParentUI(GUI: Instance, Layer: number?, isModal: boolean?, SkipHiddenUI: boolean?)
+    local GetHUI = getFunc("GetHUI") or function() return game.CoreGui end
+
+    if SkipHiddenUI then
+        pcall(function() GUI.Parent = CoreGui end)
+        return
+    end
+
+    pcall(function() ProtectGui(GUI) end)
+
     local success = pcall(function()
         GUI.Parent = GetHUI()
     end)
-    
-    if not success then
-        pcall(function()
-            GUI.Parent = game.CoreGui
-        end)
+
+    if not success or not GUI.Parent then
+        GUI.Parent = game:GetService("CoreGui")
     end
-    
+
     if not GUI.Parent then
-        GUI.Parent = getFunc("MyNewRoot") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)
+        GUI.Parent = getFunc("MyNewRoot") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)HudRegistrl
+    if Layer then
+        GUI.DisplayOrder = Layer
     end
-    GUI.DisplayOrder = Layer
     GUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
     
     pcall(function()
