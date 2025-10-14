@@ -5134,6 +5134,125 @@ end;
 
         return Image
     end;
+    
+    function BaseGroupboxFuncs:AddVideo(Idx, Info)
+    local Video = {
+        Video = Info.Video,
+        Looped = if typeof(Info.Looped) == "boolean" then Info.Looped else false,
+        Playing = if typeof(Info.Playing) == "boolean" then Info.Playing else true,
+        Volume = if typeof(Info.Volume) == "number" and Info.Volume >= 0 and Info.Volume <= 1 then Info.Volume else 1,
+        Height = if typeof(Info.Height) == "number" and Info.Height > 0 then Info.Height else 200,
+        Visible = Info.Visible,
+        Type = "Video",
+    }
+
+    local Blank = nil;
+    local Groupbox = self;
+    local Container = Groupbox.Container;
+
+    local Holder = Library:Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -4, 0, Info.Height),
+        Visible = Video.Visible,
+        Parent = Container,
+    })
+
+    local Box = Library:Create("Frame", {
+        BackgroundColor3 = Library.MainColor,
+        BorderColor3 = Library.OutlineColor,
+        BorderSizePixel = 1,
+        BorderMode = Enum.BorderMode.Inset,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 6,
+        Parent = Holder,
+    })
+
+    Library:AddToRegistry(Box, {
+        BackgroundColor3 = 'MainColor';
+        BorderColor3 = 'OutlineColor';
+    });
+
+    Library:Create("UIPadding", {
+        PaddingBottom = UDim.new(0, 3),
+        PaddingLeft = UDim.new(0, 8),
+        PaddingRight = UDim.new(0, 8),
+        PaddingTop = UDim.new(0, 4),
+        Parent = Box,
+    });
+
+    local VideoProperties = {
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        Video = Video.Video,
+        Looped = Video.Looped,
+        Volume = Video.Volume,
+        ZIndex = 7,
+        Parent = Box,
+    }
+
+    local VideoFrame = Library:Create("VideoFrame", VideoProperties)
+    VideoFrame.Playing = Video.Playing
+
+    function Video:SetHeight(Height: number)
+        assert(Height > 0, "Height must be greater than 0.")
+        Video.Height = Height;
+
+        Holder.Size = UDim2.new(1, -4, 0, Video.Height);
+        Groupbox:Resize()
+    end
+
+    function Video:SetVideo(NewVideo: string)
+        assert(typeof(NewVideo) == "string", "Video must be a string.")
+
+        VideoFrame.Video = NewVideo
+        Video.Video = NewVideo
+    end
+
+    function Video:SetLooped(Looped: boolean)
+        assert(typeof(Looped) == "boolean", "Looped must be a boolean value.")
+
+        VideoFrame.Looped = Looped
+        Video.Looped = Looped
+    end
+
+    function Video:SetPlaying(Playing: boolean)
+        assert(typeof(Playing) == "boolean", "Playing must be a boolean value.")
+
+        VideoFrame.Playing = Playing
+        Video.Playing = Playing
+    end
+
+    function Video:SetVolume(Volume: number)
+        assert(typeof(Volume) == "number", "Volume must be a number between 0 and 1.")
+        assert(Volume >= 0 and Volume <= 1, "Volume must be between 0 and 1.")
+
+        VideoFrame.Volume = Volume
+        Video.Volume = Volume
+    end
+
+    function Video:SetVisible(Visible: boolean)
+        Video.Visible = Visible
+
+        Holder.Visible = Video.Visible
+        if Blank then Blank.Visible = Video.Visible end;
+
+        Groupbox:Resize()
+    end
+
+    Video:SetHeight(Video.Height)
+
+    Blank = Groupbox:AddBlank(10, Video.Visible);
+    Groupbox:Resize();
+
+    Video.Holder = Holder
+    Video.Container = Container;
+
+    Options[Idx] = Video
+
+    Library:UpdateDependencyBoxes();
+
+    return Video
+end;
 
     function BaseGroupboxFuncs:AddDependencyBox()
         local Depbox = {
