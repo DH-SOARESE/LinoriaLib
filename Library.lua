@@ -1,4 +1,6 @@
-local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
+local cloneref = (cloneref or clonereference or function(instance: any) 
+   return instance 
+end)
 local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
 local TextService: TextService = cloneref(game:GetService('TextService'));
 local CoreGui: CoreGui = cloneref(game:GetService('CoreGui'));
@@ -10,7 +12,6 @@ local TweenService: TweenService = cloneref(game:GetService('TweenService'));
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
-local uiVisible = true;
 
 local getgenv = getgenv or (function() return shared end);
 local ProtectGui = protectgui or (function() end);
@@ -76,6 +77,7 @@ ModalElement.Parent = ModalScreenGui
 local TransparencyCache = {}
 local Toggled = false
 local Fading = false
+local uiVisible = true
 
 
 local OldMouseIconState = nil
@@ -2825,7 +2827,7 @@ function BaseGroupboxFuncs:AddLabel(...)
     if (not Data.DoesWrap) then    
         setmetatable(Label, BaseAddons);    
     end    
-    Blank = Groupbox:AddBlank(10); -- Ajustado de 5 para 10 para maior padding vertical
+    Blank = Groupbox:AddBlank(10);
     Groupbox:Resize();    
 
     if Data.Idx then    
