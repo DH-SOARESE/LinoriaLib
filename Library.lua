@@ -5605,7 +5605,8 @@ function Library:CreateWindow(...)
         Name = "Window";
     });
     Blocked(Outer);
-    Protect(Outer);
+    Protect(ScreenGui);
+    
     
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
