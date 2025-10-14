@@ -9,6 +9,10 @@ local Players: Players = cloneref(game:GetService('Players'));
 local RunService: RunService = cloneref(game:GetService('RunService'));
 local TweenService: TweenService = cloneref(game:GetService('TweenService'));
 
+local getgenv = getgenv or (function() return shared end);
+local ProtectGui = protectgui or (function() end);
+local GetHUI = gethui or (function() return CoreGui end);
+
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
@@ -50,19 +54,27 @@ local function ParentUI(UI: Instance, SkipHiddenUI: boolean?)
     SafeParentUI(UI, GetHUI)
 end
 
-
 local function getFunc(name)
     return getfenv()[name]
 end
 
 local function ParentUI(GUI, isModal)
-    if not pcall(function()
-        GUI.Parent = game.CoreGui
-    end) then
+    local success = pcall(function()
+        GUI.Parent = GetHUI()
+    end)
+    
+    if not success then
+        pcall(function()
+            GUI.Parent = game.CoreGui
+        end)
+    end
+    
+    if not GUI.Parent then
         GUI.Parent = getFunc("MyNewRoot") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)
     end
-    GUI.DisplayOrder = 1e6 
+    GUI.DisplayOrder = 9e9^98
     GUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    
     pcall(function()
         GUI.OnTopOfCoreBlur = isModal or false
     end)
@@ -6558,26 +6570,24 @@ function Library:Toggle(Toggling)
 
 	if uiVisible then
 		Outer.Visible = true
- 
+		
 	if not CursorGui then
     CursorGui = Instance.new("ScreenGui")
     CursorGui.Name = "LinoriaCursor"
     CursorGui.IgnoreGuiInset = true
     CursorGui.ResetOnSpawn = false
-    CursorGui.DisplayOrder = 1e7
+    CursorGui.DisplayOrder = 9e9^9e9
     CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-
     if not pcall(function()
-        CursorGui.Parent = game.CoreGui
-    end) then
         CursorGui.Parent = GetHUI()
+    end) then
+        CursorGui.Parent = game.CoreGui
     end
+
     pcall(function()
         CursorGui.OnTopOfCoreBlur = true
     end)
-
- 
 
     CursorImage = Instance.new("ImageLabel")
     CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
