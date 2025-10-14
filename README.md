@@ -360,7 +360,9 @@ Groupbox:AddKeyPicker("ESPKey", {
     Callback = function(Toggled)
         print("KeyPicker Toggle:", Toggled)
     end
-}):AddKeyPicker("KeyESPKEY", {
+})
+
+Groupbox:AddKeyPicker("KeyESPKEY", {
     Default = "N",
     Mode = "Toggle",
     Text = "M",
