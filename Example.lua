@@ -197,10 +197,9 @@ SliderBox:AddSlider('ValueTextSlider', {
     Max = 20,
     Rounding = 0,
     ValueText = {
-        {Value = 0, Text = "Safe"},
-        {Value = 10, Text = "Risk"},
-        {Value = 20, Text = "Warn"}
-    },
+    {Value = 0, Text = "Calm"},
+    {Value = 10, Text = "Tense"},
+    {Value = 20, Text = "Extreme"}},
     Tooltip = 'Shows text labels at extremes',
     Callback = function(value)
         print('[Slider] Value:', value)
