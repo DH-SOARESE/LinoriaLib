@@ -9,9 +9,13 @@ local Players: Players = cloneref(game:GetService('Players'));
 local RunService: RunService = cloneref(game:GetService('RunService'));
 local TweenService: TweenService = cloneref(game:GetService('TweenService'));
 
-local getgenv = getgenv or (function() return shared end);
+local getgenv = getgenv or (function() 
+return shared 
+end);
 local ProtectGui = protectgui or (function() end);
-local GetHUI = gethui or (function() return CoreGui end);
+local GetHUI = gethui or (function() 
+return CoreGui 
+end);
 
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
@@ -86,7 +90,7 @@ ParentUI(ScreenGui, 9e9^9e8)
 
 local ModalScreenGui = Instance.new("ScreenGui")
 ModalScreenGui.ResetOnSpawn = false
-ParentUI(ModalScreenGui, 9e9^9e8 true)
+ParentUI(ModalScreenGui, 9e9^9e8, true)
 
 pcall(function()
     ScreenGui.OnTopOfCoreBlur = true
