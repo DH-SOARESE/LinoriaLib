@@ -2768,15 +2768,13 @@ do
     end;
 
 function BaseGroupboxFuncs:AddLabel(...)
-local Data = {}
-
-if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then    
+    local Data = {}
+    if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then    
         if select(1, ...) ~= nil then    
             assert(typeof(select(1, ...)) == "string", "Expected string for Idx, got " .. typeof(select(1, ...)))    
         end    
-            
-        local Params = select(2, ...)    
 
+        local Params = select(2, ...)    
         Data.Text = Params.Text or ""    
         Data.DoesWrap = Params.DoesWrap or false    
         Data.Idx = select(1, ...)    
@@ -2785,17 +2783,13 @@ if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then
         Data.DoesWrap = select(2, ...) or false    
         Data.Idx = select(3, ...) or nil    
     end    
-
     Data.OriginalText = Data.Text;    
-        
+
     local Label = {    
-
     };    
-
     local Blank = nil;    
     local Groupbox = self;    
     local Container = Groupbox.Container;    
-
     local TextLabel = Library:CreateLabel({    
         Size = UDim2.new(1, -4, 0, 15);    
         TextSize = 14;    
@@ -2806,7 +2800,6 @@ if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then
         Parent = Container;    
         RichText = true;    
     });    
-
     if Data.DoesWrap then    
         local Y = select(2, Library:GetTextBounds(Data.Text, Library.Font, 14 * DPIScale, Vector2.new(TextLabel.AbsoluteSize.X, math.huge)))    
         TextLabel.Size = UDim2.new(1, -4, 0, Y)    
@@ -2819,35 +2812,28 @@ if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then
             Parent = TextLabel;    
         });    
     end    
-
     Label.TextLabel = TextLabel;    
     Label.Container = Container;    
-
     function Label:SetText(Text)    
         TextLabel.Text = Text    
-
         if Data.DoesWrap then    
             local Y = select(2, Library:GetTextBounds(Text, Library.Font, 14 * DPIScale, Vector2.new(TextLabel.AbsoluteSize.X, math.huge)))    
             TextLabel.Size = UDim2.new(1, -4, 0, Y)    
         end    
-
         Groupbox:Resize();    
     end    
-
     if (not Data.DoesWrap) then    
         setmetatable(Label, BaseAddons);    
     end    
-
-    Blank = Groupbox:AddBlank(5);    
+    Blank = Groupbox:AddBlank(10); -- Ajustado de 5 para 10 para maior padding vertical
     Groupbox:Resize();    
-        
+
     if Data.Idx then    
         -- Options[Data.Idx] = Label;    
         Labels[Data.Idx] = Label;    
     else    
         table.insert(Labels, Label);    
     end    
-
     return Label;    
 end;
     function BaseGroupboxFuncs:AddButton(...)
