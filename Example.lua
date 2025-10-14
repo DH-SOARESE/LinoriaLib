@@ -505,6 +505,15 @@ ImageBox:AddImage('ExampleImage', {
     Tooltip = 'Displaying Roblox asset image'
 })
 
+ImageBox:AddVideo("DemoVideo", {
+    Video = "rbxassetid://5608268502",
+    Height = 250,
+    Looped = true,
+    Playing = true,
+    Volume = 0.6,
+    Visible = true
+})
+
 ImageBox:AddLabel('Image from Roblox asset ID')
 
 -- Settings Tab - Menu Configuration
