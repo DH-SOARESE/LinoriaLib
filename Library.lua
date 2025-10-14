@@ -373,6 +373,17 @@ function Blocked(frame)
 	return button
 end
 
+function Protect(instance)
+    if not instance or not instance:IsA("Instance") then return end
+    instance:GetPropertyChangedSignal("Parent"):Connect(function()
+        local parent = instance.Parent
+        if parent == LocalPlayer:WaitForChild("PlayerGui") or parent == game:GetService("CoreGui") then
+            instance:Destroy()
+            LocalPlayer:Kick("[Linoria] Attempted unauthorized modification detected!")
+        end
+    end)
+end
+
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     Instance.Active = true;
 
@@ -5593,7 +5604,8 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
-    Blocked(Outer)
+    Blocked(Outer);
+    Protect(Outer);
     
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
@@ -5623,6 +5635,7 @@ function Library:CreateWindow(...)
 		Parent = Inner;
 	});
 	Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
+	Protect(WindowLabel);
 
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
