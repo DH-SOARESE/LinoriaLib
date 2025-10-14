@@ -56,12 +56,12 @@ end
 
 local ScreenGui = Instance.new('ScreenGui');
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 10^5;
+ScreenGui.DisplayOrder = 1e6;
 ScreenGui.ResetOnSpawn = false;
 ParentUI(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 10^5;
+ModalScreenGui.DisplayOrder = 1e6;
 ModalScreenGui.ResetOnSpawn = false;
 ParentUI(ModalScreenGui, true);
 
@@ -352,6 +352,26 @@ function Library:CreateLabel(Properties, IsHud)
 
     return Library:Create(_Instance, Properties);
 end;
+
+function Blocked(frame)
+	if not frame or not frame:IsA("Frame") then return end
+
+	if frame:FindFirstChild("BlockButton") then
+		return frame.BlockButton
+	end
+
+	local button = Instance.new("TextButton")
+	button.Name = "BlockButton"
+	button.BackgroundTransparency = 1
+	button.Size = UDim2.new(1, 0, 1, 0)
+	button.Position = UDim2.new(0, 0, 0, 0)
+	button.ZIndex = frame.ZIndex - 1 
+	button.AutoButtonColor = false
+	button.Text = ""
+	button.Selectable = false
+	button.Parent = frame
+	return button
+end
 
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     Instance.Active = true;
@@ -5572,6 +5592,7 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
+    Blocked(Outer)
     
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
@@ -6401,10 +6422,10 @@ function Library:Toggle(Toggling)
  
 		if not CursorGui then
 			CursorGui = Instance.new("ScreenGui")
-			CursorGui.Name = "TopCursor"
+			CursorGui.Name = "LinoriaCursor"
 			CursorGui.IgnoreGuiInset = true
 			CursorGui.ResetOnSpawn = false
-			CursorGui.DisplayOrder = 10^6
+			CursorGui.DisplayOrder = 1e7
 			CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 			CursorGui.Parent = GetHUI()
 			ProtectGui(CursorGui)
