@@ -48,41 +48,24 @@ local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instanc
     end
 end
 
-local function getFunc(name)
-    return getfenv()[name]
-end
-
-local function ParentUI(GUI: Instance, Layer: number?, isModal: boolean?, SkipHiddenUI: boolean?)
-    local GetHUI = getFunc("GetHUI") or function() return game.CoreGui end
-
-    if SkipHiddenUI then
-        pcall(function() GUI.Parent = CoreGui end)
-        return
-    end
-
-    pcall(function() ProtectGui(GUI) end)
-
+local function ParentUI(UI: Instance, Layer: number?, isModal: boolean?)
     local success = pcall(function()
-        GUI.Parent = GetHUI()
+        UI.Parent = (getfenv()["GetHUI"] or game:GetService("CoreGui"))()
     end)
-
-    if not success or not GUI.Parent then
-        GUI.Parent = game:GetService("CoreGui")
-    end
-
-    if not GUI.Parent then
-        GUI.Parent = getFunc("MyNewRoot") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)HudRegistrl
-    if Layer then
-        GUI.DisplayOrder = Layer
-    end
-    GUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
     
+    if not success or not UI.Parent then
+        UI.Parent = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui") or game:GetService("CoreGui")
+    end
+
+    UI.DisplayOrder = Layer or 0
+    UI.ZIndexBehavior = Enum.ZIndexBehavior.Global
+
     pcall(function()
-        GUI.OnTopOfCoreBlur = isModal or false
+        UI.OnTopOfCoreBlur = isModal or false
     end)
 end
 
-local ScreenGui = Instance.new('ScreenGui')
+local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.ResetOnSpawn = false
 ParentUI(ScreenGui, 9e9^9e8)
 
@@ -6581,13 +6564,14 @@ function Library:Toggle(Toggling)
     CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ParentUI(CursorGui, 9e9^9e9)
 
+
     CursorImage = Instance.new("ImageLabel")
     CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
     CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
     CursorImage.BackgroundTransparency = 1
     CursorImage.Image = CursorID
     CursorImage.ImageColor3 = Library.AccentColor
-    CursorImage.ZIndex = 9999
+    CursorImage.ZIndex = 1e6
     CursorImage.Visible = Library.ShowCustomCursor
     CursorImage.Parent = CursorGui
 end
