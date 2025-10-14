@@ -2771,16 +2771,23 @@ do
     local Data = {}
 
     if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then
-        Data.Text = select(2, ...).Text or ""
-        Data.DoesWrap = select(2, ...).DoesWrap or true -- padrão true
+        if select(1, ...) ~= nil then
+            assert(typeof(select(1, ...)) == "string", "Expected string for Idx, got " .. typeof(select(1, ...)))
+        end
+
+        local Params = select(2, ...)
+        Data.Text = Params.Text or ""
+        Data.DoesWrap = Params.DoesWrap or false
         Data.Idx = select(1, ...)
     else
         Data.Text = select(1, ...) or ""
-        Data.DoesWrap = select(2, ...) or true -- padrão true
+        Data.DoesWrap = select(2, ...) or false
         Data.Idx = select(3, ...) or nil
     end
 
     Data.OriginalText = Data.Text
+
+    local Label = {}
 
     local Groupbox = self
     local Container = Groupbox.Container
@@ -2789,31 +2796,37 @@ do
         Size = UDim2.new(1, -4, 0, 15),
         TextSize = 14,
         Text = Data.Text,
-        TextWrapped = Data.DoesWrap, -- sempre aplicar wrap
+        TextWrapped = Data.DoesWrap,
         TextXAlignment = Enum.TextXAlignment.Left,
         ZIndex = 5,
         Parent = Container,
         RichText = true,
     })
 
-    -- Calcula altura automaticamente se for wrap
     if Data.DoesWrap then
-        -- Aguarda o TextLabel ser renderizado para pegar AbsoluteSize correto
-        task.defer(function()
-            local textSize = Library:GetTextBounds(Data.Text, Library.Font, 14 * DPIScale, Vector2.new(TextLabel.AbsoluteSize.X, math.huge))
-            TextLabel.Size = UDim2.new(1, -4, 0, textSize.Y)
-            Groupbox:Resize()
-        end)
+        local textBounds = Library:GetTextBounds(Data.Text, Library.Font, 14 * DPIScale, Vector2.new(TextLabel.AbsoluteSize.X, math.huge))
+        TextLabel.Size = UDim2.new(1, -4, 0, textBounds.Y)
+    else
+        Library:Create('UIListLayout', {
+            Padding = UDim.new(0, 4 * DPIScale),
+            FillDirection = Enum.FillDirection.Horizontal,
+            HorizontalAlignment = Enum.HorizontalAlignment.Right,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Parent = TextLabel,
+        })
     end
 
-    local Label = {TextLabel = TextLabel, Container = Container}
+    Label.TextLabel = TextLabel
+    Label.Container = Container
 
     function Label:SetText(Text)
         TextLabel.Text = Text
+
         if Data.DoesWrap then
-            local textSize = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale, Vector2.new(TextLabel.AbsoluteSize.X, math.huge))
-            TextLabel.Size = UDim2.new(1, -4, 0, textSize.Y)
+            local textBounds = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale, Vector2.new(TextLabel.AbsoluteSize.X, math.huge))
+            TextLabel.Size = UDim2.new(1, -4, 0, textBounds.Y)
         end
+
         Groupbox:Resize()
     end
 
@@ -2821,6 +2834,7 @@ do
         setmetatable(Label, BaseAddons)
     end
 
+    -- Adiciona um espaçamento abaixo do label
     Groupbox:AddBlank(5)
     Groupbox:Resize()
 
