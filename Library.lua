@@ -969,6 +969,7 @@ do
             ZIndex = 15;
             Parent = ScreenGui,
         });
+        Blocked(PickerFrameOuter)
 
         local function updatePickerPosition()
     local screenX, screenY = DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18
