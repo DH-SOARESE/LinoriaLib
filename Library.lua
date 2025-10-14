@@ -55,16 +55,29 @@ local function ParentUI(UI: Instance, SkipHiddenUI: boolean?)
 end
 
 
-local ScreenGui = Instance.new('ScreenGui');
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.DisplayOrder = 1e6;
-ScreenGui.ResetOnSpawn = false;
-ParentUI(ScreenGui);
+local function getFunc(name)
+    return getfenv()[name]
+end
 
-local ModalScreenGui = Instance.new("ScreenGui");
-ModalScreenGui.DisplayOrder = 1e6;
-ModalScreenGui.ResetOnSpawn = false;
-ParentUI(ModalScreenGui, true);
+local function ParentUI(GUI, isModal)
+    if not pcall(function()
+        GUI.Parent = game.CoreGui
+    end)
+    pcall(function()
+        GUI.OnTopOfCoreBlur = isModal or false
+    end)
+end
+
+local ScreenGui = Instance.new('ScreenGui')
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+ScreenGui.DisplayOrder = 1e6
+ScreenGui.ResetOnSpawn = false
+ParentUI(ScreenGui)
+
+local ModalScreenGui = Instance.new("ScreenGui")
+ModalScreenGui.DisplayOrder = 1e6
+ModalScreenGui.ResetOnSpawn = false
+ParentUI(ModalScreenGui, true)
 
 local ModalElement = Instance.new("TextButton");
 ModalElement.BackgroundTransparency = 1
