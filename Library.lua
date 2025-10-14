@@ -2800,7 +2800,7 @@ if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then
         Size = UDim2.new(1, -4, 0, 15);    
         TextSize = 14;    
         Text = Data.Text;    
-        TextWrapped = Data.DoesWrap or false,    
+        TextWrapped = true,    
         TextXAlignment = Enum.TextXAlignment.Left;    
         ZIndex = 5;    
         Parent = Container;    
