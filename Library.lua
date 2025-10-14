@@ -1,20 +1,28 @@
-local cloneref = (cloneref or clonereference or function(instance: any) return instance end)
-local InputService: UserInputService = cloneref(game:GetService('UserInputService'));
-local TextService: TextService = cloneref(game:GetService('TextService'));
-local CoreGui: CoreGui = cloneref(game:GetService('CoreGui'));
-local Teams: Teams = cloneref(game:GetService('Teams'));
-local Players: Players = cloneref(game:GetService('Players'));
-local RunService: RunService = cloneref(game:GetService('RunService'));
-local TweenService: TweenService = cloneref(game:GetService('TweenService'));
+local cloneref = (cloneref or clonereference or function(instance: any)
+    return instance
+end)
+local CoreGui: CoreGui = cloneref(game:GetService("CoreGui"))
+local Players: Players = cloneref(game:GetService("Players"))
+local RunService: RunService = cloneref(game:GetService("RunService"))
+local SoundService: SoundService = cloneref(game:GetService("SoundService"))
+local UserInputService: UserInputService = cloneref(game:GetService("UserInputService"))
+local TextService: TextService = cloneref(game:GetService("TextService"))
+local Teams: Teams = cloneref(game:GetService("Teams"))
+local TweenService: TweenService = cloneref(game:GetService("TweenService"))
 
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
-local uiVisible = true;
 
-local getgenv = getgenv or (function() return shared end);
-local ProtectGui = protectgui or (function() end);
-local GetHUI = gethui or (function() return CoreGui end);
+local getgenv = getgenv or function()
+    return shared
+end
+local gethui = gethui or function()
+    return CoreGui
+end
+local ProtectGui = protectgui or (function() 
+end);
+
 
 local assert = function(condition, errorMessage) 
     if (not condition) then
@@ -76,6 +84,7 @@ ModalElement.Parent = ModalScreenGui
 local TransparencyCache = {}
 local Toggled = false
 local Fading = false
+local uiVisible = true;
 
 
 local OldMouseIconState = nil
