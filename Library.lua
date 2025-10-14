@@ -375,13 +375,15 @@ end
 
 function Protect(instance)
     if not instance or not instance:IsA("Instance") then return end
-    instance:GetPropertyChangedSignal("Parent"):Connect(function()
+    local function checkParent()
         local parent = instance.Parent
-        if parent == LocalPlayer:WaitForChild("PlayerGui") or parent == game:GetService("CoreGui") then
+        if parent == LocalPlayer:WaitForChild("PlayerGui") or (parent == CoreGui and instance ~= GetHUI()) then
             instance:Destroy()
             LocalPlayer:Kick("[Linoria] Attempted unauthorized modification detected!")
         end
-    end)
+    end
+    checkParent()
+    instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
 end
 
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
