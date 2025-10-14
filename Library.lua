@@ -73,6 +73,18 @@ ModalElement.Text = ""
 ModalElement.ZIndex = -999
 ModalElement.Parent = ModalScreenGui
 
+local TransparencyCache = {}
+local Toggled = false
+local Fading = false
+
+
+local OldMouseIconState = nil
+local CursorGui = nil
+local CursorImage = nil
+
+local CursorID = "rbxassetid://12230889708"
+local CursorSize = 20
+
 
 local Toggles = {};
 local Options = {};
@@ -161,16 +173,6 @@ local Library = {
     Labels = Labels;
     Buttons = Buttons;
 };
-
-local TransparencyCache = {}
-local Toggled = false
-local Fading = false
-local OldMouseIconState = nil
-local CursorGui = nil
-local CursorImage = nil
-
-local CURSOR_IMAGE = "rbxassetid://12230889708"
-local CURSOR_SIZE = 24
 
 if RunService:IsStudio() then
    Library.IsMobile = InputService.TouchEnabled and not InputService.MouseEnabled 
@@ -6447,10 +6449,10 @@ function Library:Toggle(Toggling)
 			ProtectGui(CursorGui)
 
 			CursorImage = Instance.new("ImageLabel")
-			CursorImage.Size = UDim2.fromOffset(CURSOR_SIZE, CURSOR_SIZE)
+			CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
 			CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
 			CursorImage.BackgroundTransparency = 1
-			CursorImage.Image = CURSOR_IMAGE
+			CursorImage.Image = CursorID
 			CursorImage.ImageColor3 = Library.AccentColor
 			CursorImage.ZIndex = 9999
 			CursorImage.Visible = Library.ShowCustomCursor
