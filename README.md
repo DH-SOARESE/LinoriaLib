@@ -442,6 +442,30 @@ local Banner = Groupbox:AddImage("PromoBanner", {
 | Visible      | boolean          | true                 | Whether the image is visible. |
 | Tooltip      | string           | nil                  | Tooltip text shown on hover. |
 
+
+### Video
+```lua
+local Video = Groupbox:AddVideo("MyVideo", {
+    Video = "rbxassetid://Your Image ID",
+    Height = 200,
+    Looped = true,
+    Playing = true,
+    Volume = 0.5,
+    Visible = true
+})
+```
+
+### Video Properties
+| Property    | Type      | Description                                                                 |
+|-------------|-----------|-----------------------------------------------------------------------------|
+| **Video**   | `string`  | Sets the video asset ID in Roblox, in the format `rbxassetid://<ID>`. Example: `"rbxassetid://123456789"`. |
+| **Height**  | `number`  | Sets the height of the video in the interface, in pixels. Example: `200`.   |
+| **Looped**  | `boolean` | Determines whether the video will loop. Example: `true` to repeat continuously. |
+| **Playing** | `boolean` | Sets whether the video starts playing automatically. Example: `true` to start immediately. |
+| **Volume**  | `number`  | Controls the video's audio volume (from 0 to 1). Example: `0.5` for half the maximum volume. |
+| **Visible** | `boolean` | Sets whether the video is visible in the interface. Example: `true` to display the video. |
+
+
 ###  DependencyBox
 ```lua
 local ToggleESP = Groupbox:AddToggle("ShowESP", {
