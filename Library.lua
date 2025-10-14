@@ -13,10 +13,6 @@ local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
 
-local getgenv = getgenv or (function() return shared end);
-local ProtectGui = protectgui or (function() end);
-local GetHUI = gethui or (function() return CoreGui end);
-
 local assert = function(condition, errorMessage) 
     if (not condition) then
         error(if errorMessage then errorMessage else "assert failed", 3);
@@ -54,30 +50,30 @@ local function ParentUI(UI: Instance, SkipHiddenUI: boolean?)
     SafeParentUI(UI, GetHUI)
 end
 
+
+local ScreenGui = Instance.new('ScreenGui');
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
+ScreenGui.DisplayOrder = 1e6;
+ScreenGui.ResetOnSpawn = false;
+ParentUI(ScreenGui);
+
+local ModalScreenGui = Instance.new("ScreenGui");
+ModalScreenGui.DisplayOrder = 1e6;
+ModalScreenGui.ResetOnSpawn = false;
+ParentUI(ModalScreenGui, true);
+
 local function getFunc(name)
     return getfenv()[name]
 end
+if not pcall(function()
+    ScreenGui.Parent = game.CoreGui
+    ModalScreenGui.Parent = game.CoreGui
+end)
 
-local function ParentUI(GUI, isModal)
-    if not pcall(function()
-        GUI.Parent = game.CoreGui
-    end) then
-        GUI.Parent = getFunc("MyNewRoot") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)
-    end
-    GUI.DisplayOrder = 1e6 -- camada alta
-    GUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
-    pcall(function()
-        GUI.OnTopOfCoreBlur = isModal or false
-    end)
-end
-
-local ScreenGui = Instance.new('ScreenGui')
-ScreenGui.ResetOnSpawn = false
-ParentUI(ScreenGui)
-
-local ModalScreenGui = Instance.new("ScreenGui")
-ModalScreenGui.ResetOnSpawn = false
-ParentUI(ModalScreenGui, true) 
+pcall(function()
+    ScreenGui.OnTopOfCoreBlur = true
+    ModalScreenGui.OnTopOfCoreBlur = true
+end)
 
 local ModalElement = Instance.new("TextButton");
 ModalElement.BackgroundTransparency = 1
@@ -6566,6 +6562,16 @@ function Library:Toggle(Toggling)
 			CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 			CursorGui.Parent = GetHUI()
 			ProtectGui(CursorGui)
+			
+			local function getFunc(name)
+                return getfenv()[name]
+                  end
+                if not pcall(function()
+                   CursorGui.Parent = game.CoreGui
+               end)
+               pcall(function()
+            CursorGui.OnTopOfCoreBlur = true
+        end)
 
 			CursorImage = Instance.new("ImageLabel")
 			CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
