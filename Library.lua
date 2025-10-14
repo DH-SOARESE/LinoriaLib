@@ -5636,8 +5636,7 @@ function Library:CreateWindow(...)
 		Parent = Inner;
 	});
 	Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
-	Protect(WindowLabel);
-
+	
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
         BorderColor3 = Library.OutlineColor;
