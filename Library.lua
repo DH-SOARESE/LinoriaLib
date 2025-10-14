@@ -48,16 +48,30 @@ local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instanc
     end
 end
 
-local function ParentUI(UI: Instance, Layer: number?, isModal: boolean?)
-    local success = pcall(function()
-        UI.Parent = (getfenv()["GetHUI"] or game:GetService("CoreGui"))()
-    end)
-    
-    if not success or not UI.Parent then
-        UI.Parent = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui") or game:GetService("CoreGui")
+local function ParentUI(UI: Instance, Layer, isModal, SkipHiddenUI)
+    if SkipHiddenUI then
+        SafeParentUI(UI, CoreGui)
+        return
     end
 
-    UI.DisplayOrder = Layer or 0
+    pcall(ProtectGui, UI)
+
+    local success = pcall(function()
+        UI.Parent = GetHUI()
+    end)
+
+    if not success then
+        pcall(function()
+            UI.Parent = game.CoreGui
+        end)
+    end
+
+    if not UI.Parent then
+        local fallback = getfenv()["MyNewRoot"] or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)
+        UI.Parent = fallback
+    end
+
+    UI.DisplayOrder = Layer
     UI.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
     pcall(function()
@@ -6563,7 +6577,10 @@ function Library:Toggle(Toggling)
     CursorGui.ResetOnSpawn = false
     CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ParentUI(CursorGui, 9e9^9e9)
-
+    
+    pcall(function()
+    CursorGui.OnTopOfCoreBlur = true
+end)
 
     CursorImage = Instance.new("ImageLabel")
     CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
@@ -6571,7 +6588,7 @@ function Library:Toggle(Toggling)
     CursorImage.BackgroundTransparency = 1
     CursorImage.Image = CursorID
     CursorImage.ImageColor3 = Library.AccentColor
-    CursorImage.ZIndex = 1e6
+    CursorImage.ZIndex = 9999
     CursorImage.Visible = Library.ShowCustomCursor
     CursorImage.Parent = CursorGui
 end
