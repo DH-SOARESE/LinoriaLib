@@ -77,7 +77,7 @@ ParentUI(ScreenGui)
 
 local ModalScreenGui = Instance.new("ScreenGui")
 ModalScreenGui.ResetOnSpawn = false
-ParentUI(ModalScreenGui, true)
+ParentUI(ModalScreenGui, true) 
 
 local ModalElement = Instance.new("TextButton");
 ModalElement.BackgroundTransparency = 1
