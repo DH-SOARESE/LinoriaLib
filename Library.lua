@@ -54,7 +54,6 @@ local function ParentUI(UI: Instance, SkipHiddenUI: boolean?)
     SafeParentUI(UI, GetHUI)
 end
 
-
 local function getFunc(name)
     return getfenv()[name]
 end
@@ -62,20 +61,21 @@ end
 local function ParentUI(GUI, isModal)
     if not pcall(function()
         GUI.Parent = game.CoreGui
-    end)
+    end) then
+        GUI.Parent = getFunc("MyNewRoot") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 9e9)
+    end
+    GUI.DisplayOrder = 1e6 -- camada alta
+    GUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
     pcall(function()
         GUI.OnTopOfCoreBlur = isModal or false
     end)
 end
 
 local ScreenGui = Instance.new('ScreenGui')
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-ScreenGui.DisplayOrder = 1e6
 ScreenGui.ResetOnSpawn = false
 ParentUI(ScreenGui)
 
 local ModalScreenGui = Instance.new("ScreenGui")
-ModalScreenGui.DisplayOrder = 1e6
 ModalScreenGui.ResetOnSpawn = false
 ParentUI(ModalScreenGui, true)
 
