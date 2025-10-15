@@ -3306,12 +3306,12 @@ end
     local Box = Library:Create('TextBox', {
         BackgroundTransparency = 1;
 
-        Position = UDim2.fromOffset(0, 0),
+        Position = UDim2.fromOffset(2, 0),
         Size = UDim2.fromScale(1, 1),
 
         Font = Library.Font;
         PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
-        PlaceholderText = Info.Placeholder or '';
+        PlaceholderText = '';  -- Vazio, vamos usar um Label customizado
 
         Text = Info.Default or (if Textbox.AllowEmpty == false then Textbox.EmptyReset else "---");
         TextColor3 = Library.FontColor;
