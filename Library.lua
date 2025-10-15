@@ -3218,243 +3218,278 @@ end;
 end
     
     function BaseGroupboxFuncs:AddInput(Idx, Info)
-        assert(Info.Text, string.format('AddInput (IDX: %s): Missing `Text` string.', tostring(Idx)));
+    assert(Info.Text, string.format('AddInput (IDX: %s): Missing `Text` string.', tostring(Idx)));
 
-        Info.ClearTextOnFocus = if typeof(Info.ClearTextOnFocus) == "boolean" then Info.ClearTextOnFocus else true;
+    Info.ClearTextOnFocus = if typeof(Info.ClearTextOnFocus) == "boolean" then Info.ClearTextOnFocus else true;
 
-        local Textbox = {
-            Value = Info.Default or '';
-            Numeric = Info.Numeric or false;
-            Finished = Info.Finished or false;
-            Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
-            Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
+    local Textbox = {
+        Value = Info.Default or '';
+        Numeric = Info.Numeric or false;
+        Finished = Info.Finished or false;
+        Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
+        Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
         AllowEmpty = if typeof(Info.AllowEmpty) == "boolean" then Info.AllowEmpty else true;
-            EmptyReset = if typeof(Info.EmptyReset) == "string" then Info.EmptyReset else "---";
-            Type = 'Input';
+        EmptyReset = if typeof(Info.EmptyReset) == "string" then Info.EmptyReset else "---";
+        Type = 'Input';
 
-            Callback = Info.Callback or function(Value) end;
-        };
+        Callback = Info.Callback or function(Value) end;
+    };
 
-        local Groupbox = self;
-        local Container = Groupbox.Container;
-        local Blank;
+    local Groupbox = self;
+    local Container = Groupbox.Container;
+    local Blank;
 
-        local InputLabel = Library:CreateLabel({
-            Size = UDim2.new(1, 0, 0, 15);
-            TextSize = 14;
-            Text = Info.Text;
-            TextXAlignment = Enum.TextXAlignment.Left;
-            ZIndex = 5;
-            Parent = Container;
-        });
+    local InputLabel = Library:CreateLabel({
+        Size = UDim2.new(1, 0, 0, 15);
+        TextSize = 14;
+        Text = Info.Text;
+        TextXAlignment = Enum.TextXAlignment.Left;
+        ZIndex = 5;
+        Parent = Container;
+    });
 
-        Groupbox:AddBlank(1);
+    Groupbox:AddBlank(1);
 
-        local TextBoxOuter = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(0, 0, 0);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Size = UDim2.new(1, -4, 0, 20);
-            ZIndex = 5;
-            Parent = Container;
-        });
+    local TextBoxOuter = Library:Create('Frame', {
+        BackgroundColor3 = Color3.new(0, 0, 0);
+        BorderColor3 = Color3.new(0, 0, 0);
+        Size = UDim2.new(1, -4, 0, 20);
+        ZIndex = 5;
+        Parent = Container;
+    });
 
-        local TextBoxInner = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.OutlineColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 6;
-            Parent = TextBoxOuter;
-        });
+    local TextBoxInner = Library:Create('Frame', {
+        BackgroundColor3 = Library.MainColor;
+        BorderColor3 = Library.OutlineColor;
+        BorderMode = Enum.BorderMode.Inset;
+        Size = UDim2.new(1, 0, 1, 0);
+        ZIndex = 6;
+        Parent = TextBoxOuter;
+    });
 
-        Library:AddToRegistry(TextBoxInner, {
-            BackgroundColor3 = 'MainColor';
-            BorderColor3 = 'OutlineColor';
-        });
+    Library:AddToRegistry(TextBoxInner, {
+        BackgroundColor3 = 'MainColor';
+        BorderColor3 = 'OutlineColor';
+    });
 
-        Library:OnHighlight(TextBoxOuter, TextBoxOuter,
-            { BorderColor3 = 'AccentColor' },
-            { BorderColor3 = 'Black' }
-        );
+    Library:OnHighlight(TextBoxOuter, TextBoxOuter,
+        { BorderColor3 = 'AccentColor' },
+        { BorderColor3 = 'Black' }
+    );
 
-        local TooltipTable;
-        if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then
-            TooltipTable = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, TextBoxOuter)
-            TooltipTable.Disabled = Textbox.Disabled;
-        end
-
-        Library:Create('UIGradient', {
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
-            });
-            Rotation = 90;
-            Parent = TextBoxInner;
-        });
-
-        local Container = Library:Create('Frame', {
-            BackgroundTransparency = 1;
-            ClipsDescendants = true;
-
-            Position = UDim2.new(0, 5, 0, 0);
-            Size = UDim2.new(1, -5, 1, 0);
-
-            ZIndex = 7;
-            Parent = TextBoxInner;
-        })
-
-        local Box = Library:Create('TextBox', {
-            BackgroundTransparency = 1;
-
-            Position = UDim2.fromOffset(0, 0),
-            Size = UDim2.fromScale(1, 1),
-
-            Font = Library.Font;
-            PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
-            PlaceholderText = Info.Placeholder or '';
-
-            Text = Info.Default or (if Textbox.AllowEmpty == false then Textbox.EmptyReset else "---");
-            TextColor3 = Library.FontColor;
-            TextSize = 14;
-            TextStrokeTransparency = 0;
-            TextXAlignment = Enum.TextXAlignment.Left;
-
-            TextEditable = not Textbox.Disabled;
-            ClearTextOnFocus = not Textbox.Disabled and Info.ClearTextOnFocus;
-
-            ZIndex = 7;
-            Parent = Container;
-        });
-
-        Library:ApplyTextStroke(Box);
-
-        Library:AddToRegistry(Box, {
-            TextColor3 = 'FontColor';
-        });
-
-        function Textbox:OnChanged(Func)
-            Textbox.Changed = Func;
-
-            if Textbox.Disabled then
-                return;
-            end;
-
-            Library:SafeCallback(Func, Textbox.Value);
-        end;
-
-        function Textbox:UpdateColors()
-            Box.TextColor3 = Textbox.Disabled and Library.DisabledAccentColor or Library.FontColor;
-
-            Library.RegistryMap[Box].Properties.TextColor3 = Textbox.Disabled and 'DisabledAccentColor' or 'FontColor';
-        end;
-
-        function Textbox:Display()
-            TextBoxOuter.Visible = Textbox.Visible;
-            InputLabel.Visible = Textbox.Visible;
-            if Blank then Blank.Visible = Textbox.Visible; end
-
-            Groupbox:Resize();
-        end;
-
-        function Textbox:SetValue(Text)
-        if not Textbox.AllowEmpty and Trim(Text) == "" then
-        Text = Textbox.EmptyReset;
-        end
-
-            if Info.MaxLength and #Text > Info.MaxLength then
-                Text = Text:sub(1, Info.MaxLength);
-            end;
-
-            if Textbox.Numeric then
-                if (not tonumber(Text)) and Text:len() > 0 then
-                    Text = Textbox.Value
-                end
-            end
-
-            Textbox.Value = Text;
-            Box.Text = Text;
-
-            if not Textbox.Disabled then
-                Library:SafeCallback(Textbox.Callback, Textbox.Value);
-                Library:SafeCallback(Textbox.Changed, Textbox.Value);
-            end;
-        end;
-
-        function Textbox:SetVisible(Visibility)
-            Textbox.Visible = Visibility;
-
-            Textbox:Display();
-        end;
-
-        function Textbox:SetDisabled(Disabled)
-            Textbox.Disabled = Disabled;
-
-            Box.TextEditable = not Disabled;
-            Box.ClearTextOnFocus = not Disabled and Info.ClearTextOnFocus;
-
-            if TooltipTable then
-                TooltipTable.Disabled = Disabled;
-            end
-
-            Textbox:UpdateColors();
-        end;
-
-        if Textbox.Finished then
-            Box.FocusLost:Connect(function(enter)
-                if not enter then return end
-
-                Textbox:SetValue(Box.Text);
-                Library:AttemptSave();
-            end)
-        else
-            Box:GetPropertyChangedSignal('Text'):Connect(function()
-                Textbox:SetValue(Box.Text);
-                Library:AttemptSave();
-            end);
-        end
-
-        local function Update()
-    local PADDING = 2
-    local reveal = Container.AbsoluteSize.X
-    local textWidth = TextService:GetTextSize(Box.Text, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
-    
- 
-    if textWidth <= reveal - 2 * PADDING then
-        Box.Position = UDim2.fromOffset(PADDING, 0)
-        return
+    local TooltipTable;
+    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then
+        TooltipTable = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, TextBoxOuter)
+        TooltipTable.Disabled = Textbox.Disabled;
     end
-    
-    local cursor = Box.CursorPosition
-    if cursor == -1 then return end
 
+    Library:Create('UIGradient', {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
+        });
+        Rotation = 90;
+        Parent = TextBoxInner;
+    });
 
-    local subtext = string.sub(Box.Text, 1, cursor - 1)
-    local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
+    local Container = Library:Create('Frame', {
+        BackgroundTransparency = 1;
+        ClipsDescendants = true;
 
-    local desiredOffset = reveal - width - PADDING - 5
-    local minOffset = -(textWidth - reveal + PADDING)
-    local maxOffset = PADDING
-    
-    local offset = math.clamp(desiredOffset, minOffset, maxOffset)
-    
-    Box.Position = UDim2.fromOffset(offset, 0)
-end
-        task.spawn(Update)
+        Position = UDim2.new(0, 5, 0, 0);
+        Size = UDim2.new(1, -5, 1, 0);
 
-        Box:GetPropertyChangedSignal('Text'):Connect(Update)
-        Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
-        Box.FocusLost:Connect(Update)
-        Box.Focused:Connect(Update)
+        ZIndex = 7;
+        Parent = TextBoxInner;
+    })
 
-        Blank = Groupbox:AddBlank(5, Textbox.Visible);
-        task.delay(0.1, Textbox.UpdateColors, Textbox);
-        Textbox:Display();
-        Groupbox:Resize();
+    local Box = Library:Create('TextBox', {
+        BackgroundTransparency = 1;
 
-        Options[Idx] = Textbox;
+        Position = UDim2.fromOffset(0, 0),
+        Size = UDim2.fromScale(1, 1),
 
-        return Textbox;
+        Font = Library.Font;
+        PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
+        PlaceholderText = Info.Placeholder or '';
+
+        Text = Info.Default or (if Textbox.AllowEmpty == false then Textbox.EmptyReset else "---");
+        TextColor3 = Library.FontColor;
+        TextSize = 14;
+        TextStrokeTransparency = 0;
+        TextXAlignment = Enum.TextXAlignment.Left;
+
+        TextEditable = not Textbox.Disabled;
+        ClearTextOnFocus = not Textbox.Disabled and Info.ClearTextOnFocus;
+
+        ZIndex = 7;
+        Parent = Container;
+    });
+
+    Library:ApplyTextStroke(Box);
+
+    Library:AddToRegistry(Box, {
+        TextColor3 = 'FontColor';
+    });
+
+    function Textbox:OnChanged(Func)
+        Textbox.Changed = Func;
+
+        if Textbox.Disabled then
+            return;
+        end;
+
+        Library:SafeCallback(Func, Textbox.Value);
     end;
+
+    function Textbox:UpdateColors()
+        Box.TextColor3 = Textbox.Disabled and Library.DisabledAccentColor or Library.FontColor;
+
+        Library.RegistryMap[Box].Properties.TextColor3 = Textbox.Disabled and 'DisabledAccentColor' or 'FontColor';
+    end;
+
+    function Textbox:Display()
+        TextBoxOuter.Visible = Textbox.Visible;
+        InputLabel.Visible = Textbox.Visible;
+        if Blank then Blank.Visible = Textbox.Visible; end
+
+        Groupbox:Resize();
+    end;
+
+    function Textbox:SetValue(Text)
+        if not Textbox.AllowEmpty and Trim(Text) == "" then
+            Text = Textbox.EmptyReset;
+        end
+
+        if Info.MaxLength and #Text > Info.MaxLength then
+            Text = Text:sub(1, Info.MaxLength);
+        end;
+
+        if Textbox.Numeric then
+            if (not tonumber(Text)) and Text:len() > 0 then
+                Text = Textbox.Value
+            end
+        end
+
+        Textbox.Value = Text;
+        Box.Text = Text;
+
+        if not Textbox.Disabled then
+            Library:SafeCallback(Textbox.Callback, Textbox.Value);
+            Library:SafeCallback(Textbox.Changed, Textbox.Value);
+        end;
+    end;
+
+    function Textbox:SetVisible(Visibility)
+        Textbox.Visible = Visibility;
+
+        Textbox:Display();
+    end;
+
+    function Textbox:SetDisabled(Disabled)
+        Textbox.Disabled = Disabled;
+
+        Box.TextEditable = not Disabled;
+        Box.ClearTextOnFocus = not Disabled and Info.ClearTextOnFocus;
+
+        if TooltipTable then
+            TooltipTable.Disabled = Disabled;
+        end
+
+        Textbox:UpdateColors();
+    end;
+
+    -- Função de Update corrigida
+    local updateScheduled = false
+    local function Update()
+        if updateScheduled then return end
+        updateScheduled = true
+        
+        task.wait() -- Aguarda próximo frame para cursor estar atualizado
+        updateScheduled = false
+        
+        local PADDING = 2
+        local reveal = Container.AbsoluteSize.X
+        local textWidth = TextService:GetTextSize(Box.Text, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
+        
+        -- Se o texto cabe inteiro, mantém no início
+        if textWidth <= reveal - 2 * PADDING then
+            Box.Position = UDim2.fromOffset(PADDING, 0)
+            return
+        end
+        
+        local cursor = Box.CursorPosition
+        if cursor == -1 then 
+            -- Sem foco, mostra o início do texto
+            Box.Position = UDim2.fromOffset(PADDING, 0)
+            return 
+        end
+
+        -- Calcula posição do cursor no texto
+        local subtext = string.sub(Box.Text, 1, cursor - 1)
+        local cursorX = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
+
+        -- Calcula offset necessário para manter cursor visível
+        local currentOffset = Box.Position.X.Offset
+        local cursorScreenPos = currentOffset + cursorX
+        
+        -- Define margens de segurança
+        local leftMargin = PADDING + 10
+        local rightMargin = reveal - PADDING - 10
+        
+        local newOffset = currentOffset
+        
+        -- Se cursor saiu pela direita
+        if cursorScreenPos > rightMargin then
+            newOffset = rightMargin - cursorX
+        -- Se cursor saiu pela esquerda
+        elseif cursorScreenPos < leftMargin then
+            newOffset = leftMargin - cursorX
+        end
+        
+        -- Limita offset aos valores válidos
+        local minOffset = -(textWidth - reveal + 2 * PADDING)
+        local maxOffset = PADDING
+        
+        newOffset = math.clamp(newOffset, minOffset, maxOffset)
+        
+        Box.Position = UDim2.fromOffset(newOffset, 0)
+    end
+
+    if Textbox.Finished then
+        Box.FocusLost:Connect(function(enter)
+            if not enter then return end
+
+            Textbox:SetValue(Box.Text);
+            Library:AttemptSave();
+        end)
+    else
+        Box:GetPropertyChangedSignal('Text'):Connect(function()
+            Textbox:SetValue(Box.Text);
+            Library:AttemptSave();
+        end);
+    end
+
+    -- Conecta eventos de Update
+    Box:GetPropertyChangedSignal('Text'):Connect(Update)
+    Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
+    Box.FocusLost:Connect(function()
+        -- Quando perde foco, volta ao início
+        Box.Position = UDim2.fromOffset(2, 0)
+    end)
+    Box.Focused:Connect(Update)
+
+    task.spawn(Update)
+
+    Blank = Groupbox:AddBlank(5, Textbox.Visible);
+    task.delay(0.1, Textbox.UpdateColors, Textbox);
+    Textbox:Display();
+    Groupbox:Resize();
+
+    Options[Idx] = Textbox;
+
+    return Textbox;
+end;
     
     function BaseGroupboxFuncs:AddToggle(Idx, Info)  
     assert(Info.Text, string.format('AddInput (IDX: %s): Missing `Text` string.', tostring(Idx)));  
@@ -6580,7 +6615,7 @@ function Library:Toggle(Toggling)
     
     pcall(function()
     CursorGui.OnTopOfCoreBlur = true
-end)
+    end)
 
     CursorImage = Instance.new("ImageLabel")
     CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
