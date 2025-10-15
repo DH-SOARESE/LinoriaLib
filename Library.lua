@@ -5418,7 +5418,7 @@ do
         BackgroundTransparency = 1;
         Position = UDim2.new(0, 0, 0, 40);
         Size = UDim2.new(0, 300, 0, 200);
-        ZIndex = 100;
+        ZIndex = 300;
         Parent = ScreenGui;
     });
 
@@ -5435,7 +5435,7 @@ do
         BackgroundTransparency = 1;
         Position = UDim2.new(1, 0, 0, 40);
         Size = UDim2.new(0, 300, 0, 200);
-        ZIndex = 100;
+        ZIndex = 300;
         Parent = ScreenGui;
     });
 
@@ -5620,7 +5620,7 @@ function Library:Notify(...)
         BorderColor3 = Color3.new(0, 0, 0);
         Size = UDim2.new(0, 0, 0, YSize);
         ClipsDescendants = true;
-        ZIndex = 100;
+        ZIndex = 300;
         Parent = if Side == "left" then Library.LeftNotificationArea else Library.RightNotificationArea;
     });
 
