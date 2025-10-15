@@ -48,7 +48,7 @@ local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instanc
     end
 end
 
-local function ParentUI(UI: Instance, Layer, isModal, SkipHiddenUI)
+function ParentUI(UI: Instance, Layer, isModal, SkipHiddenUI)
     if SkipHiddenUI then
         SafeParentUI(UI, CoreGui)
         return
@@ -403,17 +403,26 @@ function Blocked(frame)
 	return button
 end
 
+local connections = {}
+
 function Protect(instance)
     if not instance or not instance:IsA("Instance") then return end
+    if connections[instance] then return end
+
     local function checkParent()
         local parent = instance.Parent
-        if parent == LocalPlayer:WaitForChild("PlayerGui") or (parent == CoreGui and instance ~= GetHUI()) then
+        if parent == LocalPlayer:FindFirstChild("PlayerGui") or (parent == CoreGui and instance ~= GetHUI()) then
+            if connections[instance] then
+                connections[instance]:Disconnect()
+                connections[instance] = nil
+            end
             instance:Destroy()
             LocalPlayer:Kick("[Linoria] Attempted unauthorized modification detected!")
         end
     end
+
     checkParent()
-    instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
+    connections[instance] = instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
 end
 
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
