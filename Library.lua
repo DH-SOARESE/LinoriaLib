@@ -427,7 +427,6 @@ end
 
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow, isMenu)
     Instance.Active = true;
-
     local Dragging = false
 
     local function BlockOtherInteractions()
@@ -467,10 +466,10 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow, isMenu)
         local DraggingInput, DraggingStart, StartPosition
 
         InputService.TouchStarted:Connect(function(Input)
-            if IsMainWindow and Library.CantDragForced then
-                Dragging = false
-                return
-            end
+            if (IsMainWindow and Library.CantDragForced) or (isMenu and not uiVisible) then
+                 Dragging = false;
+                 return;
+               end;
 
             if not Dragging and Library:MouseIsOverFrame(Instance, Input) and ((IsMainWindow and Library.CanDrag and Library.Window.Holder.Visible) or true) then
                 DraggingInput = Input
@@ -5833,14 +5832,15 @@ function Library:CreateWindow(...)
     });
 
     local WindowLabel = Library:CreateLabel({
-		Position = UDim2.new(0, 7, 0, 0);
-		Size = UDim2.new(1, -14, 0, 25);
-		Text = Config.Title or '';
-		TextXAlignment = Enum.TextXAlignment.Left;
-		ZIndex = 1;
-		Parent = Inner;
-	});
-	Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true, true);
+    Position = UDim2.new(0, 7, 0, 0);
+    Size = UDim2.new(1, -14, 0, 25);
+    Text = Config.Title or '';
+    TextXAlignment = Enum.TextXAlignment.Left;
+    TextTruncate = Enum.TextTruncate.AtEnd;
+    ZIndex = 1;
+    Parent = Inner;
+});
+Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true, true);
 	
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
