@@ -48,7 +48,7 @@ local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instanc
     end
 end
 
-function ParentUI(UI: Instance, Layer, isModal, SkipHiddenUI)
+function ParentUI(UI: Instance, Layer, SkipHiddenUI)
     if SkipHiddenUI then
         SafeParentUI(UI, CoreGui)
         return
@@ -75,7 +75,7 @@ function ParentUI(UI: Instance, Layer, isModal, SkipHiddenUI)
     UI.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
     pcall(function()
-        UI.OnTopOfCoreBlur = isModal or false
+        UI.OnTopOfCoreBlur = true
     end)
 end
 
@@ -85,12 +85,7 @@ ParentUI(ScreenGui, 9e9^9e8)
 
 local ModalScreenGui = Instance.new("ScreenGui")
 ModalScreenGui.ResetOnSpawn = false
-ParentUI(ModalScreenGui, 9e9^9e8, true)
-
-pcall(function()
-    ScreenGui.OnTopOfCoreBlur = true
-    ModalScreenGui.OnTopOfCoreBlur = true
-end)
+ParentUI(ModalScreenGui, 9e9^9e8)
 
 local ModalElement = Instance.new("TextButton");
 ModalElement.BackgroundTransparency = 1
@@ -6639,7 +6634,6 @@ function Library:Toggle(Toggling)
 
 	if uiVisible then
 		Outer.Visible = true
-		
 	if not CursorGui then
     CursorGui = Instance.new("ScreenGui")
     CursorGui.Name = "LinoriaCursor"
@@ -6647,10 +6641,6 @@ function Library:Toggle(Toggling)
     CursorGui.ResetOnSpawn = false
     CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ParentUI(CursorGui, 9e9^9e9)
-    
-    pcall(function()
-    CursorGui.OnTopOfCoreBlur = true
-    end)
 
     CursorImage = Instance.new("ImageLabel")
     CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
