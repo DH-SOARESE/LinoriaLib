@@ -73,7 +73,7 @@ function ParentUI(UI: Instance, Layer, SkipHiddenUI)
 
     UI.DisplayOrder = Layer
     UI.ZIndexBehavior = Enum.ZIndexBehavior.Global
-
+    
     pcall(function()
         UI.OnTopOfCoreBlur = true
     end)
