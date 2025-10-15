@@ -425,7 +425,7 @@ function Protect(instance)
     connections[instance] = instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
 end
 
-function Library:MakeDraggable(Instance, Cutoff, IsMainWindow, isMenu)
+function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     Instance.Active = true;
     local Dragging = false
 
@@ -435,7 +435,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow, isMenu)
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if (IsMainWindow and Library.CantDragForced) or (isMenu and not uiVisible) then
+                if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Label" and not uiVisible) then
                       return;
                      end;
 
@@ -466,7 +466,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow, isMenu)
         local DraggingInput, DraggingStart, StartPosition
 
         InputService.TouchStarted:Connect(function(Input)
-            if (IsMainWindow and Library.CantDragForced) or (isMenu and not uiVisible) then
+            if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Label" and not uiVisible) then
                  Dragging = false;
                  return;
                end;
@@ -5832,15 +5832,16 @@ function Library:CreateWindow(...)
     });
 
     local WindowLabel = Library:CreateLabel({
-    Position = UDim2.new(0, 7, 0, 0);
-    Size = UDim2.new(1, -14, 0, 25);
-    Text = Config.Title or '';
-    TextXAlignment = Enum.TextXAlignment.Left;
-    TextTruncate = Enum.TextTruncate.AtEnd;
-    ZIndex = 1;
-    Parent = Inner;
+        Position = UDim2.new(0, 7, 0, 0);
+        Size = UDim2.new(1, -14, 0, 25);
+        Text = Config.Title or '';
+        TextXAlignment = Enum.TextXAlignment.Left;
+        TextTruncate = Enum.TextTruncate.AtEnd;
+        ZIndex = 1;
+        Name = "Label";
+        Parent = Inner;
 });
-Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true, true);
+Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
 	
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
