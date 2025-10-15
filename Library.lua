@@ -73,6 +73,7 @@ function ParentUI(UI: Instance, Layer, SkipHiddenUI)
 
     UI.DisplayOrder = Layer
     UI.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    UI.ScreenInsets = Enum.ScreenInsets.None
 
     pcall(function()
         UI.OnTopOfCoreBlur = true
@@ -430,7 +431,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Label" and not uiVisible) then
+                if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Window_label" and not uiVisible) then
                       return;
                      end;
 
@@ -461,7 +462,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
         local DraggingInput, DraggingStart, StartPosition
 
         InputService.TouchStarted:Connect(function(Input)
-            if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Label" and not uiVisible) then
+            if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Window_label" and not uiVisible) then
                  Dragging = false;
                  return;
                end;
@@ -5833,7 +5834,7 @@ function Library:CreateWindow(...)
         TextXAlignment = Enum.TextXAlignment.Left;
         TextTruncate = Enum.TextTruncate.AtEnd;
         ZIndex = 1;
-        Name = "Label";
+        Name = "Window_label";
         Parent = Inner;
 });
 Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
