@@ -425,7 +425,7 @@ function Protect(instance)
     connections[instance] = instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
 end
 
-function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
+function Library:MakeDraggable(Instance, Cutoff, IsMainWindow, isMenu)
     Instance.Active = true;
 
     local Dragging = false
@@ -436,7 +436,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if IsMainWindow and Library.CantDragForced then return end;
+                if (IsMainWindow and Library.CantDragForced) or (isMenu and not uiVisible) then return end;
 
                 local ObjPos = Vector2.new(
                     Mouse.X - Instance.AbsolutePosition.X,
@@ -679,123 +679,124 @@ function Library:MakeResizable(Instance, MinSize)
     end);
 end;
 
-function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
-    InfoStr = typeof(InfoStr) == "string" and InfoStr or nil
-    DisabledInfoStr = typeof(DisabledInfoStr) == "string" and DisabledInfoStr or nil
+function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance);
+    -- Garante que os textos são strings válidas
+    InfoStr = typeof(InfoStr) == "string" and InfoStr or nil;
+    DisabledInfoStr = typeof(DisabledInfoStr) == "string" and DisabledInfoStr or nil;
 
+    -- Criação do Frame do Tooltip
     local Tooltip = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        ZIndex = 100,
-        Parent = Library.ScreenGui,
-        Visible = false,
-    })
+        BackgroundColor3 = Library.MainColor;
+        BorderColor3 = Library.OutlineColor;
+        ZIndex = 100;
+        Parent = Library.ScreenGui;
+        Visible = false;
+    });
 
+    -- Criação do Label dentro do Tooltip
     local Label = Library:CreateLabel({
-        Position = UDim2.fromOffset(3, 1),
-        TextSize = 14,
-        Text = InfoStr,
-        TextColor3 = Library.FontColor,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = Tooltip.ZIndex + 1,
-        Parent = Tooltip,
-    })
+        Position = UDim2.fromOffset(3, 1);
+        TextSize = 14;
+        Text = InfoStr;
+        TextColor3 = Library.FontColor;
+        TextXAlignment = Enum.TextXAlignment.Left;
+        ZIndex = Tooltip.ZIndex + 1;
+        Parent = Tooltip;
+    });
 
+    -- Registro para atualizações automáticas de cores
     Library:AddToRegistry(Tooltip, {
-        BackgroundColor3 = 'MainColor',
-        BorderColor3 = 'OutlineColor',
-    })
-
+        BackgroundColor3 = 'MainColor';
+        BorderColor3 = 'OutlineColor';
+    });
     Library:AddToRegistry(Label, {
-        TextColor3 = 'FontColor',
-    })
+        TextColor3 = 'FontColor';
+    });
 
+    -- Tabela que representa o Tooltip
     local TooltipTable = {
-        Tooltip = Tooltip,
-        Disabled = false,
-        Signals = {},
-    }
+        Tooltip = Tooltip;
+        Disabled = false;
+        Signals = {};
+    };
 
-    local IsHovering = false
+    local IsHovering = false;
 
-    local function UpdateText(Text)
-        if Text == nil then return end
-        local X, Y = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale)
-        Label.Text = Text
-        Tooltip.Size = UDim2.fromOffset(X + 5, Y + 4)
-        Label.Size = UDim2.fromOffset(X, Y)
-    end
-    UpdateText(InfoStr)
+    -- Função para atualizar o texto e redimensionar o tooltip
+    local function UpdateText(Text);
+        if not Text then return; end;
+        local X, Y = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale);
+        Label.Text = Text;
+        Tooltip.Size = UDim2.fromOffset(X + 5, Y + 4);
+        Label.Size = UDim2.fromOffset(X, Y);
+    end;
 
-    table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
-    IsHovering = true
-    
-    -- Loop de atualização do tooltip
-    task.spawn(function()
+    UpdateText(InfoStr);
+
+    -- Conexão com MouseEnter
+    table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function();
+        if Library:MouseIsOverOpenedFrame() or not uiVisible then
+            Tooltip.Visible = false;
+            return;
+        end;
+
+        if not TooltipTable.Disabled then
+            if not InfoStr or InfoStr == "" then
+                Tooltip.Visible = false;
+                return;
+            end;
+            if Label.Text ~= InfoStr then UpdateText(InfoStr); end;
+        else
+            if not DisabledInfoStr or DisabledInfoStr == "" then
+                Tooltip.Visible = false;
+                return;
+            end;
+            if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr); end;
+        end;
+
+        IsHovering = true;
+        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12);
+        Tooltip.Visible = true;
+
+        -- Atualiza posição enquanto o mouse estiver sobre
         while IsHovering do
-            -- Verifica todas as condições para esconder o tooltip
-            if Library:MouseIsOverOpenedFrame() or not uiVisible then
-                Tooltip.Visible = false
-                RunService.Heartbeat:Wait()
-                continue
-            end
-            
-            -- Verifica se deve mostrar o tooltip
-            local shouldShow = false
-            local textToShow = ""
-            
-            if not TooltipTable.Disabled then
-                if InfoStr ~= nil and InfoStr ~= "" then
-                    shouldShow = true
-                    textToShow = InfoStr
-                end
-            else
-                if DisabledInfoStr ~= nil and DisabledInfoStr ~= "" then
-                    shouldShow = true
-                    textToShow = DisabledInfoStr
-                end
-            end
-            
-            if shouldShow then
-                if Label.Text ~= textToShow then 
-                    UpdateText(textToShow) 
-                end
-                Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-                Tooltip.Visible = true
-            else
-                Tooltip.Visible = false
-            end
-            
-            RunService.Heartbeat:Wait()
-        end
-        Tooltip.Visible = false
-    end)
-end))
+            if TooltipTable.Disabled and not DisabledInfoStr then break; end;
+            if not uiVisible then break; end;
+            RunService.Heartbeat:Wait();
+            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12);
+        end;
 
-table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
-    IsHovering = false
-    Tooltip.Visible = false
-end))
+        IsHovering = false;
+        Tooltip.Visible = false;
+    end));
 
+    -- Conexão com MouseLeave
+    table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function();
+        IsHovering = false;
+        Tooltip.Visible = false;
+    end));
+
+    -- Desaparece se o frame principal for ocultado
     if LibraryMainOuterFrame then
-        table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-            if LibraryMainOuterFrame.Visible == false then
-                IsHovering = false
-                Tooltip.Visible = false
-            end
-        end))
-    end
+        table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function();
+            if not LibraryMainOuterFrame.Visible then
+                IsHovering = false;
+                Tooltip.Visible = false;
+            end;
+        end));
+    end;
 
-    function TooltipTable:Destroy()
-        Tooltip:Destroy()
-        for Idx = #TooltipTable.Signals, 1, -1 do
-            local Connection = table.remove(TooltipTable.Signals, Idx)
-            Connection:Disconnect()
-        end
-    end
+    -- Função para destruir o tooltip e desconectar sinais
+    function TooltipTable:Destroy();
+        Tooltip:Destroy();
+        for i = #TooltipTable.Signals, 1, -1 do
+            local Connection = table.remove(TooltipTable.Signals, i);
+            Connection:Disconnect();
+        end;
+    end;
 
-    return TooltipTable
-end
+    return TooltipTable;
+end;
 
 function Library:OnHighlight(HighlightInstance, Instance, Properties, PropertiesDefault, condition)
     local function undoHighlight()
@@ -5857,7 +5858,7 @@ function Library:CreateWindow(...)
 		ZIndex = 1;
 		Parent = Inner;
 	});
-	Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
+	Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true, true);
 	
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
