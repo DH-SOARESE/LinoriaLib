@@ -48,7 +48,7 @@ local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instanc
     end
 end
 
-function ParentUI(UI: Instance, Layer, isModal, SkipHiddenUI)
+local function ParentUI(UI: Instance, Layer, isModal, SkipHiddenUI)
     if SkipHiddenUI then
         SafeParentUI(UI, CoreGui)
         return
@@ -403,26 +403,17 @@ function Blocked(frame)
 	return button
 end
 
-local connections = {}
-
 function Protect(instance)
     if not instance or not instance:IsA("Instance") then return end
-    if connections[instance] then return end
-
     local function checkParent()
         local parent = instance.Parent
-        if parent == LocalPlayer:FindFirstChild("PlayerGui") or (parent == CoreGui and instance ~= GetHUI()) then
-            if connections[instance] then
-                connections[instance]:Disconnect()
-                connections[instance] = nil
-            end
+        if parent == LocalPlayer:WaitForChild("PlayerGui") or (parent == CoreGui and instance ~= GetHUI()) then
             instance:Destroy()
             LocalPlayer:Kick("[Linoria] Attempted unauthorized modification detected!")
         end
     end
-
     checkParent()
-    connections[instance] = instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
+    instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
 end
 
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
@@ -728,46 +719,54 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     UpdateText(InfoStr)
 
     table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
-        -- Checa se a UI não está visível
-        if Library:MouseIsOverOpenedFrame() or not uiVisible then
-            Tooltip.Visible = false
-            return
-        end
-
-        if not TooltipTable.Disabled then
-            if InfoStr == nil or InfoStr == "" then
-                Tooltip.Visible = false
-                return
-            end
-            if Label.Text ~= InfoStr then UpdateText(InfoStr) end
-        else
-            if DisabledInfoStr == nil or DisabledInfoStr == "" then
-                Tooltip.Visible = false
-                return
-            end
-            if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr) end
-        end
-
-        IsHovering = true
-        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-        Tooltip.Visible = true
-
+    IsHovering = true
+    
+    -- Loop de atualização do tooltip
+    task.spawn(function()
         while IsHovering do
-            if TooltipTable.Disabled == true and DisabledInfoStr == nil then break end
-            if not uiVisible then break end -- <<< encerra se a UI não estiver visível
-
+            -- Verifica todas as condições para esconder o tooltip
+            if Library:MouseIsOverOpenedFrame() or not uiVisible then
+                Tooltip.Visible = false
+                RunService.Heartbeat:Wait()
+                continue
+            end
+            
+            -- Verifica se deve mostrar o tooltip
+            local shouldShow = false
+            local textToShow = ""
+            
+            if not TooltipTable.Disabled then
+                if InfoStr ~= nil and InfoStr ~= "" then
+                    shouldShow = true
+                    textToShow = InfoStr
+                end
+            else
+                if DisabledInfoStr ~= nil and DisabledInfoStr ~= "" then
+                    shouldShow = true
+                    textToShow = DisabledInfoStr
+                end
+            end
+            
+            if shouldShow then
+                if Label.Text ~= textToShow then 
+                    UpdateText(textToShow) 
+                end
+                Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
+                Tooltip.Visible = true
+            else
+                Tooltip.Visible = false
+            end
+            
             RunService.Heartbeat:Wait()
-            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         end
-
-        IsHovering = false
         Tooltip.Visible = false
-    end))
+    end)
+end))
 
-    table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
-        IsHovering = false
-        Tooltip.Visible = false
-    end))
+table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
+    IsHovering = false
+    Tooltip.Visible = false
+end))
 
     if LibraryMainOuterFrame then
         table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
