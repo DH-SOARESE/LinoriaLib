@@ -3332,6 +3332,33 @@ end
         TextColor3 = 'FontColor';
     });
 
+    -- Placeholder customizado que respeita o scroll
+    local PlaceholderLabel = Library:Create('TextLabel', {
+        BackgroundTransparency = 1;
+        Position = UDim2.fromOffset(2, 0);
+        Size = UDim2.fromScale(1, 1);
+        
+        Font = Library.Font;
+        Text = Info.Placeholder or '';
+        TextColor3 = Color3.fromRGB(190, 190, 190);
+        TextSize = 14;
+        TextStrokeTransparency = 0;
+        TextXAlignment = Enum.TextXAlignment.Left;
+        
+        Visible = (Box.Text == "" or Box.Text == "---");
+        ZIndex = 6;
+        Parent = Container;
+    });
+    
+    Library:ApplyTextStroke(PlaceholderLabel);
+    
+    -- Atualiza visibilidade do placeholder
+    local function UpdatePlaceholder()
+        PlaceholderLabel.Visible = (Box.Text == "" or Box.Text == "---");
+    end
+    
+    Box:GetPropertyChangedSignal('Text'):Connect(UpdatePlaceholder);
+
     function Textbox:OnChanged(Func)
         Textbox.Changed = Func;
 
@@ -3401,6 +3428,8 @@ end
 
     -- Função de Update corrigida
     local updateScheduled = false
+    local isFocused = false
+    
     local function Update()
         if updateScheduled then return end
         updateScheduled = true
@@ -3418,9 +3447,14 @@ end
             return
         end
         
+        -- Se não está focado, mostra o início
+        if not isFocused then
+            Box.Position = UDim2.fromOffset(PADDING, 0)
+            return
+        end
+        
         local cursor = Box.CursorPosition
         if cursor == -1 then 
-            -- Sem foco, mostra o início do texto
             Box.Position = UDim2.fromOffset(PADDING, 0)
             return 
         end
