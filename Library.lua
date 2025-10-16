@@ -959,6 +959,7 @@ do
     local ToggleLabel = self.TextLabel
     local InputService = game:GetService("UserInputService")
     local RunService = game:GetService("RunService")
+    local Mouse = game.Players.LocalPlayer:GetMouse()
 
     assert(Info.Default, string.format('AddColorPicker (IDX: %s): Missing default value.', tostring(Idx)))
 
@@ -966,8 +967,8 @@ do
         Value = Info.Default,
         Transparency = Info.Transparency or 0,
         Type = 'ColorPicker',
-        Title = typeof(Info.Title) == "string" and Info.Title or 'Color Picker',
-        Callback = Info.Callback or function(Color) end
+        Title = typeof(Info.Title) == "string" and Info.Title or 'Color picker',
+        Callback = Info.Callback or function(Color, Transparency) end
     }
 
     function ColorPicker:SetHSVFromRGB(Color)
@@ -979,7 +980,6 @@ do
 
     ColorPicker:SetHSVFromRGB(ColorPicker.Value)
 
-    -- Display Frame
     local DisplayFrame = Library:Create('Frame', {
         BackgroundColor3 = ColorPicker.Value,
         BorderColor3 = Library:GetDarkerColor(ColorPicker.Value),
@@ -998,125 +998,114 @@ do
         Parent = DisplayFrame
     })
 
-    -- Main Picker Frame with Drag Functionality
     local PickerFrameOuter = Library:Create('Frame', {
         Name = 'Color',
         BackgroundColor3 = Color3.new(1, 1, 1),
         BorderColor3 = Color3.new(0, 0, 0),
         Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18),
-        Size = UDim2.fromOffset(250, Info.Transparency and 290 or 270),
+        Size = UDim2.fromOffset(230, Info.Transparency and 300 or 280),
         Visible = false,
         ZIndex = 15,
         Parent = ScreenGui
     })
     Blocked(PickerFrameOuter)
 
-    -- Add drag functionality
-    local isDragging = false
+    -- **Improvement 1: Draggable ColorPicker**
+    local DragBar = Library:Create('Frame', {
+        BackgroundColor3 = Library.AccentColor,
+        Size = UDim2.new(1, 0, 0, 20),
+        ZIndex = 17,
+        Parent = PickerFrameOuter
+    })
+
+    local DragLabel = Library:CreateLabel({
+        Size = UDim2.new(1, 0, 1, 0),
+        Text = ColorPicker.Title,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        ZIndex = 18,
+        Parent = DragBar
+    })
+
+    local dragging = false
     local dragStart = nil
     local startPos = nil
 
-    local function updateDrag(input)
-        local delta = input.Position - dragStart
-        local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, 
-                                startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        
-        -- Constrain within screen bounds
-        local screenSize = workspace.CurrentCamera.ViewportSize
-        local frameSize = PickerFrameOuter.AbsoluteSize
-        newPos = UDim2.new(0, math.clamp(newPos.X.Offset, 0, screenSize.X - frameSize.X),
-                          0, math.clamp(newPos.Y.Offset, 0, screenSize.Y - frameSize.Y))
-        
-        PickerFrameOuter.Position = newPos
-    end
-
-    PickerFrameOuter.InputBegan:Connect(function(input)
+    DragBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDragging = true
+            dragging = true
             dragStart = input.Position
             startPos = PickerFrameOuter.Position
         end
     end)
 
-    PickerFrameOuter.InputChanged:Connect(function(input)
-        if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            updateDrag(input)
-        end
-    end)
-
-    InputService.InputEnded:Connect(function(input)
+    DragBar.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDragging = false
+            dragging = false
         end
     end)
 
-    -- Improved Inner Frame
+    InputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            PickerFrameOuter.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    local function updatePickerPosition()
+        local screenX, screenY = DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18
+        local pickerWidth, pickerHeight = PickerFrameOuter.AbsoluteSize.X, PickerFrameOuter.AbsoluteSize.Y
+        local screenWidth, screenHeight = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
+
+        if screenX + pickerWidth > screenWidth then
+            screenX = screenWidth - pickerWidth - 5
+        end
+        if screenX < 0 then
+            screenX = 5
+        end
+        if screenY + pickerHeight > screenHeight then
+            screenY = DisplayFrame.AbsolutePosition.Y - pickerHeight - 5
+        end
+        if screenY < 0 then
+            screenY = 5
+        end
+
+        PickerFrameOuter.Position = UDim2.fromOffset(screenX, screenY)
+    end
+
+    DisplayFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(updatePickerPosition)
+    PickerFrameOuter:GetPropertyChangedSignal("AbsoluteSize"):Connect(updatePickerPosition)
+    updatePickerPosition()
+
     local PickerFrameInner = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor,
         BorderColor3 = Library.OutlineColor,
         BorderMode = Enum.BorderMode.Inset,
-        Size = UDim2.new(1, 0, 1, 0),
+        Size = UDim2.new(1, 0, 1, -20), -- Adjusted for drag bar
+        Position = UDim2.new(0, 0, 0, 20),
         ZIndex = 16,
         Parent = PickerFrameOuter
     })
 
-    -- Add shadow effect
-    Library:Create('UIStroke', {
-        Color = Color3.new(0, 0, 0),
-        Thickness = 1,
-        Transparency = 0.8,
-        Parent = PickerFrameInner
-    })
-
-    -- Title Bar with Close Button
-    local TitleBar = Library:Create('Frame', {
+    local Highlight = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor,
         BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, 24),
-        ZIndex = 17,
-        Parent = PickerFrameInner
-    })
-
-    local CloseButton = Library:Create('TextButton', {
-        Size = UDim2.new(0, 20, 0, 20),
-        Position = UDim2.new(1, -24, 0, 2),
-        BackgroundTransparency = 1,
-        Text = '×',
-        TextColor3 = Color3.new(1, 1, 1),
-        TextSize = 16,
-        ZIndex = 18,
-        Parent = TitleBar
-    })
-
-    CloseButton.MouseButton1Click:Connect(function()
-        ColorPicker:Hide()
-    end)
-
-    local DisplayLabel = Library:CreateLabel({
-        Size = UDim2.new(1, -40, 0, 24),
-        Position = UDim2.fromOffset(5, 0),
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextSize = 14,
-        Text = ColorPicker.Title,
-        TextWrapped = false,
-        ZIndex = 18,
-        Parent = TitleBar
-    })
-
-    -- Color Selection Area
-    local ColorSelectionFrame = Library:Create('Frame', {
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 8, 0, 32),
-        Size = UDim2.new(1, -16, 0, 210),
+        Size = UDim2.new(1, 0, 0, 2),
         ZIndex = 17,
         Parent = PickerFrameInner
     })
 
     local SatVibMapOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0),
+        Position = UDim2.new(0, 4, 0, 25),
         Size = UDim2.new(0, 200, 0, 200),
         ZIndex = 17,
-        Parent = ColorSelectionFrame
+        Parent = PickerFrameInner
     })
 
     local SatVibMapInner = Library:Create('Frame', {
@@ -1138,7 +1127,7 @@ do
 
     local CursorOuter = Library:Create('ImageLabel', {
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.new(0, 8, 0, 8),
+        Size = UDim2.new(0, 6, 0, 6),
         BackgroundTransparency = 1,
         Image = 'http://www.roblox.com/asset/?id=9619665977',
         ImageColor3 = Color3.new(0, 0, 0),
@@ -1155,12 +1144,13 @@ do
         Parent = CursorOuter
     })
 
+    -- **Improvement 2: Position Hue and Transparency bars side by side vertically**
     local HueSelectorOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0),
-        Position = UDim2.new(0, 208, 0, 0),
-        Size = UDim2.new(0, 20, 0, 200),
+        Position = UDim2.new(0, 4, 0, 228),
+        Size = UDim2.new(0, 15, 0, 200),
         ZIndex = 17,
-        Parent = ColorSelectionFrame
+        Parent = PickerFrameInner
     })
 
     local HueSelectorInner = Library:Create('Frame', {
@@ -1175,25 +1165,54 @@ do
         BackgroundColor3 = Color3.new(1, 1, 1),
         AnchorPoint = Vector2.new(0, 0.5),
         BorderColor3 = Color3.new(0, 0, 0),
-        Size = UDim2.new(1, 0, 0, 2),
+        Size = UDim2.new(1, 0, 0, 1),
         ZIndex = 18,
         Parent = HueSelectorInner
     })
 
-    -- Input Fields Section
-    local InputSectionFrame = Library:Create('Frame', {
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 8, 0, 248),
-        Size = UDim2.new(1, -16, 0, Info.Transparency and 60 or 40),
-        ZIndex = 17,
-        Parent = PickerFrameInner
-    })
+    local TransparencyBoxOuter, TransparencyBoxInner, TransparencyCursor
+    if Info.Transparency then
+        TransparencyBoxOuter = Library:Create('Frame', {
+            BorderColor3 = Color3.new(0, 0, 0),
+            Position = UDim2.new(0, 25, 0, 228),
+            Size = UDim2.new(0, 15, 0, 200),
+            ZIndex = 19,
+            Parent = PickerFrameInner
+        })
+
+        TransparencyBoxInner = Library:Create('Frame', {
+            BackgroundColor3 = ColorPicker.Value,
+            BorderColor3 = Library.OutlineColor,
+            BorderMode = Enum.BorderMode.Inset,
+            Size = UDim2.new(1, 0, 1, 0),
+            ZIndex = 19,
+            Parent = TransparencyBoxOuter
+        })
+
+        Library:Create('ImageLabel', {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Image = 'http://www.roblox.com/asset/?id=12978095818',
+            ZIndex = 20,
+            Parent = TransparencyBoxInner
+        })
+
+        TransparencyCursor = Library:Create('Frame', {
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            AnchorPoint = Vector2.new(0, 0.5),
+            BorderColor3 = Color3.new(0, 0, 0),
+            Size = UDim2.new(1, 0, 0, 1),
+            ZIndex = 21,
+            Parent = TransparencyBoxInner
+        })
+    end
 
     local HueBoxOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0),
-        Size = UDim2.new(0.5, -4, 0, 20),
+        Position = UDim2.fromOffset(4, 430),
+        Size = UDim2.new(0.5, -6, 0, 20),
         ZIndex = 18,
-        Parent = InputSectionFrame
+        Parent = PickerFrameInner
     })
 
     local HueBoxInner = Library:Create('Frame', {
@@ -1221,7 +1240,7 @@ do
         Font = Library.Font,
         PlaceholderColor3 = Color3.fromRGB(190, 190, 190),
         PlaceholderText = 'Hex color',
-        Text = '#FFFFFF',
+        Text = '#' .. ColorPicker.Value:ToHex(),
         TextColor3 = Library.FontColor,
         TextSize = 14,
         TextStrokeTransparency = 0,
@@ -1232,79 +1251,53 @@ do
 
     Library:ApplyTextStroke(HueBox)
 
-    local RgbBoxOuter = Library:Create('Frame', {
-        BorderColor3 = Color3.new(0, 0, 0),
-        Position = UDim2.new(0.5, 4, 0, 0),
-        Size = UDim2.new(0.5, -4, 0, 20),
-        ZIndex = 18,
-        Parent = InputSectionFrame
+    local RgbBoxOuter = Library:Create(HueBoxOuter:Clone(), {
+        Position = UDim2.new(0.5, 2, 0, 430),
+        Size = UDim2.new(0.5, -6, 0, 20),
+        Parent = PickerFrameInner
     })
 
-    local RgbBoxInner = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        BorderMode = Enum.BorderMode.Inset,
-        Size = UDim2.new(1, 0, 1, 0),
-        ZIndex = 18,
-        Parent = RgbBoxOuter
-    })
-
-    local RgbBox = Library:Create('TextBox', {
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 5, 0, 0),
-        Size = UDim2.new(1, -5, 1, 0),
-        Font = Library.Font,
-        PlaceholderColor3 = Color3.fromRGB(190, 190, 190),
+    local RgbBox = Library:Create(RgbBoxOuter.Frame:FindFirstChild('TextBox'), {
+        Text = table.concat({ math.floor(ColorPicker.Value.R * 255), math.floor(ColorPicker.Value.G * 255), math.floor(ColorPicker.Value.B * 255) }, ', '),
         PlaceholderText = 'RGB color',
-        Text = '255, 255, 255',
-        TextColor3 = Library.FontColor,
-        TextSize = 14,
-        TextStrokeTransparency = 0,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = 20,
-        Parent = RgbBoxInner
+        TextColor3 = Library.FontColor
     })
 
-    Library:ApplyTextStroke(RgbBox)
+    -- **Improvement 3: Add Confirm Button**
+    local ConfirmButton = Library:Create('TextButton', {
+        BackgroundColor3 = Library.AccentColor,
+        BorderColor3 = Library.OutlineColor,
+        Position = UDim2.new(0, 4, 0, 455),
+        Size = UDim2.new(1, -8, 0, 20),
+        Text = "Confirm",
+        TextColor3 = Library.FontColor,
+        Font = Library.Font,
+        TextSize = 14,
+        ZIndex = 18,
+        Parent = PickerFrameInner
+    })
 
-    local TransparencyBoxOuter, TransparencyBoxInner, TransparencyCursor
-    if Info.Transparency then
-        TransparencyBoxOuter = Library:Create('Frame', {
-            BorderColor3 = Color3.new(0, 0, 0),
-            Position = UDim2.new(0, 0, 0, 30),
-            Size = UDim2.new(1, 0, 0, 20),
-            ZIndex = 19,
-            Parent = InputSectionFrame
-        })
+    -- **Improvement 3: Add Color Preview**
+    local PreviewFrame = Library:Create('Frame', {
+        BackgroundColor3 = ColorPicker.Value,
+        BorderColor3 = Library.OutlineColor,
+        Position = UDim2.new(0, 4, 0, 480),
+        Size = UDim2.new(1, -8, 0, 20),
+        ZIndex = 18,
+        Parent = PickerFrameInner
+    })
 
-        TransparencyBoxInner = Library:Create('Frame', {
-            BackgroundColor3 = ColorPicker.Value,
-            BorderColor3 = Library.OutlineColor,
-            BorderMode = Enum.BorderMode.Inset,
-            Size = UDim2.new(1, 0, 1, 0),
-            ZIndex = 19,
-            Parent = TransparencyBoxOuter
-        })
+    local DisplayLabel = Library:CreateLabel({
+        Size = UDim2.new(1, 0, 0, 14),
+        Position = UDim2.fromOffset(5, 5),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextSize = 14,
+        Text = ColorPicker.Title,
+        TextWrapped = false,
+        ZIndex = 16,
+        Parent = PickerFrameInner
+    })
 
-        Library:Create('ImageLabel', {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 1, 0),
-            Image = 'http://www.roblox.com/asset/?id=12978095818',
-            ZIndex = 20,
-            Parent = TransparencyBoxInner
-        })
-
-        TransparencyCursor = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(1, 1, 1),
-            AnchorPoint = Vector2.new(0.5, 0),
-            BorderColor3 = Color3.new(0, 0, 0),
-            Size = UDim2.new(0, 2, 1, 0),
-            ZIndex = 21,
-            Parent = TransparencyBoxInner
-        })
-    end
-
-    -- Context Menu (unchanged)
     local ContextMenu = {}
     do
         ContextMenu.Options = {}
@@ -1404,10 +1397,9 @@ do
             )
 
             Button.InputBegan:Connect(function(Input)
-                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then
-                    return
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                    Callback()
                 end
-                Callback()
             end)
         end
 
@@ -1436,9 +1428,10 @@ do
     ColorPicker.ContextMenu = ContextMenu
 
     Library:AddToRegistry(PickerFrameInner, { BackgroundColor3 = 'BackgroundColor', BorderColor3 = 'OutlineColor' })
+    Library:AddToRegistry(Highlight, { BackgroundColor3 = 'AccentColor' })
     Library:AddToRegistry(SatVibMapInner, { BackgroundColor3 = 'BackgroundColor', BorderColor3 = 'OutlineColor' })
     Library:AddToRegistry(HueBoxInner, { BackgroundColor3 = 'MainColor', BorderColor3 = 'OutlineColor' })
-    Library:AddToRegistry(RgbBoxInner, { BackgroundColor3 = 'MainColor', BorderColor3 = 'OutlineColor' })
+    Library:AddToRegistry(RgbBoxOuter.Frame, { BackgroundColor3 = 'MainColor', BorderColor3 = 'OutlineColor' })
     Library:AddToRegistry(RgbBox, { TextColor3 = 'FontColor' })
     Library:AddToRegistry(HueBox, { TextColor3 = 'FontColor' })
 
@@ -1463,9 +1456,12 @@ do
             BorderColor3 = Library:GetDarkerColor(ColorPicker.Value)
         })
 
+        PreviewFrame.BackgroundColor3 = ColorPicker.Value
+        PreviewFrame.BackgroundTransparency = ColorPicker.Transparency
+
         if TransparencyBoxInner then
             TransparencyBoxInner.BackgroundColor3 = ColorPicker.Value
-            TransparencyCursor.Position = UDim2.new(1 - ColorPicker.Transparency, 0, 0, 0)
+            TransparencyCursor.Position = UDim2.new(0, 0, 1 - ColorPicker.Transparency, 0)
         end
 
         CursorOuter.Position = UDim2.new(ColorPicker.Sat, 0, 1 - ColorPicker.Vib, 0)
@@ -1473,9 +1469,6 @@ do
 
         HueBox.Text = '#' .. ColorPicker.Value:ToHex()
         RgbBox.Text = table.concat({ math.floor(ColorPicker.Value.R * 255), math.floor(ColorPicker.Value.G * 255), math.floor(ColorPicker.Value.B * 255) }, ', ')
-
-        Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value, ColorPicker.Transparency)
-        Library:SafeCallback(ColorPicker.Changed, ColorPicker.Value, ColorPicker.Transparency)
     end
 
     function ColorPicker:OnChanged(Func)
@@ -1516,24 +1509,65 @@ do
         ColorPicker:Display()
     end
 
+    -- **Improvement 3: Improved Input Validation for Hex and RGB**
+    HueBox:GetPropertyChangedSignal("Text"):Connect(function()
+        local text = HueBox.Text
+        if text:sub(1, 1) ~= '#' then
+            text = '#' .. text
+        end
+        local success, result = pcall(Color3.fromHex, text)
+        if success and typeof(result) == 'Color3' then
+            ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(result)
+            ColorPicker:Display()
+        else
+            HueBox.TextColor3 = Color3.fromRGB(255, 100, 100) -- Indicate error
+        end
+    end)
+
     HueBox.FocusLost:Connect(function(enter)
         if enter then
             local success, result = pcall(Color3.fromHex, HueBox.Text)
             if success and typeof(result) == 'Color3' then
                 ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(result)
+            else
+                Library:Notify('Invalid HEX code!', 2)
             end
+            HueBox.TextColor3 = Library.FontColor
+            ColorPicker:Display()
         end
-        ColorPicker:Display()
+    end)
+
+    RgbBox:GetPropertyChangedSignal("Text"):Connect(function()
+        local r, g, b = RgbBox.Text:match('(%d+),%s*(%d+),%s*(%d+)')
+        if r and g and b then
+            r, g, b = tonumber(r), tonumber(g), tonumber(b)
+            if r <= 255 and g <= 255 and b <= 255 then
+                ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(Color3.fromRGB(r, g, b))
+                ColorPicker:Display()
+            else
+                RgbBox.TextColor3 = Color3.fromRGB(255, 100, 100) -- Indicate error
+            end
+        else
+            RgbBox.TextColor3 = Color3.fromRGB(255, 100, 100) -- Indicate error
+        end
     end)
 
     RgbBox.FocusLost:Connect(function(enter)
         if enter then
             local r, g, b = RgbBox.Text:match('(%d+),%s*(%d+),%s*(%d+)')
             if r and g and b then
-                ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(Color3.fromRGB(r, g, b))
+                r, g, b = tonumber(r), tonumber(g), tonumber(b)
+                if r <= 255 and g <= 255 and b <= 255 then
+                    ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(Color3.fromRGB(r, g, b))
+                else
+                    Library:Notify('Invalid RGB values!', 2)
+                end
+            else
+                Library:Notify('Invalid RGB format!', 2)
             end
+            RgbBox.TextColor3 = Library.FontColor
+            ColorPicker:Display()
         end
-        ColorPicker:Display()
     end)
 
     SatVibMap.InputBegan:Connect(function(Input)
@@ -1573,24 +1607,6 @@ do
         end
     end)
 
-    DisplayFrame.InputBegan:Connect(function(Input)
-        if Library:MouseIsOverOpenedFrame(Input) then
-            return
-        end
-
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-            if PickerFrameOuter.Visible then
-                ColorPicker:Hide()
-            else
-                ContextMenu:Hide()
-                ColorPicker:Show()
-            end
-        elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
-            ContextMenu:Show()
-            ColorPicker:Hide()
-        end
-    end)
-
     if TransparencyBoxInner then
         TransparencyBoxInner.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
@@ -1609,20 +1625,39 @@ do
         end)
     end
 
+    ConfirmButton.MouseButton1Click:Connect(function()
+        Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value, ColorPicker.Transparency)
+        ColorPicker:Hide()
+    end)
+
+    DisplayFrame.InputBegan:Connect(function(Input)
+        if Library:MouseIsOverOpenedFrame(Input) then
+            return
+        end
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+            if PickerFrameOuter.Visible then
+                ColorPicker:Hide()
+            else
+                ContextMenu:Hide()
+                ColorPicker:Show()
+            end
+        elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
+            ContextMenu:Show()
+            ColorPicker:Hide()
+        end
+    end)
+
     Library:GiveSignal(InputService.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             local AbsPos, AbsSize = PickerFrameOuter.AbsolutePosition, PickerFrameOuter.AbsoluteSize
-
             if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X
                 or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
                 ColorPicker:Hide()
             end
-
             if not Library:MouseIsOverFrame(ContextMenu.Container) then
                 ContextMenu:Hide()
             end
         end
-
         if Input.UserInputType == Enum.UserInputType.MouseButton2 and ContextMenu.Container.Visible then
             if not Library:MouseIsOverFrame(ContextMenu.Container) and not Library:MouseIsOverFrame(DisplayFrame) then
                 ContextMenu:Hide()
