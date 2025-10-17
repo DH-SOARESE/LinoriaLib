@@ -1000,41 +1000,12 @@ do
         Name = 'Color';
         BackgroundColor3 = Color3.new(1, 1, 1);
         BorderColor3 = Color3.new(0, 0, 0);
-        Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18),
         Size = UDim2.fromOffset(230, Info.Transparency and 271 or 253);
         Visible = false;
         ZIndex = 15;
         Parent = ScreenGui,
     });
     Blocked(PickerFrameOuter)
-
-    local function updatePickerPosition()
-        local screenX, screenY = DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18
-        local pickerWidth, pickerHeight = PickerFrameOuter.AbsoluteSize.X, PickerFrameOuter.AbsoluteSize.Y
-        local screenWidth, screenHeight = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
-
-        -- Ajusta horizontal
-        if screenX + pickerWidth > screenWidth then
-            screenX = screenWidth - pickerWidth - 5 -- 5px de folga
-        end
-        if screenX < 0 then
-            screenX = 5
-        end
-
-        -- Ajusta vertical
-        if screenY + pickerHeight > screenHeight then
-            screenY = DisplayFrame.AbsolutePosition.Y - pickerHeight - 5 -- mostra acima do DisplayFrame se não couber embaixo
-        end
-        if screenY < 0 then
-            screenY = 5
-        end
-
-        PickerFrameOuter.Position = UDim2.fromOffset(screenX, screenY)
-    end
-
-    DisplayFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(updatePickerPosition)
-    PickerFrameOuter:GetPropertyChangedSignal("AbsoluteSize"):Connect(updatePickerPosition)
-    updatePickerPosition()
 
     -- Drag functionality for PickerFrameOuter
     local UserInputService = game:GetService("UserInputService")
@@ -1056,25 +1027,6 @@ do
         PickerFrameOuter.Position = UDim2.fromOffset(newX, newY)
     end
 
-    PickerFrameOuter.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = PickerFrameOuter.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    PickerFrameOuter.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            updateDrag(input)
-        end
-    end)
-
     UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             updateDrag(input)
@@ -1089,6 +1041,27 @@ do
         ZIndex = 16;
         Parent = PickerFrameOuter;
     });
+
+    local TitleBar = Library:Create('Frame', {
+        BackgroundTransparency = 1;
+        Position = UDim2.new(0, 0, 0, 0);
+        Size = UDim2.new(1, 0, 0, 25);
+        ZIndex = 17;
+        Parent = PickerFrameInner;
+    });
+
+    TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = PickerFrameOuter.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
 
     local Highlight = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor;
@@ -1468,6 +1441,10 @@ do
                 Library.OpenedFrames[Frame] = nil;
             end;
         end;
+
+        local screenWidth, screenHeight = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
+        local pickerWidth, pickerHeight = PickerFrameOuter.AbsoluteSize.X, PickerFrameOuter.AbsoluteSize.Y
+        PickerFrameOuter.Position = UDim2.fromOffset((screenWidth - pickerWidth)/2, (screenHeight - pickerHeight)/2)
 
         PickerFrameOuter.Visible = true;
         Library.OpenedFrames[PickerFrameOuter] = true;
