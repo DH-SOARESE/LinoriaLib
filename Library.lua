@@ -5961,32 +5961,65 @@ Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
                 Title = "WARNING",
                 Text = ""
             };
+            IconInfo = {
+               Image = "rbxassetid://"
+               Position = "Left",
+               Size = UDim2.new(0, 16, 0, 16)
+            };
             OriginalName = Name; 
             Name = Name;
         };
 
-        local TabButtonWidth = Library:GetTextBounds(Tab.Name, Library.Font, 16);
+local TabButton = Library:Create('Frame', {
+    BackgroundColor3 = Library.BackgroundColor;
+    BorderColor3 = Library.OutlineColor;
+    AutomaticSize = Enum.AutomaticSize.X;
+    Size = UDim2.new(0, 0, 0.85, 0);
+    ZIndex = 1;
+    Parent = TabArea;
+})
 
-        local TabButton = Library:Create('Frame', {
-            BackgroundColor3 = Library.BackgroundColor;
-            BorderColor3 = Library.OutlineColor;
-            Size = UDim2.new(0, TabButtonWidth + 8 + 4, 0.85, 0);
-            ZIndex = 1;
-            Parent = TabArea;
-        });
+Library:AddToRegistry(TabButton, {
+    BackgroundColor3 = 'BackgroundColor';
+    BorderColor3 = 'OutlineColor';
+})
 
-        Library:AddToRegistry(TabButton, {
-            BackgroundColor3 = 'BackgroundColor';
-            BorderColor3 = 'OutlineColor';
-        });
+local TabButtonLayout = Library:Create('UIListLayout', {
+    FillDirection = Enum.FillDirection.Horizontal;
+    HorizontalAlignment = Enum.HorizontalAlignment.Center;
+    VerticalAlignment = Enum.VerticalAlignment.Center;
+    Padding = UDim.new(0, 4);
+    Parent = TabButton;
+})
 
-        local TabButtonLabel = Library:CreateLabel({
-            Position = UDim2.new(0, 0, 0, 0);
-            Size = UDim2.new(1, 0, 1, -1);
-            Text = Tab.Name;
-            ZIndex = 1;
-            Parent = TabButton;
-        });
+l
+local IconLabel
+if IconInfo and IconInfo.Image then
+       IconLabel = Library:Create('ImageLabel', {
+          BackgroundTransparency = 1;
+          Image = IconInfo.Image;
+          Size = IconInfo.Size or UDim2.new(0, 16, 0, 16);
+          ZIndex = 2;
+          Parent = TabButton;
+      });
+end
+
+       local TabButtonLabel = Library:CreateLabel({
+          Size = UDim2.new(0, Library:GetTextBounds(Tab.Name, Library.Font, 16), 1, -1);
+          Text = Tab.Name;
+          ZIndex = 2;
+          Parent = TabButton;
+       });
+
+     if IconLabel then
+        if IconInfo.Position and string.lower(IconInfo.Position) == "right" then
+            IconLabel.LayoutOrder = 2
+            TabButtonLabel.LayoutOrder = 1
+        else
+            IconLabel.LayoutOrder = 1
+            TabButtonLabel.LayoutOrder = 2
+    end
+end
 
         local Blocker = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
