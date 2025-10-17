@@ -6863,18 +6863,38 @@ end
         });
     
 
-Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
-Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
+     Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter);
+     Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter);
+     
+     function BindTrueClick(Button, Callback)
+          local pressing = false;
+          local startPos;
+          
+          Button.InputBegan:Connect(function(input)
+             if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                pressing = true;
+                startPos = input.Position;
+              end;
+          end);
+        
+        Button.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 and pressing then
+                 pressing = false;
+                 local endPos = input.Position;
+                   if (startPos - endPos).Magnitude < 5 then 
+                     Callback();
+                  end;
+               end;
+           end);
+      end;
+      BindTrueClick(ToggleUIButton, function()
+         Library:Toggle();
+    end);
 
-ToggleUIButton.MouseButton1Click:Connect(function()
-    Library:Toggle()
-end)
-
-LockUIButton.MouseButton1Click:Connect(function()
-    Library.CantDragForced = not Library.CantDragForced
-    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
-end)
-
+BindTrueClick(LockUIButton, function()
+    Library.CantDragForced = not Library.CantDragForced;
+    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI";
+end);
 end;
     if Config.AutoShow then task.spawn(Library.Toggle) end
     Window.Holder = Outer;
