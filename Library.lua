@@ -9,6 +9,7 @@ local Players: Players = cloneref(game:GetService('Players'));
 local RunService: RunService = cloneref(game:GetService('RunService'));
 local TweenService: TweenService = cloneref(game:GetService('TweenService'));
 
+local setclipboard = setclipboard or nil
 local getgenv = getgenv or (function() 
 return shared 
 end);
@@ -99,7 +100,6 @@ ModalElement.Parent = ModalScreenGui
 local TransparencyCache = {}
 local Toggled = false
 local Fading = false
-local uiVisible = true
 
 
 local OldMouseIconState = nil
@@ -431,7 +431,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     if Library.IsMobile == false then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Window_label" and not uiVisible) then
+                if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Window_label" and not Toggled) then
                       return;
                      end;
 
@@ -462,7 +462,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
         local DraggingInput, DraggingStart, StartPosition
 
         InputService.TouchStarted:Connect(function(Input)
-            if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Window_label" and not uiVisible) then
+            if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Window_label" and not Toggled) then
                  Dragging = false;
                  return;
                end;
@@ -723,7 +723,7 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     UpdateText(InfoStr)
 
     table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
-        if Library:MouseIsOverOpenedFrame() or not uiVisible then
+        if Library:MouseIsOverOpenedFrame() or not Toggled then
             Tooltip.Visible = false
             return
         end
@@ -742,7 +742,7 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
         Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         Tooltip.Visible = true
 
-        while IsHovering and uiVisible and (not TooltipTable.Disabled or DisabledInfoStr) do
+        while IsHovering and Toggled and (not TooltipTable.Disabled or DisabledInfoStr) do
             RunService.Heartbeat:Wait()
             Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         end
@@ -928,7 +928,7 @@ function Library:Unload()
     for _, UnloadCallback in pairs(Library.UnloadSignals) do
         Library:SafeCallback(UnloadCallback)
     end
-    uiVisible = false
+    Toggled = false
     ScreenGui:Destroy()
     ModalScreenGui:Destroy()
     Library.Unloaded = true
@@ -6640,7 +6640,7 @@ function Library:Toggle(Toggling)
 	Library.Toggled = Toggled
 	ModalElement.Modal = Toggled
 
-	if uiVisible then
+	if Toggled then
 		Outer.Visible = true
 	if not CursorGui then
     CursorGui = Instance.new("ScreenGui")
@@ -6867,14 +6867,14 @@ Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
 ToggleUIButton.MouseButton1Click:Connect(function()
-    uiVisible = not uiVisible
-    Library:Toggle(uiVisible)
+    Library:Toggle()
 end)
 
 LockUIButton.MouseButton1Click:Connect(function()
     Library.CantDragForced = not Library.CantDragForced
     LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
 end)
+
 end;
     if Config.AutoShow then task.spawn(Library.Toggle) end
     Window.Holder = Outer;
