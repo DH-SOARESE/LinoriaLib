@@ -1581,6 +1581,46 @@ updatePickerPosition()
 
         return self;
     end;
+do
+    local dragging, dragStart, startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        PickerFrameOuter.Position = UDim2.fromOffset(startPos.X + delta.X, startPos.Y + delta.Y)
+    end
+
+    local dragArea = Highlight
+
+    dragArea.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = PickerFrameOuter.Position
+        end
+    end)
+
+    dragArea.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement 
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    InputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement 
+        or input.UserInputType == Enum.UserInputType.Touch) then
+            update(input)
+        end
+    end)
+
+    InputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+end
 
     function BaseAddonsFuncs:AddKeyPicker(Idx, Info)
         local ParentObj = self;
