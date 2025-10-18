@@ -6649,19 +6649,24 @@ function Library:Toggle(Toggling)
 	ModalElement.Modal = Toggled
 
 	if Toggled then
-    Outer.Visible = true
+		Outer.Visible = true
+	if not CursorGui then
+    CursorGui = Instance.new("ScreenGui")
+    CursorGui.Name = "LinoriaCursor"
+    CursorGui.IgnoreGuiInset = true
+    CursorGui.ResetOnSpawn = false
+    CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ParentUI(CursorGui, 9e9^9e9)
 
-    if not CursorImage then
-        CursorImage = Instance.new("ImageLabel")
-        CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
-        CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-        CursorImage.BackgroundTransparency = 1
-        CursorImage.Image = CursorID
-        CursorImage.ImageColor3 = Library.AccentColor
-        CursorImage.ZIndex = 99999
-        CursorImage.Visible = Library.ShowCustomCursor
-        CursorImage.Parent = ScreenGui
-    end
+    CursorImage = Instance.new("ImageLabel")
+    CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
+    CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+    CursorImage.BackgroundTransparency = 1
+    CursorImage.Image = CursorID
+    CursorImage.ImageColor3 = Library.AccentColor
+    CursorImage.ZIndex = 9999
+    CursorImage.Visible = Library.ShowCustomCursor
+    CursorImage.Parent = CursorGui
 end
 
 		OldMouseIconState = InputService.MouseIconEnabled
