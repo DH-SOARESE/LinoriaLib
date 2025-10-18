@@ -606,7 +606,7 @@ local SaveManager = {} do
 
         section:AddDivider()
 
-        section:AddToggle('SaveManager_AutoSaveEnabled', { Text = 'Enable Auto Save', Default = false }):OnChanged(function(value)
+        section:AddToggle('SaveManager_AutoSaveEnabled', { Text = 'Auto Save', Default = false }):OnChanged(function(value)
             local option = self.Library.Options.SaveManager_AutoSaveEnabled
             if value then
                 local config = self.Library.Options.SaveManager_ConfigList.Value
@@ -629,7 +629,7 @@ local SaveManager = {} do
             self.Library:Notify(value and 'Change detection enabled' or 'Change detection disabled')
         end)
 
-        section:AddSlider('SaveManager_AutoSaveInterval', { Text = 'Auto Save Interval', Default = 60, Min = 10, Max = 300, Rounding = 0, Suffix = 's' })
+        section:AddSlider('SaveManager_AutoSaveInterval', { Text = 'Auto Save Interval', Default = 10, Min = 5, Max = 300, Rounding = 0, Suffix = 's' })
 
         section:AddSlider('SaveManager_MaxFailures', { Text = 'Max Auto Save Failures', Default = 3, Min = 1, Max = 10, Rounding = 0 }):OnChanged(function(value)
             self.AutoSaveConfig.MaxFailures = value
