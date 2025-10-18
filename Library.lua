@@ -5985,6 +5985,7 @@ function Window:AddTab(Name, Image)
         if Tab.Image then
             ImageLabel = Library:Create('ImageLabel', {
                 BackgroundTransparency = 1,
+                ImageColor3 = Library.AccentColor;
                 Size = UDim2.new(0, 16, 0, 16),
                 Position = UDim2.new(0, 4, 0.5, -8),
                 Image = 'rbxassetid://' .. Tab.Image,
@@ -6312,7 +6313,6 @@ function Window:AddTab(Name, Image)
         function Tab:AddGroupbox(Info)
     local Groupbox = {}
 
-    -- Cria o contêiner externo
     local BoxOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor,
         BorderColor3 = Library.OutlineColor,
@@ -6327,7 +6327,6 @@ function Window:AddTab(Name, Image)
         BorderColor3 = 'OutlineColor',
     })
 
-    -- Cria o contêiner interno
     local BoxInner = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor,
         BorderColor3 = Color3.new(0, 0, 0),
@@ -6341,7 +6340,6 @@ function Window:AddTab(Name, Image)
         BackgroundColor3 = 'BackgroundColor',
     })
 
-    -- Linha de destaque superior
     local Highlight = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor,
         BorderSizePixel = 0,
@@ -6354,12 +6352,10 @@ function Window:AddTab(Name, Image)
         BackgroundColor3 = 'AccentColor',
     })
 
-    -- Define a altura e alinhamento do label
     local LabelHeight = 0
     if Info.Name and Info.Name ~= "" then
         LabelHeight = 20
 
-        -- Define alinhamento do texto
         local Alignment = Enum.TextXAlignment.Left
         if Info.LabelAlign then
             local align = string.lower(Info.LabelAlign)
@@ -6370,7 +6366,6 @@ function Window:AddTab(Name, Image)
             end
         end
 
-        -- Label
         local GroupboxLabel = Library:CreateLabel({
             Size = UDim2.new(1, -8, 0, 18),
             Position = UDim2.new(0, 4, 0, 2),
@@ -6382,7 +6377,6 @@ function Window:AddTab(Name, Image)
         })
     end
 
-    -- Container de elementos dentro do grupo
     local Container = Library:Create('Frame', {
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 4, 0, LabelHeight),
@@ -6397,7 +6391,6 @@ function Window:AddTab(Name, Image)
         Parent = Container,
     })
 
-    -- Função de redimensionamento automático
     function Groupbox:Resize()
         local Size = 0
         for _, Element in next, Groupbox.Container:GetChildren() do
@@ -6419,7 +6412,6 @@ function Window:AddTab(Name, Image)
     return Groupbox
 end
 
--- Funções auxiliares
 function Tab:AddLeftGroupbox(Name, LabelAlign)
     return Tab:AddGroupbox({ Side = 1, Name = Name, LabelAlign = LabelAlign })
 end
