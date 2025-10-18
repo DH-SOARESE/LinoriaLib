@@ -84,12 +84,10 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.ResetOnSpawn = false
 ParentUI(ScreenGui, 9e9^9e8)
-Protect(ScreenGui);
 
 local ModalScreenGui = Instance.new("ScreenGui")
 ModalScreenGui.ResetOnSpawn = false
 ParentUI(ModalScreenGui, 9e9^9e8)
-Protect(ModalScreenGui);
 
 local ModalElement = Instance.new("TextButton");
 ModalElement.BackgroundTransparency = 1
@@ -5810,6 +5808,8 @@ function Library:CreateWindow(...)
         Name = "Window";
     });
     Blocked(Outer);
+    Protect(ScreenGui);
+    
     
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
@@ -6658,7 +6658,7 @@ function Library:Toggle(Toggling)
         CursorImage.BackgroundTransparency = 1
         CursorImage.Image = CursorID
         CursorImage.ImageColor3 = Library.AccentColor
-        CursorImage.ZIndex = 999999
+        CursorImage.ZIndex = 99999
         CursorImage.Visible = Library.ShowCustomCursor
         CursorImage.Parent = ScreenGui
     end
