@@ -5994,7 +5994,7 @@ function Window:AddTab(Name, Image)
          
          Library:AddToRegistry(ImageLabel, {
              ImageColor3 = 'AccentColor',
-         }):
+         });
         end
 
         local labelPosition = Tab.Image and UDim2.new(0, 4 + 16 + 4, 0, 0) or UDim2.new(0, 0, 0, 0)
