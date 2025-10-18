@@ -9,7 +9,6 @@ local assert = function(condition, errorMessage)
 end
 
 if typeof(copyfunction) == "function" then
-    -- Fix is_____ functions for exploits where they might error instead of returning boolean
     local isfolder_copy, isfile_copy, listfiles_copy = copyfunction(isfolder), copyfunction(isfile), copyfunction(listfiles)
 
     local isfolder_success, isfolder_error = pcall(function()
@@ -40,9 +39,21 @@ local SaveManager = {} do
     SaveManager.SubFolder = ''
     SaveManager.Ignore = {}
     SaveManager.Library = nil
-    SaveManager.SaveVersion = 1  -- Added for future-proofing
+    SaveManager.SaveVersion = 1
     SaveManager.AutoSaveName = nil
     SaveManager.AutoSaveTask = nil
+    
+    -- === Auto Save Improvements ===
+    SaveManager.AutoSaveConfig = {
+        Enabled = false,
+        Interval = 60,
+        LastSaveTime = 0,
+        SavesSinceStart = 0,
+        FailedSaves = 0,
+        MaxFailures = 3,
+        DetectChanges = true,
+        LastDataHash = nil,
+    }
 
     function SaveManager:SetLibrary(library)
         self.Library = library
@@ -50,8 +61,8 @@ local SaveManager = {} do
 
     function SaveManager:IgnoreThemeSettings()
         self:SetIgnoreIndexes({
-            "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor", -- themes
-            "ThemeManager_ThemeList", 'ThemeManager_CustomThemeList', 'ThemeManager_CustomThemeName', -- themes
+            "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor",
+            "ThemeManager_ThemeList", 'ThemeManager_CustomThemeList', 'ThemeManager_CustomThemeName',
             "VideoLink",
         })
     end
@@ -108,7 +119,7 @@ local SaveManager = {} do
     function SaveManager:EnsureFolderTree()
         if not isfolder(self.Folder) then
             self:BuildFolderTree()
-            task.wait(0.1)  -- Small delay to ensure folders are created
+            task.wait(0.1)
         end
     end
 
@@ -199,6 +210,27 @@ local SaveManager = {} do
         },
     }
 
+    -- === Hash Function for Change Detection ===
+    function SaveManager:GetDataHash()
+        local data = { objects = {} }
+        
+        for idx, toggle in pairs(self.Library.Toggles) do
+            if not toggle.Type or not self.Parser[toggle.Type] or self.Ignore[idx] then continue end
+            table.insert(data.objects, self.Parser[toggle.Type].Save(idx, toggle))
+        end
+
+        for idx, option in pairs(self.Library.Options) do
+            if not option.Type or not self.Parser[option.Type] or self.Ignore[idx] then continue end
+            table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
+        end
+
+        local success, encoded = pcall(httpService.JSONEncode, httpService, data)
+        if success then
+            return game:GetService('HttpService'):GenerateGUID(false)
+        end
+        return tostring(data)
+    end
+
     -- === Save/Load/Delete/Refresh ===
     function SaveManager:GetConfigPath(name)
         local basePath = self.Folder .. '/settings/' .. name .. '.json'
@@ -218,7 +250,7 @@ local SaveManager = {} do
         local fullPath = self:GetConfigPath(name)
 
         local data = {
-            version = self.SaveVersion,  -- Added version for future compatibility
+            version = self.SaveVersion,
             objects = {}
         }
 
@@ -261,10 +293,8 @@ local SaveManager = {} do
             return false, 'Failed to decode data: ' .. tostring(decoded)
         end
 
-        -- Check version (for future use)
         if decoded.version ~= self.SaveVersion then
             warn('Config version mismatch: ' .. tostring(decoded.version) .. ' (expected ' .. self.SaveVersion .. ')')
-            -- Could add migration logic here in the future
         end
 
         for _, option in ipairs(decoded.objects or {}) do
@@ -355,7 +385,7 @@ local SaveManager = {} do
             return "none"
         end
 
-        name = name:match("^%s*(.-)%s*$")  -- Trim whitespace
+        name = name:match("^%s*(.-)%s*$")
         return name ~= "" and name or "none"
     end
 
@@ -411,6 +441,75 @@ local SaveManager = {} do
         end
 
         return true, 'Autoload config deleted'
+    end
+
+    -- === Improved Auto Save ===
+    function SaveManager:StopAutoSave()
+        if self.AutoSaveTask then
+            task.cancel(self.AutoSaveTask)
+            self.AutoSaveTask = nil
+        end
+        self.AutoSaveConfig.Enabled = false
+        self.AutoSaveConfig.SavesSinceStart = 0
+        self.AutoSaveConfig.FailedSaves = 0
+    end
+
+    function SaveManager:StartAutoSave(configName, interval)
+        if self.AutoSaveConfig.Enabled then
+            self:StopAutoSave()
+        end
+
+        self.AutoSaveName = configName
+        self.AutoSaveConfig.Interval = interval
+        self.AutoSaveConfig.Enabled = true
+        self.AutoSaveConfig.LastSaveTime = tick()
+        self.AutoSaveConfig.SavesSinceStart = 0
+        self.AutoSaveConfig.FailedSaves = 0
+        self.AutoSaveConfig.LastDataHash = self:GetDataHash()
+
+        self.AutoSaveTask = task.spawn(function()
+            while self.AutoSaveConfig.Enabled do
+                task.wait(interval)
+
+                if not self.AutoSaveConfig.Enabled then break end
+
+                local currentHash = self:GetDataHash()
+                
+                if self.AutoSaveConfig.DetectChanges and currentHash == self.AutoSaveConfig.LastDataHash then
+                    continue
+                end
+
+                local success, msg = self:Save(configName)
+                if not success then
+                    self.AutoSaveConfig.FailedSaves = self.AutoSaveConfig.FailedSaves + 1
+                    
+                    if self.Library then
+                        self.Library:Notify('Auto save failed (' .. self.AutoSaveConfig.FailedSaves .. '): ' .. msg, 3)
+                    end
+
+                    if self.AutoSaveConfig.FailedSaves >= self.AutoSaveConfig.MaxFailures then
+                        if self.Library then
+                            self.Library:Notify('Auto save disabled due to repeated failures', 4)
+                        end
+                        self:StopAutoSave()
+                        break
+                    end
+                else
+                    self.AutoSaveConfig.SavesSinceStart = self.AutoSaveConfig.SavesSinceStart + 1
+                    self.AutoSaveConfig.FailedSaves = 0
+                    self.AutoSaveConfig.LastSaveTime = tick()
+                    self.AutoSaveConfig.LastDataHash = currentHash
+
+                    if self.AutoSaveLabel then
+                        self.AutoSaveLabel:SetText(
+                            'Auto save: enabled | Saves: ' .. self.AutoSaveConfig.SavesSinceStart .. 
+                            ' | Last: ' .. string.format('%.1f', tick() - self.AutoSaveConfig.LastSaveTime) .. 's ago'
+                        )
+                    end
+                end
+            end
+            self.AutoSaveTask = nil
+        end)
     end
 
     -- === GUI ===
@@ -517,40 +616,29 @@ local SaveManager = {} do
                     return
                 end
                 local interval = self.Library.Options.SaveManager_AutoSaveInterval.Value
-                self.AutoSaveName = config
-                if self.AutoSaveTask then
-                    task.cancel(self.AutoSaveTask)
-                end
-                self.AutoSaveTask = task.spawn(function()
-                    while task.wait(interval) do
-                        local success, msg = self:Save(self.AutoSaveName)
-                        if not success then
-                            self.Library:Notify('Auto save failed: ' .. msg)
-                            option:SetValue(false)
-                            break
-                        else
-                            self.Library:Notify('Auto saved config "' .. self.AutoSaveName .. '"')
-                        end
-                    end
-                    self.AutoSaveTask = nil
-                end)
-                self.AutoSaveLabel:SetText('Auto saving to: ' .. config .. ' every ' .. interval .. 's')
+                self:StartAutoSave(config, interval)
+                self.AutoSaveLabel:SetText('Auto save: enabled | Saves: 0 | Last: never')
             else
-                if self.AutoSaveTask then
-                    task.cancel(self.AutoSaveTask)
-                    self.AutoSaveTask = nil
-                end
-                self.AutoSaveName = nil
+                self:StopAutoSave()
                 self.AutoSaveLabel:SetText('Auto save: disabled')
             end
         end)
 
+        section:AddToggle('SaveManager_DetectChanges', { Text = 'Detect Changes', Default = true }):OnChanged(function(value)
+            self.AutoSaveConfig.DetectChanges = value
+            self.Library:Notify(value and 'Change detection enabled' or 'Change detection disabled')
+        end)
+
         section:AddSlider('SaveManager_AutoSaveInterval', { Text = 'Auto Save Interval', Default = 60, Min = 10, Max = 300, Rounding = 0, Suffix = 's' })
+
+        section:AddSlider('SaveManager_MaxFailures', { Text = 'Max Auto Save Failures', Default = 3, Min = 1, Max = 10, Rounding = 0 }):OnChanged(function(value)
+            self.AutoSaveConfig.MaxFailures = value
+        end)
 
         self.AutoSaveLabel = section:AddLabel('Auto save: disabled', true)
 
-        self:LoadAutoloadConfig()  -- Uncommented to auto-load on section build
-        self:SetIgnoreIndexes({ 'SaveManager_ConfigList', 'SaveManager_ConfigName', 'SaveManager_AutoSaveEnabled', 'SaveManager_AutoSaveInterval' })
+        self:LoadAutoloadConfig()
+        self:SetIgnoreIndexes({ 'SaveManager_ConfigList', 'SaveManager_ConfigName', 'SaveManager_AutoSaveEnabled', 'SaveManager_AutoSaveInterval', 'SaveManager_DetectChanges', 'SaveManager_MaxFailures' })
     end
 
     SaveManager:BuildFolderTree()
