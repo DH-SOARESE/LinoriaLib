@@ -3139,7 +3139,6 @@ end;
 
     Groupbox:AddBlank(2)
 
-    -- Container principal do divider
     local DividerOuter = Library:Create('Frame', {
         BackgroundTransparency = 1;
         Size = UDim2.new(1, -4, 0, 10);
@@ -3147,7 +3146,6 @@ end;
         Parent = Container;
     })
 
-    -- Se não houver label, cria uma linha completa
     if not LabelText or LabelText == "" then
         local DividerLine = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
@@ -3164,7 +3162,6 @@ end;
             BorderColor3 = 'OutlineColor';
         })
     else
-        -- Container com linhas laterais + label central
         local Label = Library:Create('TextLabel', {
             BackgroundTransparency = 1;
             Text = tostring(LabelText);
@@ -3176,7 +3173,6 @@ end;
             Parent = DividerOuter;
         })
 
-        -- Atualiza o tamanho do label automaticamente
         Label.Size = UDim2.new(0, Label.TextBounds.X + 10, 1, 0)
         Label.Position = UDim2.new(0.5, -Label.Size.X.Offset / 2, 0, 0)
 
@@ -6809,6 +6805,10 @@ end
             ZIndex = 203;
             Parent = ToggleUIInnerFrame;
         });
+        
+        Library:AddToRegistry(ToggleUIButton, {
+            TextColor3 = 'FontColor';
+        })
 
         -- Lock
         local LockUIOuter = Library:Create('Frame', {
@@ -6873,6 +6873,10 @@ end
             ZIndex = 203;
             Parent = LockUIInnerFrame;
         });
+        
+        Library:AddToRegistry(LockUIButton, {
+            TextColor3 = 'FontColor';
+        })
     
 
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
