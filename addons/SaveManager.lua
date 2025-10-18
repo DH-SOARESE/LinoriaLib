@@ -41,6 +41,8 @@ local SaveManager = {} do
     SaveManager.Ignore = {}
     SaveManager.Library = nil
     SaveManager.SaveVersion = 1  -- Added for future-proofing
+    SaveManager.AutoSaveName = nil
+    SaveManager.AutoSaveTask = nil
 
     function SaveManager:SetLibrary(library)
         self.Library = library
@@ -502,8 +504,53 @@ local SaveManager = {} do
         end)
 
         self.AutoloadStatusLabel = section:AddLabel("Autoload configuration: " .. self:GetAutoloadConfig(), true)
+
+        section:AddDivider()
+
+        section:AddToggle('SaveManager_AutoSaveEnabled', { Text = 'Enable Auto Save', Default = false }):OnChanged(function(value)
+            local option = self.Library.Options.SaveManager_AutoSaveEnabled
+            if value then
+                local config = self.Library.Options.SaveManager_ConfigList.Value
+                if not config then
+                    self.Library:Notify('No config selected for auto save')
+                    option:SetValue(false)
+                    return
+                end
+                local interval = self.Library.Options.SaveManager_AutoSaveInterval.Value
+                self.AutoSaveName = config
+                if self.AutoSaveTask then
+                    task.cancel(self.AutoSaveTask)
+                end
+                self.AutoSaveTask = task.spawn(function()
+                    while task.wait(interval) do
+                        local success, msg = self:Save(self.AutoSaveName)
+                        if not success then
+                            self.Library:Notify('Auto save failed: ' .. msg)
+                            option:SetValue(false)
+                            break
+                        else
+                            self.Library:Notify('Auto saved config "' .. self.AutoSaveName .. '"')
+                        end
+                    end
+                    self.AutoSaveTask = nil
+                end)
+                self.AutoSaveLabel:SetText('Auto saving to: ' .. config .. ' every ' .. interval .. 's')
+            else
+                if self.AutoSaveTask then
+                    task.cancel(self.AutoSaveTask)
+                    self.AutoSaveTask = nil
+                end
+                self.AutoSaveName = nil
+                self.AutoSaveLabel:SetText('Auto save: disabled')
+            end
+        end)
+
+        section:AddSlider('SaveManager_AutoSaveInterval', { Text = 'Auto Save Interval', Default = 60, Min = 10, Max = 300, Rounding = 0, Suffix = 's' })
+
+        self.AutoSaveLabel = section:AddLabel('Auto save: disabled', true)
+
         self:LoadAutoloadConfig()  -- Uncommented to auto-load on section build
-        self:SetIgnoreIndexes({ 'SaveManager_ConfigList', 'SaveManager_ConfigName' })
+        self:SetIgnoreIndexes({ 'SaveManager_ConfigList', 'SaveManager_ConfigName', 'SaveManager_AutoSaveEnabled', 'SaveManager_AutoSaveInterval' })
     end
 
     SaveManager:BuildFolderTree()
