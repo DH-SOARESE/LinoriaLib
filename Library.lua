@@ -84,10 +84,12 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.ResetOnSpawn = false
 ParentUI(ScreenGui, 9e9^9e8)
+Protect2(ScreenGui, thereisMenu)
 
 local ModalScreenGui = Instance.new("ScreenGui")
 ModalScreenGui.ResetOnSpawn = false
 ParentUI(ModalScreenGui, 9e9^9e8)
+Protect2(ModalScreenGui, thereisMenu)
 
 local ModalElement = Instance.new("TextButton");
 ModalElement.BackgroundTransparency = 1
@@ -100,6 +102,7 @@ ModalElement.Parent = ModalScreenGui
 local TransparencyCache = {}
 local Toggled = false
 local Fading = false
+local thereisMenu = true
 
 
 local OldMouseIconState = nil
@@ -419,6 +422,27 @@ function Protect(instance)
 
     checkParent()
     connections[instance] = instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
+end
+
+function Protect2(instance, flag)
+    assert(instance and typeof(instance) == "Instance", "Primeiro argumento precisa ser uma Instância")
+    local connection
+    connection = instance.Destroying:Connect(function()
+        if flag == true then
+            task.defer(function()
+                if instance and not instance.Parent then
+                    local player = game:GetService("Players").LocalPlayer
+                    if player and player:FindFirstChild("PlayerGui") then
+                        instance.Parent = player.PlayerGui
+                    end
+                end
+            end)
+        else
+            if connection then
+                connection:Disconnect()
+            end
+        end
+    end)
 end
 
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
@@ -929,8 +953,10 @@ function Library:Unload()
         Library:SafeCallback(UnloadCallback)
     end
     Toggled = false
+    thereisMenu = false
     ScreenGui:Destroy()
     ModalScreenGui:Destroy()
+    CursorGui:Destroy()
     Library.Unloaded = true
     getgenv().Linoria = nil
 end
