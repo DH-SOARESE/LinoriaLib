@@ -36,9 +36,9 @@ local Window = Library:CreateWindow({
 
 -- Create Tabs
 local Tabs = {
-    Components = Window:AddTab('Components'),
+    Components = Window:AddTab('Main', '8301879545'),
     Advanced = Window:AddTab('Advanced'),
-    Settings = Window:AddTab('Settings')
+    Settings = Window:AddTab('Settings', '7963356958')
 }
 
 -- UI Elements
@@ -435,7 +435,7 @@ LabelBox:AddLabel('After titled divider')
 
 -- Nested Tabs (Tabbox)
 local NestedTabbox = Tabs.Advanced:AddRightTabbox()
-local NestedTab1 = NestedTabbox:AddTab('Sub-Tab 1')
+local NestedTab1 = NestedTabbox:AddTab('Sub-Tab 1', '10511855986')
 local NestedTab2 = NestedTabbox:AddTab('Sub-Tab 2')
 local NestedTab3 = NestedTabbox:AddTab('Sub-Tab 3')
 
