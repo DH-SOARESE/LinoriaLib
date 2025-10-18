@@ -6638,7 +6638,7 @@ end
     end;
     
 
-function Library:Toggle(Toggling)
+local function Library:Toggle(Toggling)
 	if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
 	if Fading then return end
 
