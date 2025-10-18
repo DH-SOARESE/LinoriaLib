@@ -5993,6 +5993,10 @@ function Window:AddTab(Name, Image)
                 Parent = TabButton,
             });
         end
+        
+        Library:AddToRegistry(ImageLabel, {
+           BackgroundColor3 = 'AccentColor',
+        })
 
         local labelPosition = Tab.Image and UDim2.new(0, 4 + 16 + 4, 0, 0) or UDim2.new(0, 0, 0, 0)
         local labelSize = Tab.Image and UDim2.new(1, -(4 + 16 + 4), 1, -1) or UDim2.new(1, 0, 1, -1)
