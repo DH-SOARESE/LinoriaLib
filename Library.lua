@@ -5981,9 +5981,8 @@ function Window:AddTab(Name, Image)
             BorderColor3 = 'OutlineColor';
         });
 
-        local ImageLabel
         if Tab.Image then
-            ImageLabel = Library:Create('ImageLabel', {
+         local ImageLabel = Library:Create('ImageLabel', {
                 BackgroundTransparency = 1,
                 ImageColor3 = Library.AccentColor;
                 Size = UDim2.new(0, 16, 0, 16),
@@ -5991,12 +5990,12 @@ function Window:AddTab(Name, Image)
                 Image = 'rbxassetid://' .. Tab.Image,
                 ZIndex = 1,
                 Parent = TabButton,
-            });
+         });
+         
+         Library:AddToRegistry(ImageLabel, {
+             ImageColor3 = 'AccentColor',
+         }):
         end
-        
-        Library:AddToRegistry(ImageLabel, {
-           BackgroundColor3 = 'AccentColor',
-        })
 
         local labelPosition = Tab.Image and UDim2.new(0, 4 + 16 + 4, 0, 0) or UDim2.new(0, 0, 0, 0)
         local labelSize = Tab.Image and UDim2.new(1, -(4 + 16 + 4), 1, -1) or UDim2.new(1, 0, 1, -1)
