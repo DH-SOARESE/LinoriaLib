@@ -2943,16 +2943,54 @@ local function ParseBBToRich(text)
     return result
 end
 
+--// Parser de BBCode customizado para RichText
+local function ParseBBToRich(rawText)
+    local text = rawText
+
+    -- Tags básicas
+    text = text
+        :gsub("%[b%]", "<b>"):gsub("%[b/%]", "</b>")
+        :gsub("%[i%]", "<i>"):gsub("%[i/%]", "</i>")
+        :gsub("%[u%]", "<u>"):gsub("%[u/%]", "</u>")
+        :gsub("%[s%]", "<s>"):gsub("%[s/%]", "</s>")
+
+    -- Tag de cor cinza [c] ... [c/]
+    text = text:gsub("%[c%]", "<font color='#AAAAAA'>"):gsub("%[c/%]", "</font>")
+
+    -- Cor RGB personalizada ou escala de cinza
+    text = text:gsub("%[([0-9A-Fa-f]+)%]", function(hex)
+        if #hex == 6 then
+            -- RGB ex: [FF0000]
+            return string.format("<font color='#%s'>", hex)
+        elseif #hex == 2 then
+            -- Cinza ex: [80]
+            local val = tonumber(hex, 16)
+            if val then
+                local gray = string.format("%02X%02X%02X", val, val, val)
+                return string.format("<font color='#%s'>", gray)
+            end
+        end
+        return ""
+    end)
+
+    -- Fechamento automático de cores (quando o usuário coloca "[/]" ou esquece)
+    text = text:gsub("%[%/%]", "</font>")
+
+    return text
+end
+
+--// Função para limpar tags BB (usada no cálculo de altura)
 local function StripBB(text)
     return text:gsub("%[.-%]", "")
 end
+
+--// Sistema principal AddNotes
 function BaseGroupboxFuncs:AddNotes(...)
     local Data = {}
     if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then
         if select(1, ...) ~= nil then
             assert(typeof(select(1, ...)) == "string", "Expected string for Idx, got " .. typeof(select(1, ...)))
         end
-
         local Params = select(2, ...)
         Data.Text = Params.Text or ""
         Data.DoesWrap = Params.DoesWrap or false
@@ -2969,10 +3007,11 @@ function BaseGroupboxFuncs:AddNotes(...)
     local Groupbox = self
     local Container = Groupbox.Container
 
+    -- TextLabel configurado
     local TextLabel = Library:CreateLabel({
         Size = UDim2.new(1, -4, 0, 15),
         TextSize = 14,
-        Text = "", 
+        Text = "",
         TextWrapped = true,
         TextXAlignment = Enum.TextXAlignment.Left,
         ZIndex = 5,
@@ -2980,6 +3019,7 @@ function BaseGroupboxFuncs:AddNotes(...)
         RichText = true,
     })
 
+    -- Layout vertical se ainda não existir
     local uiListLayout = Container:FindFirstChildOfClass("UIListLayout")
     if not uiListLayout then
         uiListLayout = Library:Create("UIListLayout", {
@@ -2991,45 +3031,49 @@ function BaseGroupboxFuncs:AddNotes(...)
         })
     end
 
-    if Data.DoesWrap then
-        local stripped = StripBB(Data.Text)
-        local Y = select(2, Library:GetTextBounds(stripped, Library.Font, 14 * DPIScale, Vector2.new(TextLabel.AbsoluteSize.X, math.huge)))
-        TextLabel.Size = UDim2.new(1, -4, 0, Y)
-    end
-
-    Note.TextLabel = TextLabel
-    Note.Container = Container
-
+    -- Função de atualização de texto
     function Note:SetText(Text)
         Data.Text = Text
         local parsed = ParseBBToRich(Text)
         TextLabel.Text = parsed
+
         if Data.DoesWrap then
+            -- Medir o texto limpo para definir altura
             local stripped = StripBB(Text)
             local Y = select(2, Library:GetTextBounds(stripped, Library.Font, 14 * DPIScale, Vector2.new(TextLabel.AbsoluteSize.X, math.huge)))
             TextLabel.Size = UDim2.new(1, -4, 0, Y)
         end
+
         Groupbox:Resize()
-        local totalHeight = uiListLayout.AbsoluteContentSize.Y
-        Container.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+
+        -- Atualiza canvas do container (scroll)
+        if Container:IsA("ScrollingFrame") then
+            local totalHeight = uiListLayout.AbsoluteContentSize.Y
+            Container.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+        end
     end
-    
+
+    -- Primeira renderização
     Note:SetText(Data.Text)
 
     if not Data.DoesWrap then
         setmetatable(Note, BaseAddons)
     end
+
     Blank = Groupbox:AddBlank(10)
     Groupbox:Resize()
 
-    local totalHeight = uiListLayout.AbsoluteContentSize.Y
-    Container.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+    if Container:IsA("ScrollingFrame") then
+        local totalHeight = uiListLayout.AbsoluteContentSize.Y
+        Container.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+    end
 
     if Data.Idx then
         Notes[Data.Idx] = Note
     else
         table.insert(Notes, Note)
     end
+
     return Note
 end
     function BaseGroupboxFuncs:AddButton(...)
