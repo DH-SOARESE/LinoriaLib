@@ -5602,9 +5602,9 @@ function Library:Notify(...)
 
     if typeof(Info) == "table" then
         Data.Title = Info.Title and tostring(Info.Title) or ""
-        Data.Description = tostring(Info.Description)
+        Data.Description = tostring(Info.Text) -- Changed from Info.Description to Info.Text
         Data.Time = Info.Time or 5
-        Data.SoundId = Info.SoundId
+        Data.SoundId = Info.Sound -- Changed from Info.SoundId to Info.Sound
     else
         Data.Title = ""
         Data.Description = tostring(Info)
@@ -5612,142 +5612,136 @@ function Library:Notify(...)
         Data.SoundId = select(3, ...)
     end
     
-    local Side = string.lower(Library.NotifySide);
-    local XSize, YSize = Library:GetTextBounds(Data.Description, Library.Font, 14);
+    local Side = string.lower(Library.NotifySide)
+    local XSize, YSize = Library:GetTextBounds(Data.Description, Library.Font, 14)
     YSize = YSize + 7
 
     local NotifyOuter = Library:Create('Frame', {
-        BorderColor3 = Color3.new(0, 0, 0);
-        Size = UDim2.new(0, 0, 0, YSize);
-        ClipsDescendants = true;
-        ZIndex = 100;
-        Parent = if Side == "left" then Library.LeftNotificationArea else Library.RightNotificationArea;
-    });
+        BorderColor3 = Color3.new(0, 0, 0)
+        Size = UDim2.new(0, 0, 0, YSize)
+        ClipsDescendants = true
+        ZIndex = 100
+        Parent = Side == "left" and Library.LeftNotificationArea or Library.RightNotificationArea
+    })
 
     local NotifyInner = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor;
-        BorderColor3 = Library.OutlineColor;
-        BorderMode = Enum.BorderMode.Inset;
-        Size = UDim2.new(1, 0, 1, 0);
-        ZIndex = 101;
-        Parent = NotifyOuter;
-    });
+        BackgroundColor3 = Library.MainColor
+        BorderColor3 = Library.OutlineColor
+        BorderMode = Enum.BorderMode.Inset
+        Size = UDim2.new(1, 0, 1, 0)
+        ZIndex = 101
+        Parent = NotifyOuter
+    })
 
     Library:AddToRegistry(NotifyInner, {
-        BackgroundColor3 = 'MainColor';
-        BorderColor3 = 'OutlineColor';
-    }, true);
+        BackgroundColor3 = 'MainColor'
+        BorderColor3 = 'OutlineColor'
+    }, true)
 
     local InnerFrame = Library:Create('Frame', {
-        BackgroundColor3 = Color3.new(1, 1, 1);
-        BorderSizePixel = 0;
-        Position = UDim2.new(0, 1, 0, 1);
-        Size = UDim2.new(1, -2, 1, -2);
-        ZIndex = 102;
-        Parent = NotifyInner;
-    });
+        BackgroundColor3 = Color3.new(1, 1, 1)
+        BorderSizePixel = 0
+        Position = UDim2.new(0, 1, 0, 1)
+        Size = UDim2.new(1, -2, 1, -2)
+        ZIndex = 102
+        Parent = NotifyInner
+    })
 
     local Gradient = Library:Create('UIGradient', {
         Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-            ColorSequenceKeypoint.new(1, Library.MainColor),
-        });
-        Rotation = -90;
-        Parent = InnerFrame;
-    });
+            ColorSequenceKeypoint.new(1, Library.MainColor)
+        })
+        Rotation = -90
+        Parent = InnerFrame
+    })
 
     Library:AddToRegistry(Gradient, {
         Color = function()
             return ColorSequence.new({
                 ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-                ColorSequenceKeypoint.new(1, Library.MainColor),
-            });
+                ColorSequenceKeypoint.new(1, Library.MainColor)
+            })
         end
-    });
+    })
 
     local NotifyLabel = Library:CreateLabel({
-        AnchorPoint = if Side == "left" then Vector2.new(0, 0) else Vector2.new(1, 0);
-        Position = if Side == "left" then UDim2.new(0, 4, 0, 0) else UDim2.new(1, -4, 0, 0);
-        Size = UDim2.new(1, -4, 1, 0);
-        Text = (if Data.Title == "" then "" else "[" .. Data.Title .. "] ") .. tostring(Data.Description);
-        TextXAlignment = if Side == "left" then Enum.TextXAlignment.Left else Enum.TextXAlignment.Right;
-        TextSize = 14;
-        ZIndex = 103;
-        RichText = true;
-        Parent = InnerFrame;
-    });
+        AnchorPoint = Side == "left" and Vector2.new(0, 0) or Vector2.new(1, 0)
+        Position = Side == "left" and UDim2.new(0, 4, 0, 0) or UDim2.new(1, -4, 0, 0)
+        Size = UDim2.new(1, -4, 1, 0)
+        Text = (Data.Title == "" and "" or "[" .. Data.Title .. "] ") .. tostring(Data.Description)
+        TextXAlignment = Side == "left" and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
+        TextSize = 14
+        ZIndex = 103
+        RichText = true
+        Parent = InnerFrame
+    })
 
     local SideColor = Library:Create('Frame', {
-        AnchorPoint = if Side == "left" then Vector2.new(0, 0) else Vector2.new(1, 0);
-        Position = if Side == "left" then UDim2.new(0, -1, 0, -1) else UDim2.new(1, -1, 0, -1);
-        BackgroundColor3 = Library.AccentColor;
-        BorderSizePixel = 0;
-        Size = UDim2.new(0, 3, 1, 2);
-        ZIndex = 104;
-        Parent = NotifyOuter;
-    });
+        AnchorPoint = Side == "left" and Vector2.new(0, 0) or Vector2.new(1, 0)
+        Position = Side == "left" and UDim2.new(0, -1, 0, -1) or UDim2.new(1, -1, 0, -1)
+        BackgroundColor3 = Library.AccentColor
+        BorderSizePixel = 0
+        Size = UDim2.new(0, 3, 1, 2)
+        ZIndex = 104
+        Parent = NotifyOuter
+    })
 
     function Data:Resize()
-        XSize, YSize = Library:GetTextBounds(NotifyLabel.Text, Library.Font, 14);
+        XSize, YSize = Library:GetTextBounds(NotifyLabel.Text, Library.Font, 14)
         YSize = YSize + 7
-    
-        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize * DPIScale + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true);
+        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize * DPIScale + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true)
     end
 
     function Data:ChangeTitle(NewText)
-        NewText = if NewText == nil then "" else tostring(NewText);
-
-        Data.Title = NewText;
-        NotifyLabel.Text = (if Data.Title == "" then "" else "[" .. Data.Title .. "] ") .. tostring(Data.Description);
-
-        Data:Resize();
+        NewText = NewText == nil and "" or tostring(NewText)
+        Data.Title = NewText
+        NotifyLabel.Text = (Data.Title == "" and "" or "[" .. Data.Title .. "] ") .. tostring(Data.Description)
+        Data:Resize()
     end
 
     function Data:ChangeDescription(NewText)
         if NewText == nil then return end
-        NewText = tostring(NewText);
-
-        Data.Description = NewText;
-        NotifyLabel.Text = (if Data.Title == "" then "" else "[" .. Data.Title .. "] ") .. tostring(Data.Description);
-
-        Data:Resize();
+        NewText = tostring(NewText)
+        Data.Description = NewText
+        NotifyLabel.Text = (Data.Title == "" and "" or "[" .. Data.Title .. "] ") .. tostring(Data.Description)
+        Data:Resize()
     end
 
     function Data:ChangeStep()
         -- this is supposed to be empty
     end
 
-    Data:Resize();
+    Data:Resize()
 
     Library:AddToRegistry(SideColor, {
-        BackgroundColor3 = 'AccentColor';
-    }, true);
+        BackgroundColor3 = 'AccentColor'
+    }, true)
 
     if Data.SoundId then
         Library:Create('Sound', {
-            SoundId = "rbxassetid://" .. tostring(Data.SoundId):gsub("rbxassetid://", "");
-            Volume = 3;
-            PlayOnRemove = true;
-            Parent = game:GetService("SoundService");
-        }):Destroy();
+            SoundId = "rbxassetid://" .. tostring(Data.SoundId):gsub("rbxassetid://", "")
+            Volume = 3
+            PlayOnRemove = true
+            Parent = game:GetService("SoundService")
+        }):Destroy()
     end
 
-    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize * DPIScale + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true);
+    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize * DPIScale + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true)
 
     task.spawn(function()
         if typeof(Data.Time) == "Instance" then
-            Data.Time.Destroying:Wait();
+            Data.Time.Destroying:Wait()
         else
-            task.wait(Data.Time or 5);
+            task.wait(Data.Time or 5)
         end
-
-        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
-        task.wait(0.4);
-        NotifyOuter:Destroy();
-    end);
+        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true)
+        task.wait(0.4)
+        NotifyOuter:Destroy()
+    end)
 
     return Data
-end;
+end
 
 function Library:CreateWindow(...)
     local Arguments = { ... }
