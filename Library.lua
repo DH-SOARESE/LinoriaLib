@@ -1143,8 +1143,8 @@ do
     local HueBoxOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0);
         Position = UDim2.fromOffset(4, 228),
-        Size = UDim2.new(0.5, -6, 0, 20),
-        ZIndex = 18,
+        Size = UDim2.new(0.5, -6, 0, 20);
+        ZIndex = 18;
         Parent = PickerFrameInner;
     });
 
@@ -1563,12 +1563,26 @@ do
 
     Library:GiveSignal(InputService.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-            local AbsPos, AbsSize = PickerFrameOuter.AbsolutePosition, PickerFrameOuter.AbsoluteSize;
+            if PickerFrameOuter.Visible then
+                local AbsPos = PickerFrameOuter.AbsolutePosition
+                local AbsSize = PickerFrameOuter.AbsoluteSize
 
-            if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X
-                or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
-                ColorPicker:Hide();
-            end;
+                local mouseX = Mouse.X
+                local mouseY = Mouse.Y
+
+                local isOutside = mouseX < AbsPos.X or mouseX > AbsPos.X + AbsSize.X or mouseY < AbsPos.Y or mouseY > AbsPos.Y + AbsSize.Y
+
+                if isOutside then
+                    local displayAbsPos = DisplayFrame.AbsolutePosition
+                    local displayAbsSize = DisplayFrame.AbsoluteSize
+
+                    local isOverDisplay = mouseX >= displayAbsPos.X and mouseX <= displayAbsPos.X + displayAbsSize.X and mouseY >= displayAbsPos.Y and mouseY <= displayAbsPos.Y + displayAbsSize.Y
+
+                    if not isOverDisplay then
+                        ColorPicker:Hide()
+                    end
+                end
+            end
 
             if not Library:MouseIsOverFrame(ContextMenu.Container) then
                 ContextMenu:Hide()
