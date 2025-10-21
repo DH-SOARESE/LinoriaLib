@@ -5501,6 +5501,7 @@ do
         Size = UDim2.new(1, -4, 1, 0);
         TextSize = 14;
         TextXAlignment = Enum.TextXAlignment.Left;
+        RichText = true;
         ZIndex = 203;
         Parent = InnerFrame;
     });
