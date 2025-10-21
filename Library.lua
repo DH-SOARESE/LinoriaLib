@@ -4336,24 +4336,16 @@ end;
     local ListOuter = Library:Create('Frame', {  
         BackgroundColor3 = Color3.new(0, 0, 0);  
         BorderColor3 = Color3.new(0, 0, 0);  
-        ZIndex = 20;  
+        Size = UDim2.new(1, -4, 0, 0);  
         Visible = false;  
-        Parent = ScreenGui;  
+        ZIndex = 20;  
+        Parent = Container;  
     });  
-
-    local function RecalculateListPosition()  
-        ListOuter.Position = UDim2.fromOffset(DropdownOuter.AbsolutePosition.X, DropdownOuter.AbsolutePosition.Y + DropdownOuter.Size.Y.Offset + 1);  
-    end;  
 
     local function RecalculateListSize(YSize)  
         local Y = YSize or math.clamp(GetTableSize(Dropdown.Values) * (20 * DPIScale), 0, MAX_DROPDOWN_ITEMS * (20 * DPIScale)) + 1;  
-        ListOuter.Size = UDim2.fromOffset(DropdownOuter.AbsoluteSize.X + 0.5, Y)  
+        ListOuter.Size = UDim2.new(1, -4, 0, Y)  
     end;  
-
-    RecalculateListPosition();  
-    RecalculateListSize();  
-
-    DropdownOuter:GetPropertyChangedSignal('AbsolutePosition'):Connect(RecalculateListPosition);  
 
     local ListInner = Library:Create('Frame', {  
         BackgroundColor3 = Library.MainColor;  
@@ -4630,6 +4622,7 @@ end;
         Library.OpenedFrames[ListOuter] = true;  
         DropdownArrow.Rotation = 180;  
         RecalculateListSize();  
+        Groupbox:Resize();  
     end;  
 
     function Dropdown:CloseDropdown()  
@@ -4644,6 +4637,7 @@ end;
         ListOuter.Visible = false;  
         Library.OpenedFrames[ListOuter] = nil;  
         DropdownArrow.Rotation = 0;  
+        Groupbox:Resize();  
     end;  
 
     function Dropdown:OnChanged(Func)  
