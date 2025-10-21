@@ -3599,11 +3599,10 @@ end;
 
 
     local ToggleRegion = Library:Create('Frame', {
-        BackgroundTransparency = 1;
-        Size = UDim2.new(1, 0, 1, 8);
-        Position = UDim2.new(0, 0, 0, -2);
-        ZIndex = 8;
-        Parent = ToggleContainer; 
+            BackgroundTransparency = 1;
+            Size = UDim2.new(0, 170, 1, 0);
+            ZIndex = 8;
+            Parent = ToggleOuter;
     });  
     
     local isDragging = false
