@@ -6634,109 +6634,106 @@ end
     
 
 function Library:Toggle(Toggling)
-	if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
-	if Fading then return end
+    if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
+    if Fading then return end
 
-	local FadeTime = Config.MenuFadeTime
-	Fading = true
-	Toggled = (not Toggled);
-	Library.Toggled = Toggled
-	ModalElement.Modal = Toggled
+    local FadeTime = Config.MenuFadeTime
+    Fading = true
+    Toggled = (not Toggled)
+    Library.Toggled = Toggled
+    ModalElement.Modal = Toggled
 
-	if Toggled then
-		Outer.Visible = true
-	if not CursorGui then
-    CursorGui = Instance.new("ScreenGui")
-    CursorGui.Name = "LinoriaCursor"
-    CursorGui.IgnoreGuiInset = true
-    CursorGui.ResetOnSpawn = false
-    CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ParentUI(CursorGui, 9e9^9e9)
+    if Toggled then
+        Outer.Visible = true
+        if not CursorGui then
+            CursorGui = Instance.new("ScreenGui")
+            CursorGui.Name = "LinoriaCursor"
+            CursorGui.IgnoreGuiInset = true
+            CursorGui.ResetOnSpawn = false
+            CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            ParentUI(CursorGui, 9e9^9e9)
 
-    CursorImage = Instance.new("ImageLabel")
-    CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
-    CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-    CursorImage.BackgroundTransparency = 1
-    CursorImage.Image = CursorID
-    CursorImage.ImageColor3 = Library.AccentColor
-    CursorImage.ZIndex = 9999
-    CursorImage.Visible = Library.ShowCustomCursor
-    CursorImage.Parent = CursorGui
-end
-
-		OldMouseIconState = InputService.MouseIconEnabled
-		InputService.MouseIconEnabled = not Library.ShowCustomCursor
-
-		RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-			local pos = InputService:GetMouseLocation()
-			CursorImage.Position = UDim2.new(0, pos.X, 0, pos.Y)
-			CursorImage.ImageColor3 = Library.AccentColor
-			CursorImage.Visible = Library.ShowCustomCursor
-
-			if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
-				InputService.MouseIconEnabled = OldMouseIconState
-				RunService:UnbindFromRenderStep("LinoriaCursor")
-				if CursorGui then CursorGui:Destroy() CursorGui = nil CursorImage = nil end
-			end
-		end)
-	end
-
-	for _, Option in pairs(Options) do
-		task.spawn(function()
-			if Option.Type == "Dropdown" then
-				Option:CloseDropdown()
-			elseif Option.Type == "KeyPicker" then
-				Option:SetModePickerVisibility(false)
-			elseif Option.Type == "ColorPicker" then
-				Option.ContextMenu:Hide()
-				Option:Hide()
-			end
-		end)
-	end
-
-
-	for _, Desc in pairs(Outer:GetDescendants()) do
-		local Props = {}
-		if Desc:IsA("ImageLabel") then
-			table.insert(Props, "ImageTransparency")
-			table.insert(Props, "BackgroundTransparency")
-		elseif Desc:IsA("TextLabel") or Desc:IsA("TextBox") then
-			table.insert(Props, "TextTransparency")
-		elseif Desc:IsA("Frame") or Desc:IsA("ScrollingFrame") then
-			table.insert(Props, "BackgroundTransparency")
-		elseif Desc:IsA("UIStroke") then
-			table.insert(Props, "Transparency")
-		end
-
-		local Cache = TransparencyCache[Desc] or {}
-		TransparencyCache[Desc] = Cache
-
-		for _, Prop in pairs(Props) do
-			if not Cache[Prop] then Cache[Prop] = Desc[Prop] end
-			if Cache[Prop] == 1 then continue end
-
-			TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), {
-				[Prop] = Toggled and Cache[Prop] or 1
-			}):Play()
-		end
-	end
-
-	task.wait(FadeTime)
-	Outer.Visible = Toggled
-	Fading = false
-end
-
-    Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
-        if typeof(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
-            if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == Library.ToggleKeybind.Value then
-                task.spawn(Library.Toggle)
-            end
-
-        elseif Input.KeyCode == Enum.KeyCode.RightControl or (Input.KeyCode == Enum.KeyCode.RightShift and (not Processed)) then
-            task.spawn(Library.Toggle)
+            CursorImage = Instance.new("ImageLabel")
+            CursorImage.Size = UDim2.fromOffset(CursorSize, CursorSize)
+            CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+            CursorImage.BackgroundTransparency = 1
+            CursorImage.Image = CursorID
+            CursorImage.ImageColor3 = Library.AccentColor
+            CursorImage.ZIndex = 9999
+            CursorImage.Visible = Library.ShowCustomCursor
+            CursorImage.Parent = CursorGui
         end
-    end));
 
+        OldMouseIconState = InputService.MouseIconEnabled
+        InputService.MouseIconEnabled = not Library.ShowCustomCursor
+
+        RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
+            local pos = InputService:GetMouseLocation()
+            CursorImage.Position = UDim2.new(0, pos.X, 0, pos.Y)
+            CursorImage.ImageColor3 = Library.AccentColor
+            CursorImage.Visible = Library.ShowCustomCursor
+
+            if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
+                InputService.MouseIconEnabled = OldMouseIconState
+                RunService:UnbindFromRenderStep("LinoriaCursor")
+                if CursorGui then CursorGui:Destroy() CursorGui = nil CursorImage = nil end
+            end
+        end)
+    end
+
+    for _, Option in pairs(Options) do
+        task.spawn(function()
+            if Option.Type == "Dropdown" then
+                Option:CloseDropdown()
+            elseif Option.Type == "KeyPicker" then
+                Option:SetModePickerVisibility(false)
+            elseif Option.Type == "ColorPicker" then
+                Option.ContextMenu:Hide()
+                Option:Hide()
+            end
+        end)
+    end
+
+    for _, Desc in pairs(Outer:GetDescendants()) do
+        local Props = {}
+        if Desc:IsA("ImageLabel") then
+            table.insert(Props, "ImageTransparency")
+            table.insert(Props, "BackgroundTransparency")
+        elseif Desc:IsA("TextLabel") or Desc:IsA("TextBox") then
+            table.insert(Props, "TextTransparency")
+        elseif Desc:IsA("Frame") or Desc:IsA("ScrollingFrame") then
+            table.insert(Props, "BackgroundTransparency")
+        elseif Desc:IsA("UIStroke") then
+            table.insert(Props, "Transparency")
+        end
+
+        local Cache = TransparencyCache[Desc] or {}
+        TransparencyCache[Desc] = Cache
+
+        for _, Prop in pairs(Props) do
+            if not Cache[Prop] then Cache[Prop] = Desc[Prop] end
+            if Cache[Prop] == 1 then continue end
+
+            TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), {
+                [Prop] = Toggled and Cache[Prop] or 1
+            }):Play()
+        end
+    end
+
+    task.wait(FadeTime)
+    Outer.Visible = Toggled
+
+    -- Refresh color pickers after fade-in to restore correct transparency
+    if Toggled then
+        for _, Option in pairs(Options) do
+            if Option.Type == "ColorPicker" then
+                Option:Display()
+            end
+        end
+    end
+
+    Fading = false
+end
     if Library.IsMobile then
         local ToggleUIOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
