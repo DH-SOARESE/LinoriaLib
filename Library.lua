@@ -6658,41 +6658,44 @@ function Library:Toggle(Toggling)
 
     if Toggled then
         Outer.Visible = true
-        if not CursorGui then
-            local CursorGui = Instance.new("ScreenGui")
-            CursorGui.Name = "LinoriaCursor"
-            CursorGui.IgnoreGuiInset = true
-            CursorGui.ResetOnSpawn = false
-            CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            ParentUI(CursorGui, math.huge)
+        
+   if not CursorGui then
+    CursorGui = Instance.new("ScreenGui")
+    CursorGui.Name = "LinoriaCursor"
+    CursorGui.IgnoreGuiInset = true
+    CursorGui.ResetOnSpawn = false
+    CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ParentUI(CursorGui, math.huge)
 
-            local CursorImage = Instance.new("ImageLabel")
-            CursorImage.Size = UDim2.fromOffset(20, 20)
-            CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-            CursorImage.BackgroundTransparency = 1
-            CursorImage.Image = 'rbxassetid://12230889708'
-            CursorImage.ImageColor3 = Library.AccentColor
-            CursorImage.ZIndex = math.huge
-            CursorImage.Visible = Library.ShowCustomCursor
-            CursorImage.Parent = CursorGui
-        end
+    local CursorImage = Instance.new("ImageLabel")
+    CursorImage.Size = UDim2.fromOffset(20, 20)
+    CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+    CursorImage.BackgroundTransparency = 1
+    CursorImage.Image = 'rbxassetid://12230889708'
+    CursorImage.ImageColor3 = Library.AccentColor
+    CursorImage.ZIndex = math.huge
+    CursorImage.Visible = Library.ShowCustomCursor
+    CursorImage.Parent = CursorGui
 
-        OldMouseIconState = InputService.MouseIconEnabled
-        InputService.MouseIconEnabled = not Library.ShowCustomCursor
+    local OldMouseIconState = InputService.MouseIconEnabled
+    InputService.MouseIconEnabled = not Library.ShowCustomCursor
 
-        RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-            local pos = InputService:GetMouseLocation()
-            CursorImage.Position = UDim2.new(0, pos.X, 0, pos.Y)
-            CursorImage.ImageColor3 = Library.AccentColor
-            CursorImage.Visible = Library.ShowCustomCursor
+    RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
+        local pos = InputService:GetMouseLocation()
+        CursorImage.Position = UDim2.new(0, pos.X, 0, pos.Y)
+        CursorImage.ImageColor3 = Library.AccentColor
+        CursorImage.Visible = Library.ShowCustomCursor
 
-            if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
-                InputService.MouseIconEnabled = OldMouseIconState
-                RunService:UnbindFromRenderStep("LinoriaCursor")
-                if CursorGui then CursorGui:Destroy() CursorGui = nil CursorImage = nil end
+        if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
+            InputService.MouseIconEnabled = OldMouseIconState
+            RunService:UnbindFromRenderStep("LinoriaCursor")
+            if CursorGui then 
+                CursorGui:Destroy()
+                CursorGui = nil
             end
-        end)
-    end
+        end
+    end)
+end
 
     for _, Option in pairs(Options) do
         task.spawn(function()
