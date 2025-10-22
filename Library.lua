@@ -97,6 +97,38 @@ ModalElement.Text = ""
 ModalElement.ZIndex = -999
 ModalElement.Parent = ModalScreenGui
 
+local CursorGui = Instance.new("ScreenGui")
+CursorGui.Name = "LinoriaCursor"
+CursorGui.IgnoreGuiInset = true
+CursorGui.ResetOnSpawn = false
+CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ParentUI(CursorGui, math.huge)
+
+local CursorImage = Instance.new("ImageLabel")
+CursorImage.Name = "CursorImage"
+CursorImage.Size = UDim2.fromOffset(20, 20)
+CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+CursorImage.BackgroundTransparency = 1
+CursorImage.Image = "rbxassetid://12230889708"
+CursorImage.ImageColor3 = Library.AccentColor
+CursorImage.ZIndex = 9999
+CursorImage.Visible = Library.ShowCustomCursor
+CursorImage.Parent = CursorGui
+
+local cursorConnection
+cursorConnection = RunService.RenderStepped:Connect(function()
+    local pos = InputService:GetMouseLocation()
+    CursorImage.Position = UDim2.new(0, pos.X, 0, pos.Y)
+
+    CursorImage.ImageColor3 = Library.AccentColor
+    CursorImage.Visible = Library.ShowCustomCursor
+
+    if not CursorGui.Parent then
+        cursorConnection:Disconnect()
+        cursorConnection = nil
+    end
+end)
+
 local TransparencyCache = {}
 local Toggled = false
 local Fading = false
@@ -6644,7 +6676,6 @@ end
         Window.Tabs[Name] = Tab;
         return Tab;
     end;
-    
 
 function Library:Toggle(Toggling)
     if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
@@ -6652,46 +6683,15 @@ function Library:Toggle(Toggling)
 
     local FadeTime = Config.MenuFadeTime
     Fading = true
-    Toggled = (not Toggled)
+    Toggled = not Toggled
     Library.Toggled = Toggled
     ModalElement.Modal = Toggled
 
     if Toggled then
         Outer.Visible = true
-        if not CursorGui then
-            CursorGui = Instance.new("ScreenGui")
-            CursorGui.Name = "LinoriaCursor"
-            CursorGui.IgnoreGuiInset = true
-            CursorGui.ResetOnSpawn = false
-            CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            ParentUI(CursorGui, 9e9^9e9)
-
-            CursorImage = Instance.new("ImageLabel")
-            CursorImage.Size = UDim2.fromOffset(20, 20)
-            CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-            CursorImage.BackgroundTransparency = 1
-            CursorImage.Image = 'rbxassetid://12230889708'
-            CursorImage.ImageColor3 = Library.AccentColor
-            CursorImage.ZIndex = 9999
-            CursorImage.Visible = Library.ShowCustomCursor
-            CursorImage.Parent = CursorGui
-        end
-
-        OldMouseIconState = InputService.MouseIconEnabled
-        InputService.MouseIconEnabled = not Library.ShowCustomCursor
-
-        RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-            local pos = InputService:GetMouseLocation()
-            CursorImage.Position = UDim2.new(0, pos.X, 0, pos.Y)
-            CursorImage.ImageColor3 = Library.AccentColor
-            CursorImage.Visible = Library.ShowCustomCursor
-
-            if not Toggled or (not ScreenGui or not ScreenGui.Parent) then
-                InputService.MouseIconEnabled = OldMouseIconState
-                RunService:UnbindFromRenderStep("LinoriaCursor")
-                if CursorGui then CursorGui:Destroy() CursorGui = nil CursorImage = nil end
-            end
-        end)
+        CursorGui.Visible = Toggled
+    else
+        CursorGui.Visible = false
     end
 
     for _, Option in pairs(Options) do
@@ -6736,7 +6736,6 @@ function Library:Toggle(Toggling)
     task.wait(FadeTime)
     Outer.Visible = Toggled
 
-    -- Refresh color pickers after fade-in to restore correct transparency
     if Toggled then
         for _, Option in pairs(Options) do
             if Option.Type == "ColorPicker" then
