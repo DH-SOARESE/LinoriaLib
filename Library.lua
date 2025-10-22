@@ -6673,7 +6673,7 @@ function Library:Toggle(Toggling)
     CursorImage.BackgroundTransparency = 1
     CursorImage.Image = 'rbxassetid://12230889708'
     CursorImage.ImageColor3 = Library.AccentColor
-    CursorImage.ZIndex = math.huge
+    CursorImage.ZIndex = 1
     CursorImage.Visible = Library.ShowCustomCursor
     CursorImage.Parent = CursorGui
 
