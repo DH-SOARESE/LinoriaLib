@@ -84,12 +84,10 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.ResetOnSpawn = false
 ParentUI(ScreenGui, 9e9^9e8)
-Scramble(ScreenGui)
 
 local ModalScreenGui = Instance.new("ScreenGui")
 ModalScreenGui.ResetOnSpawn = false
 ParentUI(ModalScreenGui, 9e9^9e8)
-Scramble(ModalScreenGui)
 
 local ModalElement = Instance.new("TextButton");
 ModalElement.BackgroundTransparency = 1
@@ -107,6 +105,7 @@ local Fading = false
 local OldMouseIconState = nil
 local CursorGui = nil
 local CursorImage = nil
+
 
 local Toggles = {};
 local Options = {};
@@ -417,32 +416,6 @@ function Protect(instance)
 
     checkParent()
     connections[instance] = instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
-end
-
-local caracteres = [[~���Eq������m�5���χ�eC���]�h}�^Xn�����.L����0>�}y�����K���yY�6�+;aͯ���,����'ȈWT����}egU��+p���d��W
-u_�ʓG�쓓j�^�}�)�[{%��_�m�\�氙l_����Cft۞���)���~d���j]��,&� �^<��]]
-
-local function getRandomChar()
-	return string.sub(caracteres, math.random(1, #caracteres), math.random(1, #caracteres))
-end
-
-function Scramble(Instance)
-	task.spawn(function()
-		while Instance and Instance.Parent do
-			local length = math.random(8, 16)
-			local newName = {}
-
-			for i = 1, length do
-				table.insert(newName, getRandomChar())
-			end
-
-			pcall(function()
-				Instance.Name = table.concat(newName)
-			end)
-
-			task.wait(0.25) 
-		end
-	end)
 end
 
 function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
@@ -954,8 +927,8 @@ function Library:Unload()
     end
     Toggled = false
     ScreenGui:Destroy()
-    CursorGui:Destroy()
     ModalScreenGui:Destroy()
+    CursorGui:Destroy()
     Library.Unloaded = true
     getgenv().Linoria = nil
 end
@@ -6687,17 +6660,17 @@ function Library:Toggle(Toggling)
         Outer.Visible = true
         if not CursorGui then
             CursorGui = Instance.new("ScreenGui")
+            CursorGui.Name = "LinoriaCursor"
             CursorGui.IgnoreGuiInset = true
             CursorGui.ResetOnSpawn = false
             CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
             ParentUI(CursorGui, 9e9^9e9)
-            Scramble(CursorGui)
 
             CursorImage = Instance.new("ImageLabel")
             CursorImage.Size = UDim2.fromOffset(20, 20)
             CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
             CursorImage.BackgroundTransparency = 1
-            CursorImage.Image = "rbxassetid://12230889708"
+            CursorImage.Image = 'rbxassetid://12230889708'
             CursorImage.ImageColor3 = Library.AccentColor
             CursorImage.ZIndex = 9999
             CursorImage.Visible = Library.ShowCustomCursor
@@ -6957,14 +6930,11 @@ local function OnTeamChange()
     end;
 end;
 
-Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange))
-Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange))
+Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange));
+Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
 
-Library:GiveSignal(Teams.ChildAdded:Connect(OnTeamChange))
-Library:GiveSignal(Teams.ChildRemoved:Connect(OnTeamChange))
+Library:GiveSignal(Teams.ChildAdded:Connect(OnTeamChange));
+Library:GiveSignal(Teams.ChildRemoved:Connect(OnTeamChange));
 
-if getgenv().skip_getgenv_linoria ~= true then
-	getgenv().Library = Library
-end
-
+if getgenv().skip_getgenv_linoria ~= true then getgenv().Library = Library end
 return Library
