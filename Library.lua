@@ -8,7 +8,6 @@ local Teams: Teams = cloneref(game:GetService('Teams'));
 local Players: Players = cloneref(game:GetService('Players'));
 local RunService: RunService = cloneref(game:GetService('RunService'));
 local TweenService: TweenService = cloneref(game:GetService('TweenService'));
-local Unload = false
 
 local setclipboard = setclipboard or nil
 local getgenv = getgenv or (function() 
@@ -918,7 +917,6 @@ function Library:Unload()
         Library:SafeCallback(UnloadCallback)
     end
     Toggled = false
-    Unload = true
     ScreenGui:Destroy()
     ModalScreenGui:Destroy()
     CursorGui:Destroy()
@@ -3535,9 +3533,8 @@ end;
         Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;  
         Risky = if typeof(Info.Risky) == "boolean" then Info.Risky else false;  
         OriginalText = Info.Text; Text = Info.Text;  
-        Default = Info.Default or false; -- Store the default value explicitly for reset
+
         Callback = Info.Callback or function(Value) end;  
-        OriginalCallback = Info.Callback or function(Value) end; -- Save the original callback
         Addons = {};  
     };  
 
@@ -3600,11 +3597,12 @@ end;
         Parent = ToggleLabel;  
     });  
 
+
     local ToggleRegion = Library:Create('Frame', {
-        BackgroundTransparency = 1;
-        Size = UDim2.new(0, 170, 1, 0);
-        ZIndex = 8;
-        Parent = ToggleOuter;
+            BackgroundTransparency = 1;
+            Size = UDim2.new(0, 170, 1, 0);
+            ZIndex = 8;
+            Parent = ToggleOuter;
     });  
     
     local isDragging = false
@@ -3720,14 +3718,6 @@ end;
         end  
     end;  
 
-    -- New function to reset toggle to default and restore original callback when Unload is true
-    function Toggle:CheckUnload(Unload)
-        if Unload then
-            Toggle:SetValue(Toggle.Default)
-            Toggle.Callback = Toggle.OriginalCallback
-        end
-    end
-
     ToggleOuter.InputBegan:Connect(function(Input)  
         if Toggle.Disabled then  
             return;  
@@ -3794,20 +3784,8 @@ end;
 
     Library:UpdateDependencyBoxes();  
 
-    -- Spawn a thread to periodically check the Unload variable
-    -- Assuming Unload is a local variable in the outer scope and can be captured by the closure
-    spawn(function()
-        while true do
-            if Unload then
-                Toggle:CheckUnload(true)
-                break  -- Exit the loop after resetting
-            end
-            wait(1)  -- Check every second; adjust as needed
-        end
-    end)
-
     return Toggle;  
-end
+end;
     
     function BaseGroupboxFuncs:AddSlider(Idx, Info)
     assert(Info.Default,    string.format('AddSlider (IDX: %s): Missing default value.', tostring(Idx)));
