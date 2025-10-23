@@ -2384,7 +2384,8 @@ end;
         end
 
         function Dropdown:Display()
-            ItemList.Text = Dropdown.Text;
+            local Str = Dropdown:GenerateDisplayText(Dropdown.Value);
+            ItemList.Text = Str;
 
             local X = ListOuter.Visible and OpenedXSizeForList or Library:GetTextBounds(ItemList.Text, Library.Font, ItemList.TextSize, Vector2.new(ToggleLabel.AbsoluteSize.X, math.huge)) + 26;
             DropdownOuter.Size = UDim2.new(0, X, 0, 18)
