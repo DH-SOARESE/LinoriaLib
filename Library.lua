@@ -2127,7 +2127,7 @@ end;
         return self;
     end;
 
-    function BaseAddonsFuncs:AddDropdown(Idx, Info)
+function BaseAddonsFuncs:AddDropdown(Idx, Info)
         Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == "boolean" then Info.ReturnInstanceInstead else false;
 
         if Info.SpecialType == 'Player' then
@@ -2336,7 +2336,7 @@ end;
             TopImage = 'rbxasset://textures/ui/Scroll/scroll-middle.png',
             BottomImage = 'rbxasset://textures/ui/Scroll/scroll-middle.png',
 
-            ScrollBarThickness = 3,
+            ScrollBarThickness = 3;
             ScrollBarImageColor3 = Library.AccentColor,
             ScrollingElasticity = Enum.ScrollingElasticity.Never,
         });
@@ -2393,13 +2393,11 @@ end;
 
         function Dropdown:GetActiveValues()
             if Info.Multi then
-                local T = {};
-
-                for Value, Bool in next, Dropdown.Value do
-                    table.insert(T, Value);
+                local count = 0;
+                for _ in next, Dropdown.Value do
+                    count = count + 1;
                 end;
-
-                return T;
+                return count;
             else
                 return Dropdown.Value and 1 or 0;
             end;
@@ -2710,6 +2708,22 @@ end;
                 Dropdown:BuildDropdownList()
             end);
         end;
+
+        InputService.InputBegan:Connect(function(Input)
+            if Dropdown.Disabled then
+                return;
+            end;
+
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                local AbsPos, AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize;
+
+                if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X
+                    or Mouse.Y < (AbsPos.Y - (20 * DPIScale) - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
+
+                    Dropdown:CloseDropdown();
+                end;
+            end;
+        end);
 
         Dropdown:BuildDropdownList();
         Dropdown:Display();
