@@ -178,8 +178,6 @@ local Library = {
     -- addons --
     SaveManager = nil;
     ThemeManager = nil;
-    
-    ButtonMobile = "Left";
 
     -- for better usage --
     Toggles = Toggles;
@@ -6792,7 +6790,7 @@ end
         });
     
         local ToggleUIButton = Library:Create('TextButton', {
-            Position = (Library.ButtonMobile == "Right" and UDim2.new(1, -85, 0, 0) or UDim2.new(0, 5, 0, 0));
+            Position = UDim2.new(0, 5, 0, 0);
             Size = UDim2.new(1, -4, 1, 0);
             BackgroundTransparency = 1;
             Font = Library.Font;
@@ -6860,7 +6858,7 @@ end
         });
     
         local LockUIButton = Library:Create('TextButton', {
-            Position = (Library.ButtonMobile == "Right" and UDim2.new(1, -85, 0, 35) or UDim2.new(0, 5, 0, 35));
+            Position = UDim2.new(0, 5, 0, 0);
             Size = UDim2.new(1, -4, 1, 0);
             BackgroundTransparency = 1;
             Font = Library.Font;
