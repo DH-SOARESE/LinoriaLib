@@ -81,26 +81,6 @@ function ParentUI(UI: Instance, Layer, SkipHiddenUI)
     end)
 end
 
-function TruncateTextWithEllipsis(text, label)
-    local size = label.AbsoluteSize
-    local font = label.Font
-    local textSize = label.TextSize
-
-    if TextService:GetTextSize(text, textSize, font, Vector2.new(1000, 1000)).X <= size.X then
-        return text
-    end
-
-    local truncated = text
-    while #truncated > 0 do
-        local testText = truncated .. ""
-        if TextService:GetTextSize(testText, textSize, font, Vector2.new(1000, 1000)).X <= size.X then
-            return testText
-        end
-        truncated = truncated:sub(1, -2)
-    end
-    return ""
-end
-
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.ResetOnSpawn = false
 ParentUI(ScreenGui, 9e9^9e8)
@@ -5982,13 +5962,12 @@ function Window:AddTab(Name, Image)
 
         local TabButtonLabel = Library:CreateLabel({
             Position = labelPosition;
+            TabButtonLabel.TextTruncate = Enum.TextTruncate.None;
             Size = labelSize;
-            Text = "";
+            Text = Tab.Name;
             ZIndex = 1;
             Parent = TabButton;
         });
-        
-        TabButtonLabel.Text = TruncateTextWithEllipsis(Tab.Name, TabButtonLabel)
 
         local Blocker = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
