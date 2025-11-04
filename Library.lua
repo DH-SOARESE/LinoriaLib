@@ -5981,11 +5981,11 @@ function Window:AddTab(Name, Image)
         local labelSize = Tab.Image and UDim2.new(1, -(4 + 16 + 4), 1, -1) or UDim2.new(1, 0, 1, -1)
 
         local TabButtonLabel = Library:CreateLabel({
-            Position = labelPosition,
-            Size = labelSize,
-            Text = "", 
-            ZIndex = 1,
-            Parent = TabButton,
+            Position = labelPosition;
+            Size = labelSize;
+            Text = "";
+            ZIndex = 1;
+            Parent = TabButton;
         });
         
         TabButtonLabel.Text = TruncateTextWithEllipsis(Tab.Name, TabButtonLabel)
