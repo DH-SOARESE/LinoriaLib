@@ -536,7 +536,7 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 			end;
 		end);
 		InputService.TouchMoved:Connect(function(Input)
-			if IsMainWindow  and Library.CantDragForced  then
+			if (IsMainWindow and Library.CantDragForced) or (Parent.Name == "Window_label" and not Toggled) then
 				Dragging = false;
 				return;
 			end
