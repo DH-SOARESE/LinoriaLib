@@ -193,44 +193,32 @@ else
     Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS);
 end
 
-Library.MinSize = if Library.IsMobile then Vector2.new(550, 150) else Vector2.new(550, 300);
+Library.MinSize = Vector2.new(550, Library.IsMobile and 150 or 300)
 
-local RainbowStep = 0
-local Hue = 0
-local DPIScale = 1
+local DPIScale, Hue, Step = 1, 0, 0
 
-table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
-    RainbowStep = RainbowStep + Delta
+table.insert(Library.Signals, RenderStepped:Connect(function(dt)
+    Step += dt
+    if Step < 1/60 then return end
+    Step = 0
+    Hue = (Hue + 1/400) % 1
+    Library.CurrentRainbowHue = Hue
+    Library.CurrentRainbowColor = Color3.fromHSV(Hue, 0.8, 1)
+end))
 
-    if RainbowStep >= (1 / 60) then
-        RainbowStep = 0;
+local function ApplyDPIScale(pos)
+    return UDim2.new(pos.X.Scale, pos.X.Offset * DPIScale, pos.Y.Scale, pos.Y.Offset * DPIScale)
+end
 
-        Hue = Hue + (1 / 400);
+local function ApplyTextScale(size)
+    return size * DPIScale
+end
 
-        if Hue > 1 then
-            Hue = 0;
-        end;
-
-        Library.CurrentRainbowHue = Hue;
-        Library.CurrentRainbowColor = Color3.fromHSV(Hue, 0.8, 1);
-    end;
-end));
-
-local function ApplyDPIScale(Position)
-    return UDim2.new(Position.X.Scale, Position.X.Offset * DPIScale, Position.Y.Scale, Position.Y.Offset * DPIScale);
-end;
-
-local function ApplyTextScale(TextSize)
-    return TextSize * DPIScale;
-end;
-
-local function GetTableSize(t)
+local function GetTableSize(tbl)
     local n = 0
-    for _, _ in pairs(t) do
-        n = n + 1
-    end
-    return n;
-end;
+    for _ in pairs(tbl) do n += 1 end
+    return n
+end
 
 local function GetPlayers(ExcludeLocalPlayer, ReturnInstances)
     local PlayerList = Players:GetPlayers();
@@ -247,7 +235,7 @@ local function GetPlayers(ExcludeLocalPlayer, ReturnInstances)
         return Player1.Name:lower() < Player2.Name:lower();
     end)
 
-    if ReturnInstances == true then
+    if ReturnInstances  then
         return PlayerList;
     end;
 
@@ -266,7 +254,7 @@ local function GetTeams(ReturnInstances)
         return Team1.Name:lower() < Team2.Name:lower();
     end)
 
-    if ReturnInstances == true then
+    if ReturnInstances  then
         return TeamList;
     end;
 
@@ -416,7 +404,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
     local function BlockOtherInteractions()
     end
 
-    if Library.IsMobile == false then
+    if not Library.IsMobile then
         Instance.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
                 if (IsMainWindow and Library.CantDragForced) or (Instance.Name == "Window_label" and not Toggled) then
@@ -491,7 +479,7 @@ function Library:MakeDraggable(Instance, Cutoff, IsMainWindow)
 
     local OriginalInput = Instance.InputBegan:Connect(function(Input)
         if Dragging then
-            Input:Capture() -- Bloqueia outros elementos
+            Input:Capture()
         end
     end)
 end
@@ -499,10 +487,10 @@ end
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
 	Instance.Active = true;
 
-	if Library.IsMobile == false then
+	if not Library.IsMobile then
 		Instance.InputBegan:Connect(function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				if IsMainWindow == true and Library.CantDragForced == true then
+				if IsMainWindow and Library.CantDragForced then
 					return;
 				end;
 
@@ -531,12 +519,12 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 		local Dragging, DraggingInput, DraggingStart, StartPosition;
 
 		InputService.TouchStarted:Connect(function(Input)
-			if IsMainWindow == true and Library.CantDragForced == true then
+			if IsMainWindow and Library.CantDragForced then
 				Dragging = false
 				return;
 			end
 
-			if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
+			if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow  and (Library.CanDrag  and Library.Window.Holder.Visible ) or true) then
 				DraggingInput = Input;
 				DraggingStart = Input.Position;
 				StartPosition = Parent.Position;
@@ -551,12 +539,12 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 			end;
 		end);
 		InputService.TouchMoved:Connect(function(Input)
-			if IsMainWindow == true and Library.CantDragForced == true then
+			if IsMainWindow  and Library.CantDragForced  then
 				Dragging = false;
 				return;
 			end
 
-			if Input == DraggingInput and Dragging and (IsMainWindow == true and (Library.CanDrag == true and Library.Window.Holder.Visible == true) or true) then
+			if Input == DraggingInput and Dragging and (IsMainWindow  and (Library.CanDrag  and Library.Window.Holder.Visible ) or true) then
 				local OffsetPos = Input.Position - DraggingStart;
 
 				Parent.Position = UDim2.new(
@@ -2069,7 +2057,7 @@ end;
             elseif Input.UserInputType == Enum.UserInputType.MouseButton2 and not Library:MouseIsOverOpenedFrame() then
                 local visible = KeyPicker:GetModePickerVisibility()
                 
-                if visible == false then
+                if not visible then
                     for _, option in next, Options do
                         if option.Type == "KeyPicker" then
                             option:SetModePickerVisibility(false)
@@ -3311,7 +3299,7 @@ end
         PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
         PlaceholderText = '';  -- Vazio, vamos usar um Label customizado
 
-        Text = Info.Default or (if Textbox.AllowEmpty == false then Textbox.EmptyReset else "---");
+        Text = Info.Default or (if not Textbox.AllowEmpty then Textbox.EmptyReset else "---");
         TextColor3 = Library.FontColor;
         TextSize = 14;
         TextStrokeTransparency = 0;
@@ -3765,7 +3753,7 @@ end;
         end;  
     end);  
 
-    if Toggle.Risky == true then  
+    if Toggle.Risky  then  
         Library:RemoveFromRegistry(ToggleLabel)  
 
         ToggleLabel.TextColor3 = Library.RiskColor  
@@ -4654,7 +4642,7 @@ end;
             if typeof(Val) == "table" then  
                 for Value, Bool in next, Val do  
                     if table.find(Dropdown.Values, Value) then  
-                        nTable[Value] = Bool == true; -- Ensure boolean value
+                        nTable[Value] = Bool ; -- Ensure boolean value
                     end;  
                 end;  
             end;  
@@ -4728,7 +4716,7 @@ end;
         if Info.DictMulti then  
             for Value, Bool in next, Info.Default do  
                 if table.find(Dropdown.Values, Value) then  
-                    Dropdown.Value[Value] = Bool == true;  
+                    Dropdown.Value[Value] = Bool ;  
                 end  
             end  
         else  
@@ -6188,15 +6176,15 @@ function Window:AddTab(Name, Image)
         end;
 
         function Tab:Resize()
-            if TopBar.Visible == true then
+            if TopBar.Visible  then
                 local MaximumSize = math.floor(TabFrame.AbsoluteSize.Y / 3.25);
                 local Size = 27 + select(2, Library:GetTextBounds(TopBarTextLabel.Text, Library.Font, 14, Vector2.new(TopBarTextLabel.AbsoluteSize.X, math.huge)));
 
-                if Tab.WarningBox.LockSize == true and Size >= MaximumSize then 
+                if Tab.WarningBox.LockSize  and Size >= MaximumSize then 
                     Size = MaximumSize; 
                 end
 
-                if Tab.WarningBox.Bottom == true then
+                if Tab.WarningBox.Bottom  then
                     TopBar.Position = UDim2.new(0, 7, 1, -(Size + 7));
                 else
                     TopBar.Position = UDim2.new(0, 7, 0, 7);
@@ -6240,25 +6228,25 @@ function Window:AddTab(Name, Image)
             TopBarTextLabel.Text = Tab.WarningBox.Text;
             if TopBar.Visible then Tab:Resize(); end
 
-            TopBar.BorderColor3 = Tab.WarningBox.IsNormal == true and Color3.fromRGB(27, 42, 53) or Color3.fromRGB(248, 51, 51)
-            TopBarInner.BorderColor3 = Tab.WarningBox.IsNormal == true and Library.OutlineColor or Color3.fromRGB(0, 0, 0)
-            TopBarInner.BackgroundColor3 = Tab.WarningBox.IsNormal == true and Library.BackgroundColor or Color3.fromRGB(117, 22, 17)
-            TopBarHighlight.BackgroundColor3 = Tab.WarningBox.IsNormal == true and Library.AccentColor or Color3.fromRGB(255, 75, 75)
+            TopBar.BorderColor3 = Tab.WarningBox.IsNormal  and Color3.fromRGB(27, 42, 53) or Color3.fromRGB(248, 51, 51)
+            TopBarInner.BorderColor3 = Tab.WarningBox.IsNormal  and Library.OutlineColor or Color3.fromRGB(0, 0, 0)
+            TopBarInner.BackgroundColor3 = Tab.WarningBox.IsNormal  and Library.BackgroundColor or Color3.fromRGB(117, 22, 17)
+            TopBarHighlight.BackgroundColor3 = Tab.WarningBox.IsNormal  and Library.AccentColor or Color3.fromRGB(255, 75, 75)
              
-            TopBarLabel.TextColor3 = Tab.WarningBox.IsNormal == true and Library.FontColor or Color3.fromRGB(255, 55, 55)
-            TopBarLabelStroke.Color = Tab.WarningBox.IsNormal == true and Library.Black or Color3.fromRGB(174, 3, 3)
+            TopBarLabel.TextColor3 = Tab.WarningBox.IsNormal  and Library.FontColor or Color3.fromRGB(255, 55, 55)
+            TopBarLabelStroke.Color = Tab.WarningBox.IsNormal  and Library.Black or Color3.fromRGB(174, 3, 3)
 
             if not Library.RegistryMap[TopBarInner] then Library:AddToRegistry(TopBarInner, {}) end
             if not Library.RegistryMap[TopBarHighlight] then Library:AddToRegistry(TopBarHighlight, {}) end
             if not Library.RegistryMap[TopBarLabel] then Library:AddToRegistry(TopBarLabel, {}) end
             if not Library.RegistryMap[TopBarLabelStroke] then Library:AddToRegistry(TopBarLabelStroke, {}) end
 
-            Library.RegistryMap[TopBarInner].Properties.BorderColor3 = Tab.WarningBox.IsNormal == true and "OutlineColor" or nil;
-            Library.RegistryMap[TopBarInner].Properties.BackgroundColor3 = Tab.WarningBox.IsNormal == true and "BackgroundColor" or nil;
-            Library.RegistryMap[TopBarHighlight].Properties.BackgroundColor3 = Tab.WarningBox.IsNormal == true and "AccentColor" or nil;
+            Library.RegistryMap[TopBarInner].Properties.BorderColor3 = Tab.WarningBox.IsNormal  and "OutlineColor" or nil;
+            Library.RegistryMap[TopBarInner].Properties.BackgroundColor3 = Tab.WarningBox.IsNormal  and "BackgroundColor" or nil;
+            Library.RegistryMap[TopBarHighlight].Properties.BackgroundColor3 = Tab.WarningBox.IsNormal  and "AccentColor" or nil;
 
-            Library.RegistryMap[TopBarLabel].Properties.TextColor3 = Tab.WarningBox.IsNormal == true and "FontColor" or nil;
-            Library.RegistryMap[TopBarLabelStroke].Properties.Color = Tab.WarningBox.IsNormal == true and "Black" or nil;
+            Library.RegistryMap[TopBarLabel].Properties.TextColor3 = Tab.WarningBox.IsNormal  and "FontColor" or nil;
+            Library.RegistryMap[TopBarLabelStroke].Properties.Color = Tab.WarningBox.IsNormal  and "Black" or nil;
         end;
 
         function Tab:ShowTab()
