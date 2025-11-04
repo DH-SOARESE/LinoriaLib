@@ -513,7 +513,7 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 		local Dragging, DraggingInput, DraggingStart, StartPosition;
 
 		InputService.TouchStarted:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or not Instance.Visible then
+			if (IsMainWindow and Library.CantDragForced) or (not Instance.Visible or not Parent.Visible) then
 				Dragging = false
 				return;
 			end
@@ -533,7 +533,7 @@ function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow
 			end;
 		end);
 		InputService.TouchMoved:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or not Instance.Visible then
+			if (IsMainWindow and Library.CantDragForced) or (not Instance.Visible or not Parent.Visible) then
 				Dragging = false;
 				return;
 			end
@@ -1928,7 +1928,7 @@ end;
 
                 local Key = KeyPicker.Value;
 
-                if SpecialKeys[Key] ~= nil then
+                if SpecialKeys[Key] then
                     return InputService:IsMouseButtonPressed(SpecialKeys[Key]) and not InputService:GetFocusedTextBox();
                 else
                     return InputService:IsKeyDown(Enum.KeyCode[KeyPicker.Value]) and not InputService:GetFocusedTextBox();
@@ -1962,7 +1962,7 @@ end;
                 KeyPicker.Value = "Unknown";
             end
 
-            if Mode ~= nil and ModeButtons[Mode] ~= nil then 
+            if Mode and ModeButtons[Mode] then 
                 ModeButtons[Mode]:Select(); 
             end;
 
@@ -2035,7 +2035,7 @@ end;
                 InputService.InputBegan:Once(function(Input)
                     local Key;
 
-                    if SpecialKeysInput[Input.UserInputType] ~= nil then
+                    if SpecialKeysInput[Input.UserInputType] then
                         Key = SpecialKeysInput[Input.UserInputType];
                         
                     elseif Input.UserInputType == Enum.UserInputType.Keyboard then
@@ -2724,7 +2724,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
                     table.insert(Defaults, Idx)
                 end
             end
-        elseif typeof(Info.Default) == 'number' and Dropdown.Values[Info.Default] ~= nil then
+        elseif typeof(Info.Default) == 'number' and Dropdown.Values[Info.Default] then
             table.insert(Defaults, Info.Default)
         end
 
@@ -2781,8 +2781,8 @@ do
     end;
 function BaseGroupboxFuncs:AddLabel(...)
     local Data = {}
-    if select(2, ...) ~= nil and typeof(select(2, ...)) == "table" then    
-        if select(1, ...) ~= nil then    
+    if select(2, ...) and typeof(select(2, ...)) == "table" then    
+        if select(1, ...) then    
             assert(typeof(select(1, ...)) == "string", "Expected string for Idx, got " .. typeof(select(1, ...)))    
         end    
 
@@ -4721,7 +4721,7 @@ end;
                 end  
             end  
         end  
-    elseif typeof(Info.Default) == 'number' and Dropdown.Values[Info.Default] ~= nil then  
+    elseif typeof(Info.Default) == 'number' and Dropdown.Values[Info.Default] then  
         table.insert(Defaults, Info.Default)  
     end  
 
@@ -6910,5 +6910,8 @@ Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
 Library:GiveSignal(Teams.ChildAdded:Connect(OnTeamChange));
 Library:GiveSignal(Teams.ChildRemoved:Connect(OnTeamChange));
 
-if getgenv().skip_getgenv_linoria ~= true then getgenv().Library = Library end
+if not getgenv().skip_getgenv_linoria then
+    getgenv().Library = Library
+end
+
 return Library
