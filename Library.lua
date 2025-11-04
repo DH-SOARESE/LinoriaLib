@@ -5957,7 +5957,7 @@ function Window:AddTab(Name, Image)
          });
         end
 
-        local labelPosition = Tab.Image and UDim2.new(0, 4 + 1 4, 0, 0) or UDim2.new(0, 0, 0, 0)
+        local labelPosition = Tab.Image and UDim2.new(0, 4 + 16 + 4, 0, 0) or UDim2.new(0, 0, 0, 0)
         local labelSize = Tab.Image and UDim2.new(1, -(4 + 16 + 4), 1, -1) or UDim2.new(1, 0, 1, -1)
 
         local TabButtonLabel = Library:CreateLabel({
@@ -5968,7 +5968,7 @@ function Window:AddTab(Name, Image)
             ZIndex = 1;
             Parent = TabButton;
         });
-
+        
         local Blocker = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
             BorderSizePixel = 0;
