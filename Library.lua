@@ -5961,14 +5961,13 @@ function Window:AddTab(Name, Image)
         local labelSize = Tab.Image and UDim2.new(1, -(4 + 16 + 4), 1, -1) or UDim2.new(1, 0, 1, -1)
 
         local TabButtonLabel = Library:CreateLabel({
-            Position = labelPosition;
-            TabButtonLabel.TextTruncate = Enum.TextTruncate.None;
-            Size = labelSize;
-            Text = Tab.Name;
-            ZIndex = 1;
-            Parent = TabButton;
+            Position = labelPosition,
+            Size = labelSize,
+            Text = Tab.Name,
+            ZIndex = 1,
+            Parent = TabButton,
         });
-        
+
         local Blocker = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
             BorderSizePixel = 0;
