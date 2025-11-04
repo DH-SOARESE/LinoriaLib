@@ -81,6 +81,26 @@ function ParentUI(UI: Instance, Layer, SkipHiddenUI)
     end)
 end
 
+function TruncateTextWithEllipsis(text, label)
+    local size = label.AbsoluteSize
+    local font = label.Font
+    local textSize = label.TextSize
+
+    if TextService:GetTextSize(text, textSize, font, Vector2.new(1000, 1000)).X <= size.X then
+        return text
+    end
+
+    local truncated = text
+    while #truncated > 0 do
+        local testText = truncated .. ""
+        if TextService:GetTextSize(testText, textSize, font, Vector2.new(1000, 1000)).X <= size.X then
+            return testText
+        end
+        truncated = truncated:sub(1, -2)
+    end
+    return ""
+end
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.ResetOnSpawn = false
 ParentUI(ScreenGui, 9e9^9e8)
@@ -3404,7 +3424,6 @@ end
         Textbox:UpdateColors();
     end;
 
-    -- Função de Update corrigida
     local updateScheduled = false
     local isFocused = false
     
@@ -3412,20 +3431,18 @@ end
         if updateScheduled then return end
         updateScheduled = true
         
-        task.wait() -- Aguarda próximo frame para cursor estar atualizado
+        task.wait()
         updateScheduled = false
         
         local PADDING = 2
         local reveal = Container.AbsoluteSize.X
         local textWidth = TextService:GetTextSize(Box.Text, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
         
-        -- Se o texto cabe inteiro, mantém no início
         if textWidth <= reveal - 2 * PADDING then
             Box.Position = UDim2.fromOffset(PADDING, 0)
             return
         end
         
-        -- Se não está focado, mostra o início
         if not isFocused then
             Box.Position = UDim2.fromOffset(PADDING, 0)
             return
@@ -3437,29 +3454,23 @@ end
             return 
         end
 
-        -- Calcula posição do cursor no texto
         local subtext = string.sub(Box.Text, 1, cursor - 1)
         local cursorX = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
 
-        -- Calcula offset necessário para manter cursor visível
         local currentOffset = Box.Position.X.Offset
         local cursorScreenPos = currentOffset + cursorX
         
-        -- Define margens de segurança
         local leftMargin = PADDING + 10
         local rightMargin = reveal - PADDING - 10
         
         local newOffset = currentOffset
         
-        -- Se cursor saiu pela direita
         if cursorScreenPos > rightMargin then
             newOffset = rightMargin - cursorX
-        -- Se cursor saiu pela esquerda
         elseif cursorScreenPos < leftMargin then
             newOffset = leftMargin - cursorX
         end
         
-        -- Limita offset aos valores válidos
         local minOffset = -(textWidth - reveal + 2 * PADDING)
         local maxOffset = PADDING
         
@@ -3482,11 +3493,9 @@ end
         end);
     end
 
-    -- Conecta eventos de Update
     Box:GetPropertyChangedSignal('Text'):Connect(Update)
     Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
     Box.FocusLost:Connect(function()
-        -- Quando perde foco, volta ao início
         Box.Position = UDim2.fromOffset(2, 0)
     end)
     Box.Focused:Connect(Update)
@@ -4181,7 +4190,6 @@ end;
         ReturnInstanceInstead = Info.ReturnInstanceInstead;  
     };  
 
-    -- Rest of the UI setup code remains unchanged until Dropdown:Display
     local DropdownLabel;  
     local Blank;  
     local CompactBlank;  
@@ -5969,16 +5977,18 @@ function Window:AddTab(Name, Image)
          });
         end
 
-        local labelPosition = Tab.Image and UDim2.new(0, 4 + 16 + 4, 0, 0) or UDim2.new(0, 0, 0, 0)
+        local labelPosition = Tab.Image and UDim2.new(0, 4 + 1 4, 0, 0) or UDim2.new(0, 0, 0, 0)
         local labelSize = Tab.Image and UDim2.new(1, -(4 + 16 + 4), 1, -1) or UDim2.new(1, 0, 1, -1)
 
         local TabButtonLabel = Library:CreateLabel({
             Position = labelPosition,
             Size = labelSize,
-            Text = Tab.Name,
+            Text = "", 
             ZIndex = 1,
             Parent = TabButton,
         });
+        
+        TabButtonLabel.Text = TruncateTextWithEllipsis(Tab.Name, TabButtonLabel)
 
         local Blocker = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
