@@ -4062,6 +4062,11 @@ end;
         end;    
 
         if (Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame()) or Input.UserInputType == Enum.UserInputType.Touch then    
+            if Library.IsDraggingSlider then
+                return;
+            end
+            Library.IsDraggingSlider = true
+
             if Library.IsMobile then    
                 Library.CanDrag = false;    
             end;    
@@ -4102,6 +4107,7 @@ end;
                 RenderStepped:Wait();    
             end;    
 
+            Library.IsDraggingSlider = false
             if Library.IsMobile then    
                 Library.CanDrag = true;    
             end;    
