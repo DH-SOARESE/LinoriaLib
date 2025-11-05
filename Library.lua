@@ -3873,7 +3873,7 @@ end;
         { BorderColor3 = 'AccentColor' },    
         { BorderColor3 = 'Black' },    
         function()    
-            return not Slider.Disabled;    
+            return not Slider.Disabled and (Library.CurrentDraggingSlider == nil or Library.CurrentDraggingSlider == Slider);    
         end    
     );    
 
@@ -4062,10 +4062,10 @@ end;
         end;    
 
         if (Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame()) or Input.UserInputType == Enum.UserInputType.Touch then    
-            if Library.IsDraggingSlider then
+            if Library.CurrentDraggingSlider ~= nil then
                 return;
             end
-            Library.IsDraggingSlider = true
+            Library.CurrentDraggingSlider = Slider
 
             if Library.IsMobile then    
                 Library.CanDrag = false;    
@@ -4107,7 +4107,7 @@ end;
                 RenderStepped:Wait();    
             end;    
 
-            Library.IsDraggingSlider = false
+            Library.CurrentDraggingSlider = nil
             if Library.IsMobile then    
                 Library.CanDrag = true;    
             end;    
