@@ -3491,7 +3491,6 @@ end
 
     return Textbox;
 end;
-    
     function BaseGroupboxFuncs:AddToggle(Idx, Info)  
     assert(Info.Text, string.format('AddInput (IDX: %s): Missing `Text` string.', tostring(Idx)));  
 
@@ -3566,12 +3565,16 @@ end;
         Parent = ToggleLabel;  
     });  
 
+    local TextService = game:GetService("TextService")
+    local textBounds = TextService:GetTextSize(ToggleLabel.Text, ToggleLabel.TextSize, ToggleLabel.Font, Vector2.new(math.huge, math.huge)).X
+    local gap = 6
 
     local ToggleRegion = Library:Create('Frame', {
-            BackgroundTransparency = 1;
-            Size = UDim2.new(0, 170, 1, 0);
-            ZIndex = 8;
-            Parent = ToggleOuter;
+        BackgroundTransparency = 1;
+        Position = UDim2.new(0, 0, 0, 0);
+        Size = UDim2.new(0, 13 + gap + textBounds, 0, 13);
+        ZIndex = 8;
+        Parent = ToggleContainer;
     });  
     
     local isDragging = false
@@ -3584,6 +3587,10 @@ end;
             if Toggle.Disabled then  
                 return false;  
             end;  
+
+            if Library.CurrentActiveToggle ~= nil and Library.CurrentActiveToggle ~= Toggle then
+                return false;
+            end
 
             for _, Addon in next, Toggle.Addons do  
                 if Library:MouseIsOverFrame(Addon.DisplayFrame) then return false end  
@@ -3687,12 +3694,17 @@ end;
         end  
     end;  
 
-    ToggleOuter.InputBegan:Connect(function(Input)  
+    ToggleRegion.InputBegan:Connect(function(Input)  
         if Toggle.Disabled then  
             return;  
         end;  
 
         if (Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame()) or Input.UserInputType == Enum.UserInputType.Touch then  
+            if Library.CurrentActiveToggle ~= nil then
+                return;
+            end
+            Library.CurrentActiveToggle = Toggle
+
             for _, Addon in next, Toggle.Addons do  
                 if Library:MouseIsOverFrame(Addon.DisplayFrame) then return end  
             end  
@@ -3705,7 +3717,7 @@ end;
         end;  
     end);  
 
-    ToggleOuter.InputChanged:Connect(function(Input)
+    ToggleRegion.InputChanged:Connect(function(Input)
         if not clickStartPosition then return end
         
         if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
@@ -3715,7 +3727,7 @@ end;
             end
         end
     end)
-    ToggleOuter.InputEnded:Connect(function(Input)  
+    ToggleRegion.InputEnded:Connect(function(Input)  
         if Toggle.Disabled then  
             return;  
         end;  
@@ -3731,6 +3743,7 @@ end;
             end
             isDragging = false
             clickStartPosition = nil
+            Library.CurrentActiveToggle = nil
         end;  
     end);  
 
@@ -3755,7 +3768,6 @@ end;
 
     return Toggle;  
 end;
-    
     function BaseGroupboxFuncs:AddSlider(Idx, Info)
     assert(Info.Default,    string.format('AddSlider (IDX: %s): Missing default value.', tostring(Idx)));
     assert(Info.Text,       string.format('AddSlider (IDX: %s): Missing slider text.', tostring(Idx)));
