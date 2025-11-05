@@ -21,11 +21,10 @@ local Toggles = Library.Toggles
 
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
-Library.NotifySide = 'Right' -- Notification position: 'Left' or 'Right'
+Library.NotifySide = 'Right'
 
--- Create Window
 local Window = Library:CreateWindow({
-    Title = 'LinoriaLib | Complete Examples',
+    Title = 'LinoriaLib | Advanced UI System',
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -34,596 +33,813 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
--- Create Tabs
 local Tabs = {
-    Components = Window:AddTab('Main', '8301879545'),
-    Advanced = Window:AddTab('Advanced'),
+    Controls = Window:AddTab('Controls', '7734068321'),
+    Display = Window:AddTab('Display', '7743871002'),
+    Advanced = Window:AddTab('Advanced', '7743875358'),
+    System = Window:AddTab('System', '7734053426'),
     Settings = Window:AddTab('Settings', '7963356958')
 }
 
--- UI Elements
+-- ==================== CONTROLS TAB ====================
 
--- Toggles
-local ToggleBox = Tabs.Components:AddLeftGroupbox('Toggles')
+local ToggleGroup = Tabs.Controls:AddLeftGroupbox('Toggle System')
 
--- Basic Toggle
-ToggleBox:AddToggle('BasicToggle', {
+ToggleGroup:AddToggle('BasicToggle', {
     Text = 'Basic Toggle',
     Default = false,
-    Tooltip = 'Simple on/off switch',
+    Tooltip = 'Simple on/off control',
     Callback = function(value)
-        print('[Basic Toggle] State:', value)
+        print('[Toggle] Basic:', value)
     end
 })
 
--- Toggle with Keybind
-ToggleBox:AddToggle('KeybindToggle', {
-    Text = 'Toggle with Keybind',
-    Default = false,
-    Tooltip = 'Can be toggled via keybind',
-    Callback = function(value)
-        print('[Keybind Toggle] State:', value)
-    end
-}):AddKeyPicker('KeybindTogglePicker', {
-    Mode = 'Toggle', -- Toggle, Hold, Always
-    Default = 'E',
-    Text = 'Toggle Key',
-    SyncToggleState = true,
-    Callback = function(value)
-        print('[Keybind] Key changed to:', value)
-    end
-})
-
--- Toggle with Color Picker
-ToggleBox:AddToggle('ColorToggle', {
-    Text = 'Toggle with Color',
-    Default = false,
-    Tooltip = 'Includes color customization',
-    Callback = function(value)
-        print('[Color Toggle] State:', value)
-    end
-}):AddColorPicker('ColorPicker', {
-    Title = 'Choose Color',
-    Default = Color3.fromRGB(0, 150, 255),
-    Transparency = 0.5,
-    Callback = function(color, transparency)
-        print('[Color] RGB:', color, '| Alpha:', transparency)
-    end
-})
-
--- Risky Toggle (Red text warning)
-ToggleBox:AddToggle('RiskyToggle', {
-    Text = 'Risky Option',
+ToggleGroup:AddToggle('RiskyToggle', {
+    Text = 'Critical Mode',
     Default = false,
     Risky = true,
-    Tooltip = 'Potentially dangerous feature - use with caution',
+    Tooltip = 'Requires caution when enabling',
     Callback = function(value)
-        print('[Risky Toggle] State:', value)
+        if value then
+            Library:Notify('Critical mode enabled', 3)
+        end
+        print('[Toggle] Critical:', value)
     end
 })
 
--- Disabled Toggle
-ToggleBox:AddToggle('DisabledToggle', {
-    Text = 'Disabled Toggle',
+local KeyToggle = ToggleGroup:AddToggle('KeybindToggle', {
+    Text = 'Keybind Toggle',
     Default = false,
-    Disabled = true,
-    DisabledTooltip = 'This feature is currently unavailable',
-    Tooltip = 'Cannot be modified'
+    Tooltip = 'Can be toggled via keyboard',
+    Callback = function(value)
+        print('[Toggle] Keybind state:', value)
+    end
 })
 
--- Buttons
-local ButtonBox = Tabs.Components:AddLeftGroupbox('Buttons')
+KeyToggle:AddKeyPicker('KeybindPicker', {
+    Mode = 'Toggle',
+    Default = 'E',
+    Text = 'Hotkey',
+    SyncToggleState = true,
+    Callback = function(value)
+        print('[Key] Assigned:', value)
+    end
+})
 
--- Standard and Double-Click Buttons (side-by-side)
-local StandardButton = ButtonBox:AddButton({
-    Text = 'Standard Button',
-    Tooltip = 'Click to execute action',
+local ColorToggle = ToggleGroup:AddToggle('ColorToggle', {
+    Text = 'Color Toggle',
+    Default = true,
+    Tooltip = 'Toggle with color customization',
+    Callback = function(value)
+        print('[Toggle] Color enabled:', value)
+    end
+})
+
+ColorToggle:AddColorPicker('PrimaryColor', {
+    Title = 'Primary',
+    Default = Color3.fromRGB(0, 170, 255),
+    Callback = function(color, alpha)
+        print('[Color] Primary updated:', color, alpha)
+    end
+})
+
+ColorToggle:AddColorPicker('SecondaryColor', {
+    Title = 'Secondary',
+    Default = Color3.fromRGB(255, 170, 0),
+    Transparency = 0.3,
+    Callback = function(color, alpha)
+        print('[Color] Secondary updated:', color, alpha)
+    end
+})
+
+local ButtonGroup = Tabs.Controls:AddLeftGroupbox('Button Actions')
+
+ButtonGroup:AddButton({
+    Text = 'Quick Action',
+    Tooltip = 'Single click execution',
     Func = function()
-        Library:Notify('Button clicked!', 3)
-        print('[Button] Standard button pressed')
+        Library:Notify('Action executed', 2)
+        print('[Button] Quick action triggered')
+    end
+})
+
+ButtonGroup:AddButton({
+    Text = 'Safe Action',
+    DoubleClick = true,
+    Tooltip = 'Requires double-click',
+    Func = function()
+        Library:Notify('Safe action confirmed', 2)
+        print('[Button] Safe action executed')
+    end
+})
+
+ButtonGroup:AddButton({
+    Text = 'Chain Action',
+    Func = function()
+        print('[Button] Chain started')
+        Library:Notify('cessing...', 1)
     end
 }):AddButton({
-    Text = 'Confirm Action',
+    Text = 'Verify',
     DoubleClick = true,
-    Tooltip = 'Double-click to confirm',
     Func = function()
-        Library:Notify('Action confirmed!', 3)
-        print('[Button] Confirmation button activated')
+        print('[Button] Chain verified')
+        Library:Notify('Verified successfully', 2)
     end
 })
 
--- Disabled Button (standalone, as limit is 2 per row)
-ButtonBox:AddButton({
-    Text = 'Disabled Button',
+ButtonGroup:AddButton({
+    Text = 'Locked Feature',
     Disabled = true,
-    DisabledTooltip = 'This action is unavailable',
-    Tooltip = 'Cannot be clicked',
+    DisabledTooltip = 'Feature not available',
     Func = function()
-        print('[Button] This should never print')
+        print('[Button] Should not execute')
     end
 })
 
--- Sliders
-local SliderBox = Tabs.Components:AddRightGroupbox('Sliders')
+local SliderGroup = Tabs.Controls:AddRightGroupbox('Slider Controls')
 
--- Integer Slider
-SliderBox:AddSlider('IntegerSlider', {
-    Text = 'Integer Slider',
+SliderGroup:AddSlider('IntSlider', {
+    Text = 'Integer Value',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
-    Suffix = '%',
-    Tooltip = 'Whole numbers from 0 to 100',
+    Compact = false,
+    Tooltip = 'Whole number range',
     Callback = function(value)
-        print('[Slider] Integer value:', value)
+        print('[Slider] Integer:', value)
     end
 })
 
--- Decimal Slider
-SliderBox:AddSlider('DecimalSlider', {
-    Text = 'Decimal Slider',
+SliderGroup:AddSlider('DecimalSlider', {
+    Text = 'Decimal Value',
     Default = 0.5,
     Min = 0,
     Max = 1,
     Rounding = 2,
     Compact = true,
-    Tooltip = 'Precise decimal values (0.00 - 1.00)',
+    Tooltip = 'Precise decimal control',
     Callback = function(value)
-        print('[Slider] Decimal value:', value)
+        print('[Slider] Decimal:', value)
     end
 })
 
--- Slider with Custom Prefix/Suffix
-SliderBox:AddSlider('CurrencySlider', {
-    Text = 'Currency Slider',
-    Default = 250,
-    Min = 1,
-    Max = 1000,
+SliderGroup:AddSlider('CurrencySlider', {
+    Text = 'Currency Amount',
+    Default = 1000,
+    Min = 0,
+    Max = 10000,
     Rounding = 0,
     Prefix = '$',
-    Suffix = ' USD',
-    Tooltip = 'Value with currency formatting',
+    Suffix = '.00',
+    Tooltip = 'Formatted as currency',
     Callback = function(value)
-        print('[Slider] Currency value:', value)
+        print('[Slider] Currency:', value)
     end
 })
 
--- Slider with Value Text
-SliderBox:AddSlider('ValueTextSlider', {
-    Text = 'Value Text',
-    Default = 0,
+SliderGroup:AddSlider('PercentSlider', {
+    Text = 'Percentage',
+    Default = 75,
     Min = 0,
-    Max = 20,
+    Max = 100,
     Rounding = 0,
-    ValueText = {
-    {Value = 0, Text = "Calm"},
-    {Value = 10, Text = "Tense"},
-    {Value = 20, Text = "Extreme"}},
-    Tooltip = 'Shows text labels at extremes',
+    Suffix = '%',
+    Tooltip = 'Percentage value',
     Callback = function(value)
-        print('[Slider] Value:', value)
+        print('[Slider] Percent:', value)
     end
 })
 
--- Slider Without Max Display
-SliderBox:AddSlider('NoMaxSlider', {
-    Text = 'Hidden Maximum',
+SliderGroup:AddSlider('ThresholdSlider', {
+    Text = 'Threshold Level',
     Default = 50,
     Min = 0,
-    Max = 200,
+    Max = 100,
     Rounding = 0,
-    HideMax = true,
-    Tooltip = 'Maximum value not shown',
+    ValueText = {
+        {Value = 0, Text = "Off"},
+        {Value = 25, Text = "Low"},
+        {Value = 50, Text = "Med"},
+        {Value = 75, Text = "High"},
+        {Value = 100, Text = "Max"}
+    },
+    Tooltip = 'Named threshold levels',
     Callback = function(value)
-        print('[Slider] Value:', value)
+        print('[Slider] Threshold:', value)
     end
 })
 
--- Dropdowns
-local DropdownBox = Tabs.Components:AddRightGroupbox('Dropdowns')
+SliderGroup:AddSlider('CompactSlider', {
+    Text = 'Compact Range',
+    Default = 256,
+    Min = 0,
+    Max = 1024,
+    Rounding = 0,
+    HideMax = true,
+    Tooltip = 'Hidden maximum for cleaner display',
+    Callback = function(value)
+        print('[Slider] Compact:', value)
+    end
+})
 
--- Single Selection
-DropdownBox:AddDropdown('SingleSelect', {
-    Text = 'Single Selection',
-    Values = {'Option A', 'Option B', 'Option C', 'Option D'},
+local InputGroup = Tabs.Controls:AddRightGroupbox('Input Fields')
+
+InputGroup:AddInput('TextInput', {
+    Text = 'Text Field',
+    Default = '',
+    Placeholder = 'Enter text here...',
+    Tooltip = 'Standard text input',
+    Callback = function(value)
+        print('[Input] Text:', value)
+    end
+})
+
+InputGroup:AddInput('ConfirmInput', {
+    Text = 'Confirm Input',
+    Default = '',
+    Placeholder = 'Press Enter to submit',
+    Finished = true,
+    Tooltip = 'Triggers on Enter key',
+    Callback = function(value)
+        if value ~= '' then
+            Library:Notify('Input received: ' .. value, 2)
+            print('[Input] Confirmed:', value)
+        end
+    end
+})
+
+InputGroup:AddInput('LimitedInput', {
+    Text = 'Limited (15 chars)',
+    Default = '',
+    Placeholder = 'Max 15 characters',
+    MaxLength = 15,
+    AllowEmpty = false,
+    Tooltip = 'Character limit enforced',
+    Callback = function(value)
+        print('[Input] Limited:', value)
+    end
+})
+
+InputGroup:AddInput('NumericInput', {
+    Text = 'Numeric Only',
+    Default = '0',
+    Placeholder = 'Numbers only',
+    Numeric = true,
+    Tooltip = 'Accepts numbers only',
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            print('[Input] Number:', num)
+        end
+    end
+})
+
+InputGroup:AddInput('ReadOnly', {
+    Text = 'Read Only',
+    Default = 'System information',
+    Disabled = true,
+    Tooltip = 'Cannot be modified'
+})
+
+-- ==================== DISPLAY TAB ====================
+
+local DropdownGroup = Tabs.Display:AddLeftGroupbox('Dropdown Menus')
+
+DropdownGroup:AddDropdown('SingleSelect', {
+    Text = 'Single Select',
+    Values = {'Option A', 'Option B', 'Option C', 'Option D', 'Option E'},
     Default = 1,
-    Tooltip = 'Choose one option',
+    Tooltip = 'Select one option',
     Callback = function(value)
         print('[Dropdown] Selected:', value)
     end
 })
 
--- Searchable Dropdown
-DropdownBox:AddDropdown('SearchableDropdown', {
+DropdownGroup:AddDropdown('SearchDrop', {
     Text = 'Searchable List',
     Values = {'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'},
     Default = 1,
     Searchable = true,
     Tooltip = 'Type to filter options',
     Callback = function(value)
-        print('[Dropdown] Searched and selected:', value)
+        print('[Dropdown] Searched:', value)
     end
 })
 
--- Multi-Selection
-DropdownBox:AddDropdown('MultiSelect', {
-    Text = 'Multi-Selection',
-    Values = {'Feature 1', 'Feature 2', 'Feature 3', 'Feature 4'},
-    Default = {['Feature 1'] = true},
+DropdownGroup:AddDropdown('MultiSelect', {
+    Text = 'Multi Select',
+    Values = {'Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'},
+    Default = {['Item 1'] = true},
     Multi = true,
-    Tooltip = 'Select multiple options',
+    Tooltip = 'Select multiple items',
     Callback = function(values)
-        print('[Dropdown] Multi-select changed:')
+        print('[Dropdown] Multi selection:')
         for item, enabled in pairs(values) do
             if enabled then
-                print('  ✓', item)
+                print('  -', item)
             end
         end
     end
 })
 
--- Player Dropdown
-DropdownBox:AddDropdown('PlayerSelect', {
-    Text = 'Select Player',
+DropdownGroup:AddDropdown('PlayerSelect', {
+    Text = 'Player List',
     SpecialType = 'Player',
     ExcludeLocalPlayer = true,
     Searchable = true,
-    Tooltip = 'Choose from server players',
+    Tooltip = 'Select active player',
     Callback = function(player)
-        print('[Dropdown] Selected player:', player)
+        print('[Dropdown] Player:', player)
     end
 })
 
--- Input Fields
-local InputBox = Tabs.Components:AddLeftGroupbox('Input Fields')
+local DisplayGroup = Tabs.Display:AddLeftGroupbox('Visual Elements')
 
--- Standard Text Input
-InputBox:AddInput('StandardInput', {
-    Text = 'Text Input',
-    Default = '',
-    Placeholder = 'Type here...',
-    Tooltip = 'Enter any text',
-    Callback = function(value)
-        print('[Input] Text entered:', value)
+DisplayGroup:AddLabel('Static text label for information')
+DisplayGroup:AddLabel('Multi-line label:\n- First point\n- Second point\n- Third point', true)
+DisplayGroup:AddDivider()
+DisplayGroup:AddLabel('Content after divider')
+DisplayGroup:AddDivider('Named Section')
+DisplayGroup:AddLabel('Content after named divider')
+
+local MediaGroup = Tabs.Display:AddRightGroupbox('Media Display')
+
+MediaGroup:AddImage('DisplayImage', {
+    Image = 'rbxassetid://10511855986',
+    Height = 180,
+    Color = Color3.fromRGB(255, 255, 255),
+    ScaleType = Enum.ScaleType.Fit,
+    Transparency = 0,
+    Visible = true,
+    Tooltip = 'Image from Roblox assets'
+})
+
+MediaGroup:AddButton({
+    Text = 'Toggle Image',
+    Func = function()
+        local img = Options.DisplayImage
+        img.Visible = not img.Visible
+        print('[Media] Image visible:', img.Visible)
     end
 })
 
--- Input with Enter to Confirm
-InputBox:AddInput('ConfirmInput', {
-    Text = 'Confirm Input',
-    Default = '',
-    Placeholder = 'Press Enter to confirm',
-    Finished = true,
-    Tooltip = 'Callback triggers only on Enter',
+local VideoGroup = Tabs.Display:AddRightGroupbox('Video Playback')
+
+local PlaybackVideo = VideoGroup:AddVideo("PlaybackVideo", {
+    Video = "rbxassetid://5670824523",
+    Height = 180,
+    Looped = true,
+    Playing = true,
+    Volume = 0.3,
+    Visible = true
+})
+
+VideoGroup:AddSlider('VideoVolume', {
+    Text = 'Volume',
+    Default = 30,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Suffix = '%',
     Callback = function(value)
-        print('[Input] Confirmed text:', value)
-        Library:Notify('Text confirmed: ' .. value, 3)
+        PlaybackVideo:SetVolume(value / 100)
     end
 })
 
--- Character Limited Input
-InputBox:AddInput('LimitedInput', {
-    Text = 'Limited Input (15)',
-    Default = '',
-    Placeholder = 'Max 15 characters',
-    MaxLength = 15,
-    AllowEmpty = false,
-    EmptyReset = 'Reset',
-    Tooltip = 'Cannot exceed 15 characters',
-    Callback = function(value)
-        print('[Input] Limited text:', value)
+VideoGroup:AddButton({
+    Text = 'Playing',
+    Func = function()
+        PlaybackVideo:SetPlaying(true)
     end
 })
 
--- Numeric Only Input
-InputBox:AddInput('NumericInput', {
-    Text = 'Numeric Input',
-    Default = '0',
-    Placeholder = 'Numbers only',
-    Numeric = true,
-    Tooltip = 'Accepts only numbers',
+VideoGroup:AddToggle('VideoLooped', {
+    Text = 'Looped',
+    Default = true,
     Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            print('[Input] Number entered:', num)
+        PlaybackVideo:SetLooped(value)
+    end
+})
+
+local ViewportGroup = Tabs.Display:AddRightGroupbox('3D Preview')
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local function WaitForCharacter(player)
+    if player.Character and player.Character.Parent then
+        return player.Character
+    end
+    return player.CharacterAdded:Wait()
+end
+
+local function CloneCharacter(character)
+    local clone = Instance.new("Model")
+    clone.Name = character.Name .. "_Clone"
+
+    for _, obj in ipairs(character:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            local part = obj:Clone()
+            part.Anchored = true
+            part.CanCollide = false
+            part.Parent = clone
+        elseif obj:IsA("Accessory") then
+            local handle = obj:FindFirstChild("Handle")
+            if handle and handle:IsA("BasePart") then
+                local acc = handle:Clone()
+                acc.Parent = clone
+            end
         end
     end
+
+    clone.PrimaryPart = clone:FindFirstChildWhichIsA("BasePart")
+    return clone
+end
+
+local Character = WaitForCharacter(LocalPlayer)
+local ClonedChar = CloneCharacter(Character)
+
+local Viewport = ViewportGroup:AddViewport("CharPreview", {
+    Object = ClonedChar,
+    Clone = false,
+    Interactive = true,
+    AutoFocus = true,
+    Height = 220,
+    Visible = true
 })
 
--- Read-Only Input
-InputBox:AddInput('ReadOnlyInput', {
-    Text = 'Read-Only',
-    Default = 'Cannot be edited',
-    Disabled = true,
-    Tooltip = 'This field is read-only'
-})
+LocalPlayer.CharacterAdded:Connect(function()
+    local char = WaitForCharacter(LocalPlayer)
+    local newClone = CloneCharacter(char)
+    Viewport:SetObject(newClone, false)
+    Viewport:Focus()
+end)
 
--- Key Bindings
-local KeyBox = Tabs.Components:AddRightGroupbox('Key Bindings')
+ViewportGroup:AddLabel('Interactive 3D character model')
 
--- Toggle Mode
-KeyBox:AddLabel('Toggle Mode (On/Off)'):AddKeyPicker('ToggleModeKey', {
-    Default = 'F',
-    Mode = 'Toggle',
-    Text = 'Toggle',
-    Callback = function(value)
-        print('[KeyPicker] Toggle key changed to:', value)
-    end
-})
+-- ==================== ADVANCED TAB ====================
 
--- Hold Mode
-KeyBox:AddLabel('Hold Mode (Active while held)'):AddKeyPicker('HoldModeKey', {
-    Default = 'LeftShift',
-    Mode = 'Hold',
-    Text = 'Hold',
-    Callback = function(value)
-        print('[KeyPicker] Hold key changed to:', value)
-    end
-})
+local DependencyGroup = Tabs.Advanced:AddLeftGroupbox('Dependencies')
 
--- Always Mode
-KeyBox:AddLabel('Always Mode (Permanent activation)'):AddKeyPicker('AlwaysModeKey', {
-    Default = 'None',
-    Mode = 'Always',
-    Text = 'Always Active',
-    Callback = function(value)
-        print('[KeyPicker] Always key changed to:', value)
-    end
-})
+DependencyGroup:AddLabel('Master control enables child elements:')
 
--- Advanced Tab - Complex Features
-
--- Dependency System
-local DependencyBox = Tabs.Advanced:AddLeftGroupbox('Dependency System')
-
-DependencyBox:AddLabel('Enable master toggle to reveal options:')
-
-local MasterToggle = DependencyBox:AddToggle('MasterToggle', {
-    Text = 'Enable Advanced Features',
+local MasterToggle = DependencyGroup:AddToggle('MasterControl', {
+    Text = 'Enable Features',
     Default = false,
-    Tooltip = 'Toggle to show/hide dependent options',
+    Tooltip = 'Controls dependent elements',
     Callback = function(value)
-        print('[Dependency] Master toggle:', value)
+        print('[Dependency] Master:', value)
     end
 })
 
--- Dependency Container
-local DependentBox = DependencyBox:AddDependencyBox()
-DependentBox:SetupDependencies({{Toggles.MasterToggle, true}})
+local DependentBox = DependencyGroup:AddDependencyBox()
+DependentBox:SetupDependencies({{Toggles.MasterControl, true}})
 
-DependentBox:AddToggle('DependentToggle', {
-    Text = 'Dependent Toggle',
+DependentBox:AddToggle('ChildToggle', {
+    Text = 'Child Toggle',
     Default = false,
-    Tooltip = 'Only visible when master is enabled',
+    Tooltip = 'Requires master enabled',
     Callback = function(value)
         print('[Dependency] Child toggle:', value)
     end
 })
 
-DependentBox:AddSlider('DependentSlider', {
-    Text = 'Dependent Slider',
+DependentBox:AddSlider('ChildSlider', {
+    Text = 'Child Slider',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
-    Tooltip = 'Only visible when master is enabled',
+    Tooltip = 'Requires master enabled',
     Callback = function(value)
         print('[Dependency] Child slider:', value)
     end
 })
 
-DependentBox:AddDropdown('DependentDropdown', {
-    Text = 'Dependent Dropdown',
-    Values = {'Choice 1', 'Choice 2', 'Choice 3'},
+DependentBox:AddInput('ChildInput', {
+    Text = 'Child Input',
+    Default = '',
+    Placeholder = 'Requires master...',
+    Tooltip = 'Requires master enabled',
+    Callback = function(value)
+        print('[Dependency] Child input:', value)
+    end
+})
+
+DependentBox:AddDropdown('ChildDropdown', {
+    Text = 'Child Dropdown',
+    Values = {'Mode 1', 'Mode 2', 'Mode 3'},
     Default = 1,
-    Tooltip = 'Only visible when master is enabled',
+    Tooltip = 'Requires master enabled',
     Callback = function(value)
         print('[Dependency] Child dropdown:', value)
     end
 })
 
--- Labels and Dividers
-local LabelBox = Tabs.Advanced:AddLeftGroupbox('Labels & Dividers')
+local NestedTabbox = Tabs.Advanced:AddLeftTabbox()
+local SubTab1 = NestedTabbox:AddTab('Config')
+local SubTab2 = NestedTabbox:AddTab('Data')
+local SubTab3 = NestedTabbox:AddTab('Execute')
 
-LabelBox:AddLabel('Simple label text')
-LabelBox:AddLabel('Multi-line label:\n• Line 1\n• Line 2\n• Line 3', true)
-LabelBox:AddDivider()
-LabelBox:AddLabel('After divider')
-LabelBox:AddDivider('Section Title')
-LabelBox:AddLabel('After titled divider')
-
--- Nested Tabs (Tabbox)
-local NestedTabbox = Tabs.Advanced:AddRightTabbox()
-local NestedTab1 = NestedTabbox:AddTab('Sub-Tab 1', '10511855986')
-local NestedTab2 = NestedTabbox:AddTab('Sub-Tab 2')
-local NestedTab3 = NestedTabbox:AddTab('Sub-Tab 3')
-
--- Sub-Tab 1 Content
-NestedTab1:AddToggle('NestedToggle1', {
-    Text = 'Feature in Sub-Tab 1',
+SubTab1:AddToggle('ConfigToggle', {
+    Text = 'Configuration',
     Default = false,
-    Tooltip = 'Toggle within nested tab',
     Callback = function(value)
-        print('[Nested] Tab 1 toggle:', value)
+        print('[Nested] Config toggle:', value)
     end
 })
 
-NestedTab1:AddInput('NestedInput1', {
-    Text = 'Input in Sub-Tab 1',
-    Default = '',
-    Placeholder = 'Type something...',
-    Tooltip = 'Input within nested tab',
-    Callback = function(value)
-        print('[Nested] Tab 1 input:', value)
-    end
-})
-
--- Sub-Tab 2 Content
-NestedTab2:AddSlider('NestedSlider2', {
-    Text = 'Slider in Sub-Tab 2',
+SubTab1:AddSlider('ConfigSlider', {
+    Text = 'Config Value',
     Default = 75,
     Min = 0,
     Max = 150,
     Rounding = 0,
-    Tooltip = 'Slider within nested tab',
     Callback = function(value)
-        print('[Nested] Tab 2 slider:', value)
+        print('[Nested] Config slider:', value)
     end
 })
 
-NestedTab2:AddDropdown('NestedDropdown2', {
-    Text = 'Dropdown in Sub-Tab 2',
-    Values = {'Red', 'Green', 'Blue', 'Yellow'},
+SubTab2:AddInput('DataInput', {
+    Text = 'Data Entry',
+    Default = '',
+    Placeholder = 'Enter data...',
+    Callback = function(value)
+        print('[Nested] Data input:', value)
+    end
+})
+
+SubTab2:AddDropdown('DataDropdown', {
+    Text = 'Data Type',
+    Values = {'Type A', 'Type B', 'Type C'},
     Default = 1,
-    Tooltip = 'Dropdown within nested tab',
     Callback = function(value)
-        print('[Nested] Tab 2 dropdown:', value)
+        print('[Nested] Data type:', value)
     end
 })
 
--- Sub-Tab 3 Content
-NestedTab3:AddButton({
-    Text = 'Button in Sub-Tab 3',
-    Tooltip = 'Button within nested tab',
+SubTab3:AddButton({
+    Text = 'Execute',
     Func = function()
-        Library:Notify('Sub-Tab 3 button clicked!', 3)
-        print('[Nested] Tab 3 button pressed')
+        Library:Notify('Nested action executed', 2)
+        print('[Nested] Execute button')
     end
 })
 
--- Image Display
-local ImageBox = Tabs.Advanced:AddRightGroupbox('Image Display')
-
-ImageBox:AddImage('ExampleImage', {
-    Image = 'rbxassetid://10511855986',
-    Height = 250,
-    Color = Color3.fromRGB(255, 255, 255),
-    ScaleType = Enum.ScaleType.Fit,
-    Transparency = 0,
-    Visible = true,
-    Tooltip = 'Displaying Roblox asset image'
-})
-
-ImageBox:AddVideo("DemoVideo", {
-    Video = "rbxassetid://5670824523",
-    Height = 250,
-    Looped = true,
-    Playing = true,
-    Volume = 0.6,
-    Visible = true
-})
-
-ImageBox:AddLabel('Image & Video from Roblox asset ID')
-
--- Settings Tab - Menu Configuration
-
-local MenuBox = Tabs.Settings:AddLeftGroupbox('Menu Configuration')
-
--- Keybind Frame Visibility
-Library.KeybindFrame.Visible = true
-
-MenuBox:AddToggle('ShowKeybindFrame', {
-    Text = 'Show Keybind List',
-    Default = true,
-    Tooltip = 'Display active keybinds frame',
-    Callback = function(value)
-        Library.KeybindFrame.Visible = value
-    end
-})
-
--- Watermark Visibility
-MenuBox:AddToggle('ShowWatermark', {
-    Text = 'Show Watermark',
-    Default = true,
-    Tooltip = 'Display watermark with info',
-    Callback = function(value)
-        Library:SetWatermarkVisibility(value)
-    end
-})
-
--- Menu Toggle Keybind
-MenuBox:AddLabel('Menu Toggle Keybind'):AddKeyPicker('MenuKeybind', {
-    Default = 'RightShift',
-    NoUI = true,
-    Text = 'Toggle Menu',
-    Callback = function(value)
-        print('[Menu] Keybind changed to:', value)
-    end
-})
-
-MenuBox:AddDivider()
-
--- Notification Test and Unload UI Buttons (side-by-side)
-local TestNotifyButton = MenuBox:AddButton({
-    Text = 'Test Notification',
-    Tooltip = 'Display test notification',
-    Func = function()
-        Library:Notify('This is a test notification message!', 5)
-    end
-}):AddButton({
-    Text = 'Unload UI',
+SubTab3:AddButton({
+    Text = 'Verify',
     DoubleClick = true,
-    Tooltip = 'Double-click to unload entire UI',
     Func = function()
-        Library:Notify('Unloading UI...', 2)
+        Library:Notify('Verification complete', 2)
+        print('[Nested] Verify button')
+    end
+})
+
+local KeybindGroup = Tabs.Advanced:AddRightGroupbox('Keybind System')
+
+KeybindGroup:AddLabel('Toggle Mode (Press to switch):')
+
+KeybindGroup:AddToggle("ExampleToggle", {
+    Text = "ExampleToggle",
+    Default = false,
+    Callback = function(Value)
+        print("Toggle:", Value)
+    end
+}):AddKeyPicker('ToggleKey', {
+    Default = 'F',
+    Mode = 'Toggle',
+    Text = 'Toggle',
+    SyncToggleState = true,
+    Callback = function(value)
+        print('[Key] Toggle mode:', value)
+    end
+})
+
+KeybindGroup:AddLabel('Hold Mode (Active while held):')
+KeybindGroup:AddToggle("ExampleToggle", {
+    Text = "ExampleToggle",
+    Default = false,
+    Callback = function(Value)
+        print("Toggle:", Value)
+    end
+}):AddKeyPicker('HoldKey', {
+    Default = 'LeftShift',
+    Mode = 'Hold',
+    Text = 'Hold',
+    Callback = function(value)
+        print('[Key] Hold mode:', value)
+    end
+})
+
+KeybindGroup:AddLabel('Always Mode (Permanent):')
+KeybindGroup:AddToggle("ExampleToggle", {
+    Text = "ExampleToggle",
+    Default = false,
+    Callback = function(Value)
+        print("Toggle:", Value)
+    end
+}):AddKeyPicker('AlwaysKey', {
+    Default = 'None',
+    Mode = 'Always',
+    Text = 'Always',
+    Callback = function(value)
+        print('[Key] Always mode:', value)
+    end
+})
+
+-- ==================== SYSTEM TAB ====================
+
+local StatusGroup = Tabs.System:AddLeftGroupbox('System Status')
+
+StatusGroup:AddLabel('Real-time system information')
+
+local StatusLabel = StatusGroup:AddLabel('Initializing...')
+
+local RunService = game:GetService('RunService')
+local Stats = game:GetService('Stats')
+
+local frameCounter = 0
+local frameTime = tick()
+local currentFPS = 60
+
+RunService.Heartbeat:Connect(function()
+    frameCounter = frameCounter + 1
+    
+    if tick() - frameTime >= 1 then
+        currentFPS = frameCounter
+        frameTime = tick()
+        frameCounter = 0
+        
+        local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
+        local memory = Stats:GetTotalMemoryUsageMb()
+        
+        StatusLabel:SetText(string.format(
+            'FPS: %d | Ping: %dms | Memory: %.1fMB',
+            math.floor(currentFPS),
+            math.floor(ping),
+            memory
+        ))
+    end
+end)
+
+local NotifGroup = Tabs.System:AddLeftGroupbox('Notifications')
+
+NotifGroup:AddButton({
+    Text = 'Info Notification',
+    Func = function()
+        Library:Notify('Information message displayed', 3)
+    end
+})
+
+NotifGroup:AddButton({
+    Text = 'Success Notification',
+    Func = function()
+        Library:Notify('Operation completed successfully', 3)
+    end
+})
+
+NotifGroup:AddButton({
+    Text = 'Warning Notification',
+    Func = function()
+        Library:Notify('Warning: Check system settings', 4)
+    end
+})
+
+NotifGroup:AddButton({
+    Text = 'Long Notification',
+    Func = function()
+        Library:Notify('This is a longer notification message that vides more detailed information to the user', 5)
+    end
+})
+
+local ActionGroup = Tabs.System:AddRightGroupbox('System Actions')
+
+ActionGroup:AddButton({
+    Text = 'Reload Interface',
+    Func = function()
+        Library:Notify('Reloading interface...', 2)
+        task.wait(0.5)
+        SaveManager:LoadAutoloadConfig()
+        Library:Notify('Interface reloaded', 2)
+    end
+})
+
+ActionGroup:AddButton({
+    Text = 'Reset Configuration',
+    DoubleClick = true,
+    Tooltip = 'Double-click to reset all settings',
+    Func = function()
+        Library:Notify('Configuration reset', 2)
+        print('[System] Config reset')
+    end
+})
+
+ActionGroup:AddDivider()
+
+ActionGroup:AddButton({
+    Text = 'Unload Interface',
+    DoubleClick = true,
+    Tooltip = 'Double-click to unload completely',
+    Func = function()
+        Library:Notify('Unloading system...', 2)
         task.wait(0.5)
         Library:Unload()
     end
 })
 
--- Dynamic Watermark
+-- ==================== SETTINGS TAB ====================
+
+local UIGroup = Tabs.Settings:AddLeftGroupbox('UI Configuration')
+
+Library.KeybindFrame.Visible = true
+
+UIGroup:AddToggle('ShowKeybinds', {
+    Text = 'Show Keybind Frame',
+    Default = true,
+    Tooltip = 'Display active keybinds panel',
+    Callback = function(value)
+        Library.KeybindFrame.Visible = value
+    end
+})
+
+UIGroup:AddToggle('ShowWatermark', {
+    Text = 'Show Watermark',
+    Default = true,
+    Tooltip = 'Display information watermark',
+    Callback = function(value)
+        Library:SetWatermarkVisibility(value)
+    end
+})
+
+UIGroup:AddToggle('CustomCursor', {
+    Text = 'Custom Cursor',
+    Default = true,
+    Tooltip = 'Use custom cursor design',
+    Callback = function(value)
+        Library.ShowCustomCursor = value
+    end
+})
+
+UIGroup:AddDivider()
+
+UIGroup:AddLabel('Menu Toggle Keybind:')
+UIGroup:AddToggle("ExampleToggle", {
+    Text = "ExampleToggle",
+    Default = false,
+    Callback = function(Value)
+        print("Toggle:", Value)
+    end
+}):AddKeyPicker('MenuKeybind', {
+    Default = 'RightShift',
+    NoUI = true,
+    Text = 'Menu Toggle',
+    Callback = function(value)
+        print('[Menu] Keybind:', value)
+    end
+})
+
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({'MenuKeybind'})
+
+ThemeManager:SetFolder('LinoriaLib')
+SaveManager:SetFolder('LinoriaLib/configs')
+
+SaveManager:BuildConfigSection(Tabs.Settings)
+ThemeManager:ApplyToTab(Tabs.Settings)
+
 Library:SetWatermarkVisibility(true)
 
-local function InitializeWatermark()
-    local RunService = game:GetService('RunService')
-    local Stats = game:GetService('Stats')
-    
-    local frameStart = tick()
-    local frameCount = 0
-    local currentFPS = 60
+local function UpdateWatermark()
+    local watermarkFPS = 60
+    local watermarkFrame = 0
+    local watermarkTime = tick()
     
     RunService.Heartbeat:Connect(function()
-        frameCount = frameCount + 1
+        watermarkFrame = watermarkFrame + 1
         
-        if tick() - frameStart >= 1 then
-            currentFPS = frameCount
-            frameStart = tick()
-            frameCount = 0
+        if tick() - watermarkTime >= 1 then
+            watermarkFPS = watermarkFrame
+            watermarkTime = tick()
+            watermarkFrame = 0
         end
         
         local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
         
         Library:SetWatermark(string.format(
-            'LinoriaLib Examples | %d FPS | %dms Ping',
-            math.floor(currentFPS),
+            'LinoriaLib | %d FPS | %dms',
+            math.floor(watermarkFPS),
             math.floor(ping)
         ))
     end)
 end
 
-InitializeWatermark()
+UpdateWatermark()
 
--- Save System Configuration
-ThemeManager:SetLibrary(Library)
-SaveManager:SetLibrary(Library)
-
--- Ignore theme settings in configs
-SaveManager:IgnoreThemeSettings()
-
--- Ignore menu keybind from being saved
-SaveManager:SetIgnoreIndexes({'MenuKeybind'})
-
--- Set save folders
-ThemeManager:SetFolder('LinoriaExamples')
-SaveManager:SetFolder('LinoriaExamples/configs')
-
--- Build UI for save system
-SaveManager:BuildConfigSection(Tabs.Settings)
-ThemeManager:ApplyToTab(Tabs.Settings)
-
--- Load autoload config if exists
 SaveManager:LoadAutoloadConfig()
 
--- Final Message
-Library:Notify('LinoriaLib Examples loaded successfully!', 5)
+Library:Notify('LinoriaLib system initialized', 4)
