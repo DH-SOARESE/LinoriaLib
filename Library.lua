@@ -5487,6 +5487,8 @@ do
         ZIndex = 100;
         Parent = ScreenGui;
     });
+    
+    Library:MakeDraggable(KeybindOuter)
 
     local KeybindInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
