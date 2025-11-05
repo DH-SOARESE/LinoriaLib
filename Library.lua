@@ -83,11 +83,11 @@ end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.ResetOnSpawn = false
-ParentUI(ScreenGui, 9e9^9e8)
+ParentUI(ScreenGui, 1e308)
 
 local ModalScreenGui = Instance.new("ScreenGui")
 ModalScreenGui.ResetOnSpawn = false
-ParentUI(ModalScreenGui, 9e9^9e8)
+ParentUI(ModalScreenGui, 1e308)
 
 local ModalElement = Instance.new("TextButton");
 ModalElement.BackgroundTransparency = 1
@@ -5546,7 +5546,6 @@ do
 
     Library.KeybindFrame = KeybindOuter;
     Library.KeybindContainer = KeybindContainer;
-    Library:MakeDraggable(KeybindOuter);
 end;
 
 function Library:SetWatermarkVisibility(Bool)
