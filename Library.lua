@@ -5487,8 +5487,6 @@ do
         ZIndex = 100;
         Parent = ScreenGui;
     });
-    
-    Library:MakeDraggable(KeybindOuter)
 
     local KeybindInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -5517,15 +5515,15 @@ do
     }, true);
 
     local KeybindLabel = Library:CreateLabel({
-        Size = UDim2.new(1, 0, 0, 20);
-        Position = UDim2.fromOffset(5, 2),
-        TextXAlignment = Enum.TextXAlignment.Left,
+		Size = UDim2.new(1, 0, 0, 20);
+		Position = UDim2.fromOffset(5, 2),
+		TextXAlignment = Enum.TextXAlignment.Left,
 
-        Text = 'Keybinds';
-        ZIndex = 104;
-        Parent = KeybindInner;
-    });
-    Library:MakeDraggable(KeybindOuter);
+		Text = 'Keybinds';
+		ZIndex = 104;
+		Parent = KeybindInner;
+	});
+	Library:MakeDraggableUsingParent(KeybindLabel, KeybindOuter);
 
     local KeybindContainer = Library:Create('Frame', {
         BackgroundTransparency = 1;
