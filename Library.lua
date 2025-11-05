@@ -3704,10 +3704,6 @@ end;
             end
             Library.CurrentActiveToggle = Toggle
 
-            if Library.IsMobile then
-                ToggleOuter.BorderColor3 = Library.AccentColor
-            end
-
             for _, Addon in next, Toggle.Addons do  
                 if Library:MouseIsOverFrame(Addon.DisplayFrame) then return end  
             end  
@@ -3717,18 +3713,6 @@ end;
             else
                 clickStartPosition = Input.Position
             end
-
-            local releaseConnection = InputService.InputEnded:Connect(function(endedInput)
-                if (endedInput.UserInputType == Enum.UserInputType.MouseButton1 or endedInput.UserInputType == Enum.UserInputType.Touch) and clickStartPosition then
-                    if Library.IsMobile then
-                        ToggleOuter.BorderColor3 = Color3.new(0, 0, 0)
-                    end
-                    isDragging = false
-                    clickStartPosition = nil
-                    Library.CurrentActiveToggle = nil
-                    releaseConnection:Disconnect()
-                end
-            end)
         end;  
     end);  
 
@@ -3758,6 +3742,7 @@ end;
             end
             isDragging = false
             clickStartPosition = nil
+            Library.CurrentActiveToggle = nil
         end;  
     end);  
 
