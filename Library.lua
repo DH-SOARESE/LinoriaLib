@@ -179,8 +179,8 @@ local Library = {
     ThemeManager = nil;
     
     -- Cursor --
-    CursorSize = 20
-    CursorImage = "12230889708"
+    CursorSize = 20;
+    CursorImage = "12230889708";
 
     -- for better usage --
     Toggles = Toggles;
