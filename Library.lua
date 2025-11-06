@@ -6622,56 +6622,63 @@ end
         Window.Tabs[Name] = Tab;
         return Tab;
     end;
-
-
-local TransparencyCache = {}
-local Toggled = false
-local Fading = false
+    
+    local TransparencyCache = {}
+    local Fading = false
 
 function Library:Toggle(Toggling)
-    if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
+    if typeof(Toggling) == "boolean" and Toggling == Library.Toggled then return end
     if Fading then return end
 
     local FadeTime = Config.MenuFadeTime
     Fading = true
-    Toggled = not Toggled
-    Library.Toggled = Toggled
+    Library.Toggled = not Library.Toggled
+    local Toggled = Library.Toggled
     ModalElement.Modal = Toggled
 
     if not CursorGui then
-    CursorGui = Instance.new("ScreenGui")
-    CursorGui.Name = "LinoriaCursor"
-    CursorGui.IgnoreGuiInset = true
-    CursorGui.ResetOnSpawn = false
-    CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ParentUI(CursorGui, math.huge)
+        CursorGui = Instance.new("ScreenGui")
+        CursorGui.Name = "LinoriaCursor"
+        CursorGui.IgnoreGuiInset = true
+        CursorGui.ResetOnSpawn = false
+        CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        ParentUI(CursorGui, math.huge)
 
-    local CursorImage = Instance.new("ImageLabel")
-    CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
-    CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-    CursorImage.BackgroundTransparency = 1
-    CursorImage.Image = "rbxassetid://" .. Library.CursorImage
-    CursorImage.ImageColor3 = Library.AccentColor
-    CursorImage.ZIndex = 9999
-    CursorImage.Visible = Library.ShowCustomCursor
-    CursorImage.Parent = CursorGui
-
-    local OldMouseIconState = InputService.MouseIconEnabled
-    InputService.MouseIconEnabled = not Library.ShowCustomCursor
-
-    RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-        local pos = InputService:GetMouseLocation()
-        CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
+        local CursorImage = Instance.new("ImageLabel")
+        CursorImage.Name = "CursorImage"
+        CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
+        CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+        CursorImage.BackgroundTransparency = 1
+        CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+        CursorImage.ImageColor3 = Library.AccentColor
+        CursorImage.ZIndex = 9999
         CursorImage.Visible = Library.ShowCustomCursor
+        CursorImage.Parent = CursorGui
 
-        if not Library.Toggled or not CursorGui or not CursorGui.Parent then
-            InputService.MouseIconEnabled = OldMouseIconState
-            RunService:UnbindFromRenderStep("LinoriaCursor")
-            CursorGui:Destroy()
+        local OldMouseIconState = InputService.MouseIconEnabled
+        InputService.MouseIconEnabled = not Library.ShowCustomCursor
+
+        RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
+            local pos = InputService:GetMouseLocation()
+            if CursorGui and CursorGui.Parent then
+                local cursor = CursorGui:FindFirstChild("CursorImage")
+                if cursor then
+                    cursor.Position = UDim2.fromOffset(pos.X, pos.Y)
+                    cursor.Visible = Library.ShowCustomCursor and Library.Toggled
+                end
+            else
+                InputService.MouseIconEnabled = OldMouseIconState
+                RunService:UnbindFromRenderStep("LinoriaCursor")
+            end
+        end)
+    else
+        local cursor = CursorGui:FindFirstChild("CursorImage")
+        if cursor then
+            cursor.Visible = Library.ShowCustomCursor and Toggled
         end
-    end)
-end
+    end
 
+    -- Fechar menus internos
     for _, Option in ipairs(Options) do
         task.spawn(function()
             if Option.Type == "Dropdown" then
@@ -6685,8 +6692,9 @@ end
         end)
     end
 
+    -- Tween de transparência
     for _, Desc in ipairs(Outer:GetDescendants()) do
-        local Props = nil
+        local Props
         if Desc:IsA("ImageLabel") then
             Props = {"ImageTransparency", "BackgroundTransparency"}
         elseif Desc:IsA("TextLabel") or Desc:IsA("TextBox") then
@@ -6696,6 +6704,7 @@ end
         elseif Desc:IsA("UIStroke") then
             Props = {"Transparency"}
         end
+
         if Props then
             local Cache = TransparencyCache[Desc] or {}
             TransparencyCache[Desc] = Cache
