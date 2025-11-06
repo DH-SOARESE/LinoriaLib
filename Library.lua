@@ -5525,7 +5525,7 @@ do
         BackgroundColor3 = Library.AccentColor;
         BorderSizePixel = 0;
         Size = UDim2.new(1, 0, 0, 2);
-        ZIndex = 102;
+        ZIndex = Library.IsMobile and 0 or 102;
         Parent = KeybindInner;
     });
 
