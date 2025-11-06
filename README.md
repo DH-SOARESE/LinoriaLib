@@ -103,7 +103,7 @@ local SubTab2 = SubTabs:AddTab('Data')
 Basic toggle with optional keybind and color picker.
 
 ```lua
-local MyToggle = Groupbox:AddToggle('UniqueID', {
+Groupbox:AddToggle('UniqueID', {
     Text = 'Enable Feature',
     Default = false,
     Tooltip = 'Toggle feature on/off',
@@ -114,7 +114,7 @@ local MyToggle = Groupbox:AddToggle('UniqueID', {
 })
 
 -- With keybind
-MyToggle:AddKeyPicker('KeyID', {
+:AddKeyPicker('KeyID', {
     Default = 'E',
     Mode = 'Toggle',
     Text = 'Hotkey',
@@ -125,7 +125,7 @@ MyToggle:AddKeyPicker('KeyID', {
 })
 
 -- With color picker
-MyToggle:AddColorPicker('ColorID', {
+:AddColorPicker('ColorID', {
     Title = 'Color',
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.5,
