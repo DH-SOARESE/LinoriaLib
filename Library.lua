@@ -1145,6 +1145,7 @@ do
         TextColor3 = Library.FontColor;
         TextSize = 14;
         TextStrokeTransparency = 0;
+        ClearTextOnFocus = false;
         TextXAlignment = Enum.TextXAlignment.Left;
         ZIndex = 20,
         Parent = HueBoxInner;
@@ -1161,7 +1162,8 @@ do
     local RgbBox = Library:Create(RgbBoxBase.Frame:FindFirstChild('TextBox'), {
         Text = '255, 255, 255',
         PlaceholderText = 'RGB color',
-        TextColor3 = Library.FontColor
+        TextColor3 = Library.FontColor,
+        ClearTextOnFocus = false
     });
 
     local TransparencyBoxOuter, TransparencyBoxInner, TransparencyCursor;
