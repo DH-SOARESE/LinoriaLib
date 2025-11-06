@@ -1645,7 +1645,7 @@ end;
                 BackgroundTransparency = 1;
                 Size = UDim2.new(1, 0, 0, 18);
                 Visible = false;
-                ZIndex = 110;
+                ZIndex = Library.IsMobile and 0 or 110;
                 Parent = Library.KeybindContainer;
             });
 
@@ -1655,7 +1655,7 @@ end;
                 Size = UDim2.new(0, 13, 0, 13);
                 Position = UDim2.new(0, 0, 0, 6);
                 Visible = true;
-                ZIndex = 110;
+                ZIndex = Library.IsMobile and 0 or 110;
                 Parent = KeybindsToggleContainer;
             });
 
@@ -1668,7 +1668,7 @@ end;
                 BorderColor3 = Library.OutlineColor;
                 BorderMode = Enum.BorderMode.Inset;
                 Size = UDim2.new(1, 0, 1, 0);
-                ZIndex = 111;
+                ZIndex = Library.IsMobile and 0 or 111;
                 Parent = KeybindsToggleOuter;
             });
 
@@ -1684,7 +1684,7 @@ end;
                 TextSize = 14;
                 Text = "";
                 TextXAlignment = Enum.TextXAlignment.Left;
-                ZIndex = 111;
+                ZIndex = Library.IsMobile and 0 or 111;
                 Parent = KeybindsToggleInner;
             });
 
@@ -1700,7 +1700,7 @@ end;
             local KeybindsToggleRegion = Library:Create('Frame', {
                 BackgroundTransparency = 1;
                 Size = UDim2.new(0, 170, 1, 0);
-                ZIndex = 113;
+                ZIndex = Library.IsMobile and 0 or 113;
                 Parent = KeybindsToggleOuter;
             });
 
@@ -5503,7 +5503,7 @@ do
         Position = UDim2.new(0, 10, 0.5, 0);
         Size = UDim2.new(0, 210, 0, 20);
         Visible = false;
-        ZIndex = 100;
+        ZIndex = Library.IsMobile and 0 or 100;
         Parent = ScreenGui;
     });
 
@@ -5512,7 +5512,7 @@ do
         BorderColor3 = Library.OutlineColor;
         BorderMode = Enum.BorderMode.Inset;
         Size = UDim2.new(1, 0, 1, 0);
-        ZIndex = 101;
+        ZIndex = Library.IsMobile and 0 or 101;
         Parent = KeybindOuter;
     });
 
@@ -5539,7 +5539,7 @@ do
 		TextXAlignment = Enum.TextXAlignment.Left,
 
 		Text = 'Keybinds';
-		ZIndex = 104;
+		ZIndex = Library.IsMobile and 0 or 104;
 		Parent = KeybindInner;
 	});
 	Library:MakeDraggableUsingParent(KeybindLabel, KeybindOuter);
@@ -5548,7 +5548,7 @@ do
         BackgroundTransparency = 1;
         Size = UDim2.new(1, 0, 1, -20);
         Position = UDim2.new(0, 0, 0, 20);
-        ZIndex = 1;
+        ZIndex = Library.IsMobile and 0 or 1;
         Parent = KeybindInner;
     });
 
