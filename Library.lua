@@ -3726,8 +3726,8 @@ end;
         if not clickStartPosition then return end
         
         if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-            local distance = (Input.Position - clickStartPosition).Magnitude
-            if distance > 5 then  
+            local delta = Input.Position - clickStartPosition
+            if math.abs(delta.Y) > 5 then  
                 isDragging = true
             end
         end
