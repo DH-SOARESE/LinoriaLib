@@ -177,6 +177,10 @@ local Library = {
     -- addons --
     SaveManager = nil;
     ThemeManager = nil;
+    
+    -- Cursor --
+    CursorSize = 20
+    CursorImage = "12230889708"
 
     -- for better usage --
     Toggles = Toggles;
@@ -6638,7 +6642,7 @@ function Library:Toggle(Toggling)
         Outer.Visible = true
 
         if not CursorGui then
-            CursorGui = Instance.new("ScreenGui")
+            local CursorGui = Instance.new("ScreenGui")
             CursorGui.Name = "LinoriaCursor"
             CursorGui.IgnoreGuiInset = true
             CursorGui.ResetOnSpawn = false
@@ -6646,10 +6650,10 @@ function Library:Toggle(Toggling)
             ParentUI(CursorGui, math.huge)
 
             local CursorImage = Instance.new("ImageLabel")
-            CursorImage.Size = UDim2.fromOffset(20, 20)
+            CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
             CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
             CursorImage.BackgroundTransparency = 1
-            CursorImage.Image = "rbxassetid://12230889708"
+            CursorImage.Image = "rbxassetid://" .. Library.CursorImage
             CursorImage.ImageColor3 = Library.AccentColor
             CursorImage.ZIndex = 9999
             CursorImage.Visible = Library.ShowCustomCursor
@@ -6668,7 +6672,6 @@ function Library:Toggle(Toggling)
                     InputService.MouseIconEnabled = OldMouseIconState
                     RunService:UnbindFromRenderStep("LinoriaCursor")
                     CursorGui:Destroy()
-                    CursorGui = nil
                 end
             end)
         end
