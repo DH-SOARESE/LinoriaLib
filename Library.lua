@@ -3585,24 +3585,20 @@ end;
     local isDragging = false
     local clickStartPosition = nil
 
-    Library:OnHighlight(ToggleRegion, ToggleOuter,  
-        { BorderColor3 = 'AccentColor' },  
-        { BorderColor3 = 'Black' },  
-        function()  
-            if Toggle.Disabled then  
-                return false;  
-            end;  
+    local function highlightOn()
+        ToggleOuter.BorderColor3 = Library.AccentColor
+    end
 
-            if Library.CurrentActiveToggle ~= nil and Library.CurrentActiveToggle ~= Toggle then
-                return false;
-            end
+    local function highlightOff()
+        ToggleOuter.BorderColor3 = Color3.new(0, 0, 0)
+    end
 
-            for _, Addon in next, Toggle.Addons do  
-                if Library:MouseIsOverFrame(Addon.DisplayFrame) then return false end  
-            end  
-            return true  
-        end  
-    );  
+    local function isMouseOver(position)
+        local absPos = ToggleRegion.AbsolutePosition
+        local absSize = ToggleRegion.AbsoluteSize
+        return position.X >= absPos.X and position.X <= absPos.X + absSize.X and
+               position.Y >= absPos.Y and position.Y <= absPos.Y + absSize.Y
+    end
 
     function Toggle:UpdateColors()  
         Toggle:Display();  
@@ -3719,6 +3715,7 @@ end;
             else
                 clickStartPosition = Input.Position
             end
+            highlightOn()
         end;  
     end);  
 
@@ -3729,6 +3726,11 @@ end;
             local delta = Input.Position - clickStartPosition
             if math.abs(delta.Y) > 5 then  
                 isDragging = true
+            end
+            if isMouseOver(Input.Position) then
+                highlightOn()
+            else
+                highlightOff()
             end
         end
     end)
@@ -3749,6 +3751,7 @@ end;
             isDragging = false
             clickStartPosition = nil
             Library.CurrentActiveToggle = nil
+            highlightOff()
         end;  
     end);  
 
