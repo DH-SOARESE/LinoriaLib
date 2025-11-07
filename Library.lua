@@ -4769,279 +4769,299 @@ end;
     Options[Idx] = Dropdown;  
     return Dropdown;  
 end;
+    
     function BaseGroupboxFuncs:AddViewport(Idx, Info)
-        local Dragging, Pinching = false, false
-        local LastMousePos, LastPinchDist = nil, 0
+    local Dragging, Pinching = false, false
+    local LastMousePos, LastPinchDist = nil, 0
+    local IsHovered = false
 
-        local Viewport = {
-            Object = if Info.Clone then Info.Object:Clone() else Info.Object,
-            Camera = if not Info.Camera then Instance.new("Camera") else Info.Camera,
-            Interactive = Info.Interactive,
-            AutoFocus = Info.AutoFocus,
-            Height = if typeof(Info.Height) == "number" and Info.Height > 0 then Info.Height else 200,
-            Visible = Info.Visible,
-            Type = "Viewport",
-        }
+    local Viewport = {
+        Object = if Info.Clone then Info.Object:Clone() else Info.Object,
+        Camera = if not Info.Camera then Instance.new("Camera") else Info.Camera,
+        Interactive = Info.Interactive,
+        AutoFocus = Info.AutoFocus,
+        Height = if typeof(Info.Height) == "number" and Info.Height > 0 then Info.Height else 200,
+        Visible = Info.Visible,
+        Type = "Viewport",
+    }
 
+    assert(
+        typeof(Viewport.Object) == "Instance" and (Viewport.Object:IsA("BasePart") or Viewport.Object:IsA("Model")),
+        "Instance must be a BasePart or Model."
+    )
+
+    assert(
+        typeof(Viewport.Camera) == "Instance" and Viewport.Camera:IsA("Camera"),
+        "Camera must be a valid Camera instance."
+    )
+
+    local function GetModelSize(model)
+        if model:IsA("BasePart") then
+            return model.Size
+        end
+
+        return select(2, model:GetBoundingBox())
+    end
+
+    local function FocusCamera()
+        local ModelSize = GetModelSize(Viewport.Object)
+        local MaxExtent = math.max(ModelSize.X, ModelSize.Y, ModelSize.Z)
+        local CameraDistance = MaxExtent * 2
+        local ModelPosition = Viewport.Object:GetPivot().Position
+
+        Viewport.Camera.CFrame =
+            CFrame.new(ModelPosition + Vector3.new(0, MaxExtent / 2, CameraDistance), ModelPosition)
+    end
+
+    local Blank = nil;        
+    local Groupbox = self
+    local Container = Groupbox.Container
+
+    local Holder = Library:Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -4, 0, Info.Height),
+        Visible = Viewport.Visible,
+        Parent = Container,
+    })
+
+    local Box = Library:Create("Frame", {
+        BackgroundColor3 = Library.MainColor,
+        BorderColor3 = Library.OutlineColor,
+        BorderSizePixel = 1,
+        BorderMode = Enum.BorderMode.Inset,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 6,
+        Parent = Holder,
+    })
+
+    Library:AddToRegistry(Box, {
+        BackgroundColor3 = 'MainColor';
+        BorderColor3 = 'OutlineColor';
+    });
+
+    Library:Create("UIPadding", {
+        PaddingBottom = UDim.new(0, 3),
+        PaddingLeft = UDim.new(0, 8),
+        PaddingRight = UDim.new(0, 8),
+        PaddingTop = UDim.new(0, 4),
+        Parent = Box,
+    });
+
+    local ViewportFrame = Library:Create("ViewportFrame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        Parent = Box,
+        CurrentCamera = Viewport.Camera,
+        Active = Viewport.Interactive,
+        ZIndex = 7
+    })
+
+    ViewportFrame.MouseEnter:Connect(function()
+        if not Viewport.Interactive then
+            return
+        end
+        
+        IsHovered = true
+        
+        for _, Side in pairs(Library.Window.Tabs[Library.ActiveTab]:GetSides()) do
+            if typeof(Side) == "Instance" then
+                if Side:IsA("ScrollingFrame") then
+                    Side.ScrollingEnabled = false;
+                end
+            end;
+        end;
+    end)
+
+    ViewportFrame.MouseLeave:Connect(function()
+        if not Viewport.Interactive then
+            return
+        end
+
+        IsHovered = false
+
+        for _, Side in pairs(Library.Window.Tabs[Library.ActiveTab]:GetSides()) do
+            if typeof(Side) == "Instance" then
+                if Side:IsA("ScrollingFrame") then
+                    Side.ScrollingEnabled = true;
+                end
+            end;
+        end;
+    end)
+
+    ViewportFrame.InputBegan:Connect(function(input)
+        if not Viewport.Interactive then
+            return
+        end
+
+        if input.UserInputType == Enum.UserInputType.MouseButton2 then
+            Dragging = true
+            LastMousePos = input.Position
+        elseif input.UserInputType == Enum.UserInputType.Touch and not Pinching then
+            Dragging = true
+            LastMousePos = input.Position
+        end
+    end)
+
+    Library:GiveSignal(InputService.InputEnded:Connect(function(input)
+        if not Viewport.Interactive then
+            return
+        end
+
+        if input.UserInputType == Enum.UserInputType.MouseButton2 then
+            Dragging = false
+        elseif input.UserInputType == Enum.UserInputType.Touch then
+            Dragging = false
+        end
+    end))
+
+    Library:GiveSignal(InputService.InputChanged:Connect(function(input)
+        if not Viewport.Interactive or not Dragging or Pinching then
+            return
+        end
+
+        if
+            input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch
+        then
+            local MouseDelta = input.Position - LastMousePos
+            LastMousePos = input.Position
+
+            local Position = Viewport.Object:GetPivot().Position
+            local Camera = Viewport.Camera
+
+            local RotationY = CFrame.fromAxisAngle(Vector3.new(0, 1, 0), -MouseDelta.X * 0.01)
+            Camera.CFrame = CFrame.new(Position) * RotationY * CFrame.new(-Position) * Camera.CFrame
+
+            local RotationX = CFrame.fromAxisAngle(Camera.CFrame.RightVector, -MouseDelta.Y * 0.01)
+            local PitchedCFrame = CFrame.new(Position) * RotationX * CFrame.new(-Position) * Camera.CFrame
+
+            if PitchedCFrame.UpVector.Y > 0.1 then
+                Camera.CFrame = PitchedCFrame
+            end
+        end
+    end))
+
+    ViewportFrame.InputChanged:Connect(function(input)
+        if not Viewport.Interactive then
+            return
+        end
+
+        if input.UserInputType == Enum.UserInputType.MouseWheel then
+            local ZoomAmount = input.Position.Z * 2
+            Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * ZoomAmount
+        end
+    end)
+
+    Library:GiveSignal(InputService.TouchPinch:Connect(function(touchPositions, scale, velocity, state)
+        if not Viewport.Interactive or not Library:MouseIsOverFrame(ViewportFrame, touchPositions[1]) then
+            return
+        end
+
+        if state == Enum.UserInputState.Begin then
+            Pinching = true
+            Dragging = false
+            LastPinchDist = (touchPositions[1] - touchPositions[2]).Magnitude
+        elseif state == Enum.UserInputState.Change then
+            local currentDist = (touchPositions[1] - touchPositions[2]).Magnitude
+            local delta = (currentDist - LastPinchDist) * 0.1
+            LastPinchDist = currentDist
+            Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * delta
+        elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
+            Pinching = false
+        end
+    end))
+
+    Library:GiveSignal(InputService.InputBegan:Connect(function(input)
+        if not Viewport.Interactive or not IsHovered then
+            return
+        end
+
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            local key = input.KeyCode
+            if key == Enum.KeyCode.Equals then  -- + key for zoom in
+                Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * 2
+            elseif key == Enum.KeyCode.Minus then  -- - key for zoom out
+                Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * -2
+            end
+        end
+    end))
+
+    Viewport.Object.Parent = ViewportFrame
+    if Viewport.AutoFocus then
+        FocusCamera()
+    end
+
+    function Viewport:SetObject(Object: Instance, Clone: boolean?)
+        assert(Object, "Object cannot be nil.")
+
+        if Clone then
+            Object = Object:Clone()
+        end
+
+        if Viewport.Object then
+            Viewport.Object:Destroy()
+        end
+
+        Viewport.Object = Object
+        Viewport.Object.Parent = ViewportFrame
+
+        Groupbox:Resize()
+    end
+
+    function Viewport:SetHeight(Height: number)
+        assert(Height > 0, "Height must be greater than 0.")
+        Viewport.Height = Height
+
+        Holder.Size = UDim2.new(1, -4, 0, Viewport.Height)
+        Groupbox:Resize()
+    end
+
+    function Viewport:Focus()
+        if not Viewport.Object then
+            return
+        end
+
+        FocusCamera()
+    end
+
+    function Viewport:SetCamera(Camera: Instance)
         assert(
-            typeof(Viewport.Object) == "Instance" and (Viewport.Object:IsA("BasePart") or Viewport.Object:IsA("Model")),
-            "Instance must be a BasePart or Model."
-        )
-
-        assert(
-            typeof(Viewport.Camera) == "Instance" and Viewport.Camera:IsA("Camera"),
+            Camera and typeof(Camera) == "Instance" and Camera:IsA("Camera"),
             "Camera must be a valid Camera instance."
         )
 
-        local function GetModelSize(model)
-            if model:IsA("BasePart") then
-                return model.Size
-            end
+        Viewport.Camera = Camera
+        ViewportFrame.CurrentCamera = Camera
+    end
 
-            return select(2, model:GetBoundingBox())
-        end
+    function Viewport:SetInteractive(Interactive: boolean)
+        Viewport.Interactive = Interactive
+        ViewportFrame.Active = Interactive
+    end
 
-        local function FocusCamera()
-            local ModelSize = GetModelSize(Viewport.Object)
-            local MaxExtent = math.max(ModelSize.X, ModelSize.Y, ModelSize.Z)
-            local CameraDistance = MaxExtent * 2
-            local ModelPosition = Viewport.Object:GetPivot().Position
+    function Viewport:SetVisible(Visible: boolean)
+        Viewport.Visible = Visible;
 
-            Viewport.Camera.CFrame =
-                CFrame.new(ModelPosition + Vector3.new(0, MaxExtent / 2, CameraDistance), ModelPosition)
-        end
+        Holder.Visible = Viewport.Visible;
+        if Blank then Blank.Visible = Viewport.Visible end;
 
-        local Blank = nil;        
-        local Groupbox = self
-        local Container = Groupbox.Container
+        Groupbox:Resize()
+    end
 
-        local Holder = Library:Create("Frame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, -4, 0, Info.Height),
-            Visible = Viewport.Visible,
-            Parent = Container,
-        })
+    Viewport:SetHeight(Viewport.Height)
 
-        local Box = Library:Create("Frame", {
-            BackgroundColor3 = Library.MainColor,
-            BorderColor3 = Library.OutlineColor,
-            BorderSizePixel = 1,
-            BorderMode = Enum.BorderMode.Inset,
-            Size = UDim2.fromScale(1, 1),
-            ZIndex = 6,
-            Parent = Holder,
-        })
+    Blank = Groupbox:AddBlank(10, Viewport.Visible);
+    Groupbox:Resize();
 
-        Library:AddToRegistry(Box, {
-            BackgroundColor3 = 'MainColor';
-            BorderColor3 = 'OutlineColor';
-        });
+    Viewport.Holder = Holder;
+    Viewport.Container = Container;
 
-        Library:Create("UIPadding", {
-            PaddingBottom = UDim.new(0, 3),
-            PaddingLeft = UDim.new(0, 8),
-            PaddingRight = UDim.new(0, 8),
-            PaddingTop = UDim.new(0, 4),
-            Parent = Box,
-        });
+    Options[Idx] = Viewport
 
-        local ViewportFrame = Library:Create("ViewportFrame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.fromScale(1, 1),
-            Parent = Box,
-            CurrentCamera = Viewport.Camera,
-            Active = Viewport.Interactive,
-            ZIndex = 7
-        })
+    Library:UpdateDependencyBoxes();
 
-        ViewportFrame.MouseEnter:Connect(function()
-            if not Viewport.Interactive then
-                return
-            end
-            
-            for _, Side in pairs(Library.Window.Tabs[Library.ActiveTab]:GetSides()) do
-                if typeof(Side) == "Instance" then
-                    if Side:IsA("ScrollingFrame") then
-                        Side.ScrollingEnabled = false;
-                    end
-                end;
-            end;
-        end)
-
-        ViewportFrame.MouseLeave:Connect(function()
-            if not Viewport.Interactive then
-                return
-            end
-
-            for _, Side in pairs(Library.Window.Tabs[Library.ActiveTab]:GetSides()) do
-                if typeof(Side) == "Instance" then
-                    if Side:IsA("ScrollingFrame") then
-                        Side.ScrollingEnabled = true;
-                    end
-                end;
-            end;
-        end)
-
-        ViewportFrame.InputBegan:Connect(function(input)
-            if not Viewport.Interactive then
-                return
-            end
-
-            if input.UserInputType == Enum.UserInputType.MouseButton2 then
-                Dragging = true
-                LastMousePos = input.Position
-            elseif input.UserInputType == Enum.UserInputType.Touch and not Pinching then
-                Dragging = true
-                LastMousePos = input.Position
-            end
-        end)
-
-        Library:GiveSignal(InputService.InputEnded:Connect(function(input)
-            if not Viewport.Interactive then
-                return
-            end
-
-            if input.UserInputType == Enum.UserInputType.MouseButton2 then
-                Dragging = false
-            elseif input.UserInputType == Enum.UserInputType.Touch then
-                Dragging = false
-            end
-        end))
-
-        Library:GiveSignal(InputService.InputChanged:Connect(function(input)
-            if not Viewport.Interactive or not Dragging or Pinching then
-                return
-            end
-
-            if
-                input.UserInputType == Enum.UserInputType.MouseMovement
-                or input.UserInputType == Enum.UserInputType.Touch
-            then
-                local MouseDelta = input.Position - LastMousePos
-                LastMousePos = input.Position
-
-                local Position = Viewport.Object:GetPivot().Position
-                local Camera = Viewport.Camera
-
-                local RotationY = CFrame.fromAxisAngle(Vector3.new(0, 1, 0), -MouseDelta.X * 0.01)
-                Camera.CFrame = CFrame.new(Position) * RotationY * CFrame.new(-Position) * Camera.CFrame
-
-                local RotationX = CFrame.fromAxisAngle(Camera.CFrame.RightVector, -MouseDelta.Y * 0.01)
-                local PitchedCFrame = CFrame.new(Position) * RotationX * CFrame.new(-Position) * Camera.CFrame
-
-                if PitchedCFrame.UpVector.Y > 0.1 then
-                    Camera.CFrame = PitchedCFrame
-                end
-            end
-        end))
-
-        ViewportFrame.InputChanged:Connect(function(input)
-            if not Viewport.Interactive then
-                return
-            end
-
-            if input.UserInputType == Enum.UserInputType.MouseWheel then
-                local ZoomAmount = input.Position.Z * 2
-                Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * ZoomAmount
-            end
-        end)
-
-        Library:GiveSignal(InputService.TouchPinch:Connect(function(touchPositions, scale, velocity, state)
-            if not Viewport.Interactive or not Library:MouseIsOverFrame(ViewportFrame, touchPositions[1]) then
-                return
-            end
-
-            if state == Enum.UserInputState.Begin then
-                Pinching = true
-                Dragging = false
-                LastPinchDist = (touchPositions[1] - touchPositions[2]).Magnitude
-            elseif state == Enum.UserInputState.Change then
-                local currentDist = (touchPositions[1] - touchPositions[2]).Magnitude
-                local delta = (currentDist - LastPinchDist) * 0.1
-                LastPinchDist = currentDist
-                Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * delta
-            elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
-                Pinching = false
-            end
-        end))
-
-        Viewport.Object.Parent = ViewportFrame
-        if Viewport.AutoFocus then
-            FocusCamera()
-        end
-
-        function Viewport:SetObject(Object: Instance, Clone: boolean?)
-            assert(Object, "Object cannot be nil.")
-
-            if Clone then
-                Object = Object:Clone()
-            end
-
-            if Viewport.Object then
-                Viewport.Object:Destroy()
-            end
-
-            Viewport.Object = Object
-            Viewport.Object.Parent = ViewportFrame
-
-            Groupbox:Resize()
-        end
-
-        function Viewport:SetHeight(Height: number)
-            assert(Height > 0, "Height must be greater than 0.")
-            Viewport.Height = Height
-
-            Holder.Size = UDim2.new(1, -4, 0, Viewport.Height)
-            Groupbox:Resize()
-        end
-
-        function Viewport:Focus()
-            if not Viewport.Object then
-                return
-            end
-
-            FocusCamera()
-        end
-
-        function Viewport:SetCamera(Camera: Instance)
-            assert(
-                Camera and typeof(Camera) == "Instance" and Camera:IsA("Camera"),
-                "Camera must be a valid Camera instance."
-            )
-
-            Viewport.Camera = Camera
-            ViewportFrame.CurrentCamera = Camera
-        end
-
-        function Viewport:SetInteractive(Interactive: boolean)
-            Viewport.Interactive = Interactive
-            ViewportFrame.Active = Interactive
-        end
-
-        function Viewport:SetVisible(Visible: boolean)
-            Viewport.Visible = Visible;
-
-            Holder.Visible = Viewport.Visible;
-            if Blank then Blank.Visible = Viewport.Visible end;
-
-            Groupbox:Resize()
-        end
-
-        Viewport:SetHeight(Viewport.Height)
-
-        Blank = Groupbox:AddBlank(10, Viewport.Visible);
-        Groupbox:Resize();
-
-        Viewport.Holder = Holder;
-        Viewport.Container = Container;
-
-        Options[Idx] = Viewport
-
-        Library:UpdateDependencyBoxes();
-
-        return Viewport
-    end;
-
+    return Viewport
+end;
     function BaseGroupboxFuncs:AddImage(Idx, Info)
         -- https://github.com/deividcomsono/Obsidian/blob/main/Library.lua#L4395 --
         local Image = {
