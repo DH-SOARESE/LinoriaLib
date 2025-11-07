@@ -4948,7 +4948,11 @@ end;
 
         if input.UserInputType == Enum.UserInputType.MouseWheel then
             local ZoomAmount = input.Position.Z * 2
-            Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * ZoomAmount
+            local Position = Viewport.Object:GetPivot().Position
+            local Camera = Viewport.Camera
+            local direction = (Position - Camera.CFrame.Position).Unit
+            local newPos = Camera.CFrame.Position + direction * ZoomAmount
+            Camera.CFrame = CFrame.new(newPos, Position)
         end
     end)
 
@@ -4965,7 +4969,11 @@ end;
             local currentDist = (touchPositions[1] - touchPositions[2]).Magnitude
             local delta = (currentDist - LastPinchDist) * 0.1
             LastPinchDist = currentDist
-            Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * delta
+            local Position = Viewport.Object:GetPivot().Position
+            local Camera = Viewport.Camera
+            local direction = (Position - Camera.CFrame.Position).Unit
+            local newPos = Camera.CFrame.Position + direction * delta
+            Camera.CFrame = CFrame.new(newPos, Position)
         elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
             Pinching = false
         end
@@ -4978,10 +4986,18 @@ end;
 
         if input.UserInputType == Enum.UserInputType.Keyboard then
             local key = input.KeyCode
+            local amount = 0
             if key == Enum.KeyCode.Equals then  -- + key for zoom in
-                Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * 2
+                amount = 2
             elseif key == Enum.KeyCode.Minus then  -- - key for zoom out
-                Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * -2
+                amount = -2
+            end
+            if amount ~= 0 then
+                local Position = Viewport.Object:GetPivot().Position
+                local Camera = Viewport.Camera
+                local direction = (Position - Camera.CFrame.Position).Unit
+                local newPos = Camera.CFrame.Position + direction * amount
+                Camera.CFrame = CFrame.new(newPos, Position)
             end
         end
     end))
