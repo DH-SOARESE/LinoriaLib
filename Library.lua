@@ -4769,11 +4769,12 @@ end;
     Options[Idx] = Dropdown;  
     return Dropdown;  
 end;
-    
     function BaseGroupboxFuncs:AddViewport(Idx, Info)
     local Dragging, Pinching = false, false
     local LastMousePos, LastPinchDist = nil, 0
     local IsHovered = false
+    local TouchCount = 0
+    local TouchPositions = {}
 
     local Viewport = {
         Object = if Info.Clone then Info.Object:Clone() else Info.Object,
@@ -4813,7 +4814,14 @@ end;
             CFrame.new(ModelPosition + Vector3.new(0, MaxExtent / 2, CameraDistance), ModelPosition)
     end
 
-    local Blank = nil;        
+    local function IsPositionOverViewport(position)
+        local vpPos = ViewportFrame.AbsolutePosition
+        local vpSize = ViewportFrame.AbsoluteSize
+        return position.X >= vpPos.X and position.X <= vpPos.X + vpSize.X 
+            and position.Y >= vpPos.Y and position.Y <= vpPos.Y + vpSize.Y
+    end
+
+    local Blank = nil
     local Groupbox = self
     local Container = Groupbox.Container
 
@@ -4837,7 +4845,7 @@ end;
     Library:AddToRegistry(Box, {
         BackgroundColor3 = 'MainColor';
         BorderColor3 = 'OutlineColor';
-    });
+    })
 
     Library:Create("UIPadding", {
         PaddingBottom = UDim.new(0, 3),
@@ -4845,7 +4853,7 @@ end;
         PaddingRight = UDim.new(0, 8),
         PaddingTop = UDim.new(0, 4),
         Parent = Box,
-    });
+    })
 
     local ViewportFrame = Library:Create("ViewportFrame", {
         BackgroundTransparency = 1,
@@ -4866,10 +4874,10 @@ end;
         for _, Side in pairs(Library.Window.Tabs[Library.ActiveTab]:GetSides()) do
             if typeof(Side) == "Instance" then
                 if Side:IsA("ScrollingFrame") then
-                    Side.ScrollingEnabled = false;
+                    Side.ScrollingEnabled = false
                 end
-            end;
-        end;
+            end
+        end
     end)
 
     ViewportFrame.MouseLeave:Connect(function()
@@ -4882,61 +4890,126 @@ end;
         for _, Side in pairs(Library.Window.Tabs[Library.ActiveTab]:GetSides()) do
             if typeof(Side) == "Instance" then
                 if Side:IsA("ScrollingFrame") then
-                    Side.ScrollingEnabled = true;
+                    Side.ScrollingEnabled = true
                 end
-            end;
-        end;
+            end
+        end
     end)
 
-    ViewportFrame.InputBegan:Connect(function(input)
+    Library:GiveSignal(InputService.InputBegan:Connect(function(input)
         if not Viewport.Interactive then
             return
         end
 
-        if input.UserInputType == Enum.UserInputType.MouseButton2 then
-            Dragging = true
-            LastMousePos = input.Position
-        elseif input.UserInputType == Enum.UserInputType.Touch and not Pinching then
+        if input.UserInputType == Enum.UserInputType.Touch then
+            if IsPositionOverViewport(input.Position) then
+                TouchCount = TouchCount + 1
+                TouchPositions[input] = input.Position
+
+                if TouchCount == 1 then
+                    Dragging = true
+                    Pinching = false
+                    LastMousePos = input.Position
+                elseif TouchCount >= 2 then
+                    Dragging = false
+                    Pinching = true
+                    
+                    local touches = {}
+                    for _, pos in pairs(TouchPositions) do
+                        table.insert(touches, pos)
+                        if #touches >= 2 then break end
+                    end
+                    
+                    if #touches >= 2 then
+                        LastPinchDist = (touches[1] - touches[2]).Magnitude
+                    end
+                end
+            end
+        elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
             Dragging = true
             LastMousePos = input.Position
         end
-    end)
+    end))
 
     Library:GiveSignal(InputService.InputEnded:Connect(function(input)
         if not Viewport.Interactive then
             return
         end
 
-        if input.UserInputType == Enum.UserInputType.MouseButton2 then
-            Dragging = false
-        elseif input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.Touch then
+            TouchPositions[input] = nil
+            TouchCount = math.max(0, TouchCount - 1)
+            
+            if TouchCount == 0 then
+                Dragging = false
+                Pinching = false
+            elseif TouchCount == 1 then
+                Pinching = false
+                Dragging = true
+                -- Pega a posição do toque restante
+                for _, pos in pairs(TouchPositions) do
+                    LastMousePos = pos
+                    break
+                end
+            end
+        elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
             Dragging = false
         end
     end))
 
     Library:GiveSignal(InputService.InputChanged:Connect(function(input)
-        if not Viewport.Interactive or not Dragging or Pinching then
+        if not Viewport.Interactive then
             return
         end
 
-        if
-            input.UserInputType == Enum.UserInputType.MouseMovement
-            or input.UserInputType == Enum.UserInputType.Touch
-        then
-            local MouseDelta = input.Position - LastMousePos
-            LastMousePos = input.Position
+        if input.UserInputType == Enum.UserInputType.Touch and TouchPositions[input] then
+            TouchPositions[input] = input.Position
+        end
 
-            local Position = Viewport.Object:GetPivot().Position
-            local Camera = Viewport.Camera
+        if Pinching and TouchCount >= 2 then
+            local touches = {}
+            for _, pos in pairs(TouchPositions) do
+                table.insert(touches, pos)
+                if #touches >= 2 then break end
+            end
+            
+            if #touches >= 2 then
+                local currentDist = (touches[1] - touches[2]).Magnitude
+                local delta = (currentDist - LastPinchDist) * 0.15 -- Sensibilidade ajustada
+                LastPinchDist = currentDist
+                
+                local Position = Viewport.Object:GetPivot().Position
+                local Camera = Viewport.Camera
+                local direction = (Position - Camera.CFrame.Position).Unit
+                local currentDistance = (Position - Camera.CFrame.Position).Magnitude
+                
+                local newDistance = math.clamp(currentDistance - delta, 5, 500)
+                local newPos = Position - direction * newDistance
+                
+                Camera.CFrame = CFrame.new(newPos, Position)
+            end
+            return
+        end
 
-            local RotationY = CFrame.fromAxisAngle(Vector3.new(0, 1, 0), -MouseDelta.X * 0.01)
-            Camera.CFrame = CFrame.new(Position) * RotationY * CFrame.new(-Position) * Camera.CFrame
+        if Dragging and not Pinching then
+            if input.UserInputType == Enum.UserInputType.MouseMovement 
+                or input.UserInputType == Enum.UserInputType.Touch then
+                
+                local MouseDelta = input.Position - LastMousePos
+                LastMousePos = input.Position
 
-            local RotationX = CFrame.fromAxisAngle(Camera.CFrame.RightVector, -MouseDelta.Y * 0.01)
-            local PitchedCFrame = CFrame.new(Position) * RotationX * CFrame.new(-Position) * Camera.CFrame
+                local Position = Viewport.Object:GetPivot().Position
+                local Camera = Viewport.Camera
 
-            if PitchedCFrame.UpVector.Y > 0.1 then
-                Camera.CFrame = PitchedCFrame
+                local RotationY = CFrame.fromAxisAngle(Vector3.new(0, 1, 0), -MouseDelta.X * 0.01)
+                Camera.CFrame = CFrame.new(Position) * RotationY * CFrame.new(-Position) * Camera.CFrame
+
+                local RotationX = CFrame.fromAxisAngle(Camera.CFrame.RightVector, -MouseDelta.Y * 0.01)
+                local PitchedCFrame = CFrame.new(Position) * RotationX * CFrame.new(-Position) * Camera.CFrame
+
+                if PitchedCFrame.UpVector.Y > 0.1 then
+                    Camera.CFrame = PitchedCFrame
+                end
             end
         end
     end))
@@ -4951,33 +5024,15 @@ end;
             local Position = Viewport.Object:GetPivot().Position
             local Camera = Viewport.Camera
             local direction = (Position - Camera.CFrame.Position).Unit
-            local newPos = Camera.CFrame.Position + direction * ZoomAmount
+            local currentDistance = (Position - Camera.CFrame.Position).Magnitude
+            
+            -- Limita o zoom
+            local newDistance = math.clamp(currentDistance - ZoomAmount, 5, 500)
+            local newPos = Position - direction * newDistance
+            
             Camera.CFrame = CFrame.new(newPos, Position)
         end
     end)
-
-    Library:GiveSignal(InputService.TouchPinch:Connect(function(touchPositions, scale, velocity, state)
-        if not Viewport.Interactive or not Library:MouseIsOverFrame(ViewportFrame, touchPositions[1]) then
-            return
-        end
-
-        if state == Enum.UserInputState.Begin then
-            Pinching = true
-            Dragging = false
-            LastPinchDist = (touchPositions[1] - touchPositions[2]).Magnitude
-        elseif state == Enum.UserInputState.Change then
-            local currentDist = (touchPositions[1] - touchPositions[2]).Magnitude
-            local delta = (currentDist - LastPinchDist) * 0.1
-            LastPinchDist = currentDist
-            local Position = Viewport.Object:GetPivot().Position
-            local Camera = Viewport.Camera
-            local direction = (Position - Camera.CFrame.Position).Unit
-            local newPos = Camera.CFrame.Position + direction * delta
-            Camera.CFrame = CFrame.new(newPos, Position)
-        elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
-            Pinching = false
-        end
-    end))
 
     Library:GiveSignal(InputService.InputBegan:Connect(function(input)
         if not Viewport.Interactive or not IsHovered then
@@ -4987,16 +5042,20 @@ end;
         if input.UserInputType == Enum.UserInputType.Keyboard then
             local key = input.KeyCode
             local amount = 0
-            if key == Enum.KeyCode.Equals then  -- + key for zoom in
+            if key == Enum.KeyCode.Equals or key == Enum.KeyCode.Plus then
                 amount = 2
-            elseif key == Enum.KeyCode.Minus then  -- - key for zoom out
+            elseif key == Enum.KeyCode.Minus then
                 amount = -2
             end
             if amount ~= 0 then
                 local Position = Viewport.Object:GetPivot().Position
                 local Camera = Viewport.Camera
                 local direction = (Position - Camera.CFrame.Position).Unit
-                local newPos = Camera.CFrame.Position + direction * amount
+                local currentDistance = (Position - Camera.CFrame.Position).Magnitude
+                
+                local newDistance = math.clamp(currentDistance - amount, 5, 500)
+                local newPos = Position - direction * newDistance
+                
                 Camera.CFrame = CFrame.new(newPos, Position)
             end
         end
@@ -5056,28 +5115,28 @@ end;
     end
 
     function Viewport:SetVisible(Visible: boolean)
-        Viewport.Visible = Visible;
+        Viewport.Visible = Visible
 
-        Holder.Visible = Viewport.Visible;
-        if Blank then Blank.Visible = Viewport.Visible end;
+        Holder.Visible = Viewport.Visible
+        if Blank then Blank.Visible = Viewport.Visible end
 
         Groupbox:Resize()
     end
 
     Viewport:SetHeight(Viewport.Height)
 
-    Blank = Groupbox:AddBlank(10, Viewport.Visible);
-    Groupbox:Resize();
+    Blank = Groupbox:AddBlank(10, Viewport.Visible)
+    Groupbox:Resize()
 
-    Viewport.Holder = Holder;
-    Viewport.Container = Container;
+    Viewport.Holder = Holder
+    Viewport.Container = Container
 
     Options[Idx] = Viewport
 
-    Library:UpdateDependencyBoxes();
+    Library:UpdateDependencyBoxes()
 
     return Viewport
-end;
+end
     function BaseGroupboxFuncs:AddImage(Idx, Info)
         -- https://github.com/deividcomsono/Obsidian/blob/main/Library.lua#L4395 --
         local Image = {
