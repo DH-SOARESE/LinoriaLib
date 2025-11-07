@@ -2851,6 +2851,7 @@ function BaseGroupboxFuncs:AddLabel(...)
     end    
     return Label;    
 end;
+    
     function BaseGroupboxFuncs:AddButton(...)
         local Button = typeof(select(1, ...)) == "table" and select(1, ...) or {
             Text = select(1, ...),
@@ -2915,10 +2916,20 @@ end;
                 BorderColor3 = 'OutlineColor';
             });
 
-            Library:OnHighlight(Outer, Outer,
-                { BorderColor3 = 'AccentColor' },
-                { BorderColor3 = 'Black' }
-            );
+            Outer.MouseEnter:Connect(function()
+                if Groupbox.HighlightedButton and Groupbox.HighlightedButton ~= Outer then
+                    Groupbox.HighlightedButton.BorderColor3 = Color3.new(0, 0, 0)
+                end
+                Outer.BorderColor3 = Library.AccentColor
+                Groupbox.HighlightedButton = Outer
+            end)
+
+            Outer.MouseLeave:Connect(function()
+                Outer.BorderColor3 = Color3.new(0, 0, 0)
+                if Groupbox.HighlightedButton == Outer then
+                    Groupbox.HighlightedButton = nil
+                end
+            end)
 
             return Outer, Inner, Label
         end
@@ -3113,7 +3124,6 @@ end;
         table.insert(Buttons, Button);
         return Button;
     end;
-    
     function BaseGroupboxFuncs:AddDivider(LabelText)
     local Groupbox = self
     local Container = self.Container
