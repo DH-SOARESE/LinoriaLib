@@ -2372,11 +2372,7 @@ end;
             end;
 
             if Info.Compact then
-                if Str == '--' then
-                    Str = Dropdown.Text;
-                else
-                    Str = Dropdown.Text .. ": " .. Str;
-                end
+                Str = Dropdown.Text;
             end
 
             return Str;
@@ -2524,7 +2520,7 @@ end;
                 Table:UpdateButton();
                 Dropdown:Display();
 
-                local Str = Dropdown:GenerateDisplayText(Value);
+                local Str = Info.FormatDisplayValue and tostring(Info.FormatDisplayValue(StringValue)) or StringValue;
                 local X = Library:GetTextBounds(Str, Library.Font, ItemList.TextSize, Vector2.new(ToggleLabel.AbsoluteSize.X, math.huge)) + 26;
                 if X > OpenedXSizeForList then
                     OpenedXSizeForList = X;
