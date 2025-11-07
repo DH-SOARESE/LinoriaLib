@@ -2111,7 +2111,8 @@ end;
 
         return self;
     end;
-    function BaseAddonsFuncs:AddDropdown(Idx, Info)
+
+function BaseAddonsFuncs:AddDropdown(Idx, Info)
         Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == "boolean" then Info.ReturnInstanceInstead else false;
 
         if Info.SpecialType == 'Player' then
@@ -2132,7 +2133,6 @@ end;
 
         Info.Searchable = if typeof(Info.Searchable) == "boolean" then Info.Searchable else false;
         Info.FormatDisplayValue = if typeof(Info.FormatDisplayValue) == "function" then Info.FormatDisplayValue else nil;
-        Info.Compact = if typeof(Info.Compact) == "boolean" then Info.Compact else false;
 
         local Dropdown = {
             Values = Info.Values;
@@ -2172,12 +2172,6 @@ end;
             ZIndex = 6;
             Parent = ToggleLabel;
         });
-
-        if Info.Compact then
-            ToggleLabel.Text = "";
-            DropdownOuter.Position = UDim2.new(0, 0, 0, 0);
-            DropdownOuter.Size = UDim2.new(1, 0, 1, 0);
-        end
 
         Library:AddToRegistry(DropdownOuter, {
             BorderColor3 = 'Black';
@@ -2364,16 +2358,12 @@ end;
                 Str = (Str == '' and '--' or Str);
             else
                 if not SelectedValue then
-                    Str = '--';
-                else
-                    local StringValue = if typeof(SelectedValue) == "Instance" then SelectedValue.Name else tostring(SelectedValue);
-                    Str = Info.FormatDisplayValue and tostring(Info.FormatDisplayValue(StringValue)) or StringValue;
-                end
-            end;
+                    return '--';
+                end;
 
-            if Info.Compact then
-                Str = Dropdown.Text;
-            end
+                local StringValue = if typeof(SelectedValue) == "Instance" then SelectedValue.Name else tostring(SelectedValue);
+                Str = Info.FormatDisplayValue and tostring(Info.FormatDisplayValue(StringValue)) or StringValue;
+            end;
 
             return Str;
         end
@@ -2383,9 +2373,7 @@ end;
             ItemList.Text = Str;
 
             local X = ListOuter.Visible and OpenedXSizeForList or Library:GetTextBounds(ItemList.Text, Library.Font, ItemList.TextSize, Vector2.new(ToggleLabel.AbsoluteSize.X, math.huge)) + 26;
-            if not Info.Compact then
-                DropdownOuter.Size = UDim2.new(0, X, 0, 18)
-            end
+            DropdownOuter.Size = UDim2.new(0, X, 0, 18)
         end;
 
         function Dropdown:GetActiveValues()
@@ -2520,7 +2508,7 @@ end;
                 Table:UpdateButton();
                 Dropdown:Display();
 
-                local Str = ButtonLabel.Text;
+                local Str = Dropdown:GenerateDisplayText(Value);
                 local X = Library:GetTextBounds(Str, Library.Font, ItemList.TextSize, Vector2.new(ToggleLabel.AbsoluteSize.X, math.huge)) + 26;
                 if X > OpenedXSizeForList then
                     OpenedXSizeForList = X;
@@ -2771,7 +2759,7 @@ end;
         return self;
     end;
 
-BaseAddons.__index = BaseAddonsFuncs;
+    BaseAddons.__index = BaseAddonsFuncs;
     BaseAddons.__namecall = function(Table, Key, ...)
         return BaseAddonsFuncs[Key](...);
     end;
@@ -2794,7 +2782,6 @@ do
             Parent = Container;
         });
     end;
-end;
 function BaseGroupboxFuncs:AddLabel(...)
     local Data = {}
     if select(2, ...) and typeof(select(2, ...)) == "table" then    
