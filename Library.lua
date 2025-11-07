@@ -2520,7 +2520,7 @@ end;
                 Table:UpdateButton();
                 Dropdown:Display();
 
-                local Str = Info.FormatDisplayValue and tostring(Info.FormatDisplayValue(StringValue)) or StringValue;
+                local Str = ButtonLabel.Text;
                 local X = Library:GetTextBounds(Str, Library.Font, ItemList.TextSize, Vector2.new(ToggleLabel.AbsoluteSize.X, math.huge)) + 26;
                 if X > OpenedXSizeForList then
                     OpenedXSizeForList = X;
@@ -2794,6 +2794,7 @@ do
             Parent = Container;
         });
     end;
+end;
 function BaseGroupboxFuncs:AddLabel(...)
     local Data = {}
     if select(2, ...) and typeof(select(2, ...)) == "table" then    
