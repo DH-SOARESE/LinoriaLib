@@ -3643,7 +3643,7 @@ end;
     end;  
 
     if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
-        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)  
+        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleContainer)  
         Tooltip.Disabled = Toggle.Disabled;  
     end  
 
