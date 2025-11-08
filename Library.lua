@@ -5854,7 +5854,6 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
-    LibraryMainOuterFrame = Outer;
     
     Blocked(Outer);
     Protect(ScreenGui);
