@@ -96,6 +96,36 @@ ModalElement.Text = ""
 ModalElement.ZIndex = -999
 ModalElement.Parent = ModalScreenGui
 
+local LinoriaCursor = Instance.new("ScreenGui")
+LinoriaCursor.Name = "LinoriaCursor"
+LinoriaCursor.IgnoreGuiInset = true
+LinoriaCursor.ResetOnSpawn = false
+LinoriaCursor.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ParentUI(LinoriaCursor, math.huge)
+
+local CursorImage = Instance.new("ImageLabel")
+CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
+CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+CursorImage.BackgroundTransparency = 1
+CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+CursorImage.ImageColor3 = Library.AccentColor
+CursorImage.ZIndex = 0
+CursorImage.Visible = Library.ShowCustomCursor
+CursorImage.Parent = LinoriaCursor
+
+local OldMouseIconState = InputService.MouseIconEnabled
+InputService.MouseIconEnabled = not Library.ShowCustomCursor
+
+RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
+    local pos = InputService:GetMouseLocation()
+    CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
+    CursorImage.ImageColor3 = Library.AccentColor
+    CursorImage.Visible = Library.ShowCustomCursor
+
+    if CursorImage then
+        CursorImage.Visible = Library.ShowCustomCursor and Library.Toggled
+    end
+end)
 
 local Toggles = {};
 local Options = {};
@@ -6636,8 +6666,8 @@ end
     end;
     
     local TransparencyCache = {}
-    local Toggled = false
-    local Fading = false
+local Toggled = false
+local Fading = false
 
 function Library:Toggle(Toggling)
     if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
@@ -6648,48 +6678,6 @@ function Library:Toggle(Toggling)
     Toggled = not Toggled
     Library.Toggled = Toggled
     ModalElement.Modal = Toggled
-
-    if Toggled then
-        Outer.Visible = true
-
-        if not LinoriaCursor then
-            LinoriaCursor = Instance.new("ScreenGui")
-            LinoriaCursor.Name = "LinoriaCursor"
-            LinoriaCursor.IgnoreGuiInset = true
-            LinoriaCursor.ResetOnSpawn = false
-            LinoriaCursor.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            ParentUI(LinoriaCursor, math.huge)
-
-            local CursorImage = Instance.new("ImageLabel")
-            CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
-            CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-            CursorImage.BackgroundTransparency = 1
-            CursorImage.Image = "rbxassetid://" .. Library.CursorImage
-            CursorImage.ImageColor3 = Library.AccentColor
-            CursorImage.ZIndex = 0
-            CursorImage.Visible = Library.ShowCustomCursor
-            CursorImage.Parent = LinoriaCursor
-
-            local OldMouseIconState = InputService.MouseIconEnabled
-            InputService.MouseIconEnabled = not Library.ShowCustomCursor
-
-            RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-                if not Toggled or not LinoriaCursor or not LinoriaCursor.Parent then
-                    InputService.MouseIconEnabled = OldMouseIconState
-                    RunService:UnbindFromRenderStep("LinoriaCursor")
-                    if LinoriaCursor or not Toggled then
-                        LinoriaCursor:Destroy()
-                        LinoriaCursor = nil
-                    end
-                    return
-                end
-                local pos = InputService:GetMouseLocation()
-                CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
-                CursorImage.ImageColor3 = Library.AccentColor
-                CursorImage.Visible = Library.ShowCustomCursor
-            end)
-        end
-    end
 
     for _, Option in ipairs(Options) do
         task.spawn(function()
@@ -6715,14 +6703,18 @@ function Library:Toggle(Toggling)
         elseif Desc:IsA("UIStroke") then
             Props = {"Transparency"}
         end
+
         if Props then
             local Cache = TransparencyCache[Desc] or {}
             TransparencyCache[Desc] = Cache
             for _, Prop in ipairs(Props) do
-                if Cache[Prop] == nil then Cache[Prop] = Desc[Prop] end
-                if Cache[Prop] ~= 1 then
+                if Cache[Prop] == nil then
+                    Cache[Prop] = Desc[Prop]
+                end
+                local target = Toggled and Cache[Prop] or 1
+                if Desc[Prop] ~= target then
                     TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), {
-                        [Prop] = Toggled and Cache[Prop] or 1
+                        [Prop] = target
                     }):Play()
                 end
             end
@@ -6742,6 +6734,7 @@ function Library:Toggle(Toggling)
 
     Fading = false
 end
+
     if Library.IsMobile then
         local ToggleUIOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
