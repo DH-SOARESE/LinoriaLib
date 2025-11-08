@@ -688,22 +688,18 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     local Tooltip = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
         BorderColor3 = Library.OutlineColor;
-
         ZIndex = 100;
         Parent = Library.ScreenGui;
-
         Visible = false;
     })
 
     local Label = Library:CreateLabel({
         Position = UDim2.fromOffset(3, 1);
-        
         TextSize = 14;
         Text = InfoStr;
         TextColor3 = Library.FontColor;
         TextXAlignment = Enum.TextXAlignment.Left;
         ZIndex = Tooltip.ZIndex + 1;
-
         Parent = Tooltip;
     })
 
@@ -716,73 +712,97 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
         TextColor3 = 'FontColor',
     })
 
-    local TooltipTable = {
-        Tooltip = Tooltip;
-        Disabled = false;
-
-        Signals = {};
-    }
+    local TooltipTable = { Tooltip = Tooltip; Disabled = false; Signals = {} }
     local IsHovering = false
 
     local function UpdateText(Text)
-        if Text == nil then return end
-
+        if not Text then return end
         local X, Y = Library:GetTextBounds(Text, Library.Font, 14 * DPIScale)
-
         Label.Text = Text
         Tooltip.Size = UDim2.fromOffset(X + 5, Y + 4)
         Label.Size = UDim2.fromOffset(X, Y)
     end
+
     UpdateText(InfoStr)
 
-    table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
-        if Library:MouseIsOverOpenedFrame() then
-            Tooltip.Visible = false
-            return
-        end
-
-        if not TooltipTable.Disabled then
-            if InfoStr == nil or InfoStr == "" then
+    if not Library.IsMobile then
+        table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
+            if Library:MouseIsOverOpenedFrame() then
                 Tooltip.Visible = false
                 return
             end
 
-            if Label.Text ~= InfoStr then UpdateText(InfoStr)
-end
-        else
-            if DisabledInfoStr == nil or DisabledInfoStr == "" then
-                Tooltip.Visible = false
-                return
+            if not TooltipTable.Disabled then
+                if not InfoStr or InfoStr == "" then
+                    Tooltip.Visible = false
+                    return
+                end
+                if Label.Text ~= InfoStr then UpdateText(InfoStr) end
+            else
+                if not DisabledInfoStr or DisabledInfoStr == "" then
+                    Tooltip.Visible = false
+                    return
+                end
+                if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr) end
             end
 
-            if Label.Text ~= DisabledInfoStr then UpdateText(DisabledInfoStr)
-end
-        end
-
-        IsHovering = true
-
-        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-        Tooltip.Visible = true
-
-        while IsHovering do
-            if TooltipTable.Disabled == true and DisabledInfoStr == nil then break end
-
-            RunService.Heartbeat:Wait()
+            IsHovering = true
             Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-        end
+            Tooltip.Visible = true
 
-        IsHovering = false
-        Tooltip.Visible = false
-    end))
+            while IsHovering do
+                if TooltipTable.Disabled and not DisabledInfoStr then break end
+                RunService.Heartbeat:Wait()
+                Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
+            end
 
-    table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
-        IsHovering = false
-        Tooltip.Visible = false
-    end))
-    
+            Tooltip.Visible = false
+        end))
+
+        table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
+            IsHovering = false
+            Tooltip.Visible = false
+        end))
+    else
+        table.insert(TooltipTable.Signals, HoverInstance.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                local TouchPosition = input.Position
+                local AbsPos = HoverInstance.AbsolutePosition
+                local AbsSize = HoverInstance.AbsoluteSize
+
+                if TouchPosition.X >= AbsPos.X and TouchPosition.X <= AbsPos.X + AbsSize.X
+                and TouchPosition.Y >= AbsPos.Y and TouchPosition.Y <= AbsPos.Y + AbsSize.Y then
+
+                    if TooltipTable.Disabled then
+                        if not DisabledInfoStr or DisabledInfoStr == "" then return end
+                        UpdateText(DisabledInfoStr)
+                    else
+                        if not InfoStr or InfoStr == "" then return end
+                        UpdateText(InfoStr)
+                    end
+
+                    Tooltip.Position = UDim2.fromOffset(TouchPosition.X + 15, TouchPosition.Y + 12)
+                    Tooltip.Visible = true
+
+                    local MoveConn
+                    MoveConn = UserInputService.TouchMoved:Connect(function(moveInput)
+                        Tooltip.Position = UDim2.fromOffset(moveInput.Position.X + 15, moveInput.Position.Y + 12)
+                    end)
+
+                    local EndConn
+                    EndConn = UserInputService.TouchEnded:Connect(function()
+                        Tooltip.Visible = false
+                        MoveConn:Disconnect()
+                        EndConn:Disconnect()
+                    end)
+                end
+            end
+        end))
+    end
+
     if LibraryMainOuterFrame then
         table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-            if LibraryMainOuterFrame.Visible == false then
+            if not LibraryMainOuterFrame.Visible then
                 IsHovering = false
                 Tooltip.Visible = false
             end
@@ -791,10 +811,9 @@ end
 
     function TooltipTable:Destroy()
         Tooltip:Destroy()
-
-        for Idx = #TooltipTable.Signals, 1, -1 do
-            local Connection = table.remove(TooltipTable.Signals, Idx)
-            Connection:Disconnect()
+        for i = #TooltipTable.Signals, 1, -1 do
+            TooltipTable.Signals[i]:Disconnect()
+            TooltipTable.Signals[i] = nil
         end
     end
 
