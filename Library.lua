@@ -721,6 +721,8 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
 
     UpdateText(InfoStr)
 
+    local IsHovering = false
+
     table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
         if Library:MouseIsOverOpenedFrame() or not Toggled then
             Tooltip.Visible = false
@@ -737,7 +739,7 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
             UpdateText(targetText)
         end
 
-        local IsHovering = true
+        IsHovering = true
         Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         Tooltip.Visible = true
 
@@ -746,7 +748,6 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
             Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         end
 
-        IsHovering = false
         Tooltip.Visible = false
     end))
 
@@ -6664,18 +6665,19 @@ end
     end;
     
     local TransparencyCache = {}
-local Toggled = false
-local Fading = false
+    local Toggled = false
+    local Fading = false
 
 function Library:Toggle(Toggling)
     if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
     if Fading then return end
 
-    local FadeTime = Config.MenuFadeTime
-    Fading = true
-    Toggled = not Toggled
-    Library.Toggled = Toggled
-    ModalElement.Modal = Toggled
+    local FadeTime = WindowInfo.MenuFadeTime
+        Fading = true
+        Toggled = (not Toggled)
+
+        Library.Toggled = Toggled
+        ModalElement.Modal = Library.Toggled
 
     for _, Option in ipairs(Options) do
         task.spawn(function()
@@ -6718,10 +6720,7 @@ function Library:Toggle(Toggling)
             end
         end
     end
-
-    task.wait(FadeTime)
-    Outer.Visible = Toggled
-
+    
     if Toggled then
         for _, Option in ipairs(Options) do
             if Option.Type == "ColorPicker" then
@@ -6730,6 +6729,8 @@ function Library:Toggle(Toggling)
         end
     end
 
+    task.wait(FadeTime)
+    Outer.Visible = Toggled
     Fading = false
 end
 
