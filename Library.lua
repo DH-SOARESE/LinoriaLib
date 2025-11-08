@@ -121,18 +121,12 @@ local Library = {
 
     -- colors and font --
     FontColor = Color3.fromRGB(255, 255, 255);
-    MainColor = Color3.fromRGB(30, 30, 30);
-    BackgroundColor = Color3.fromRGB(35, 35, 35);
-
-    AccentColor = Color3.fromRGB(0, 33, 255);
-    DisabledAccentColor = Color3.fromRGB(142, 142, 142);
-
-    OutlineColor = Color3.fromRGB(20, 20, 20);
-    DisabledOutlineColor = Color3.fromRGB(70, 70, 70);
-
-    DisabledTextColor = Color3.fromRGB(142, 142, 142);
-
-    RiskColor = Color3.fromRGB(255, 50, 50);
+	MainColor = Color3.fromRGB(28, 28, 28);
+	BackgroundColor = Color3.fromRGB(20, 20, 20);
+	AccentColor = Color3.fromRGB(0, 85, 255);
+	OutlineColor = Color3.fromRGB(50, 50, 50);
+	RiskColor = Color3.fromRGB(255, 50, 50),
+	DisabledColor = Color3.fromRGB(80, 80, 80),
 
     Black = Color3.new(0, 0, 0);
     Font = Enum.Font.Code,
@@ -202,7 +196,6 @@ CursorImage.BackgroundTransparency = 1
 CursorImage.Image = "rbxassetid://" .. Library.CursorImage
 CursorImage.ImageColor3 = Library.AccentColor
 CursorImage.ZIndex = 0
-CursorImage.Visible = Library.ShowCustomCursor
 CursorImage.Parent = LinoriaCursor
 
 local OldMouseIconState = InputService.MouseIconEnabled
@@ -212,11 +205,10 @@ RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 10
     local pos = InputService:GetMouseLocation()
     CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
     CursorImage.ImageColor3 = Library.AccentColor
-    CursorImage.Visible = Library.ShowCustomCursor
 
     if Library.ShowCustomCursor then
         CursorImage.Visible = Library.Toggled
-        else
+    else
         CursorImage.Visible = false
     end
 end)
@@ -228,7 +220,11 @@ else
     Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS);
 end
 
-Library.MinSize = Vector2.new(550, Library.IsMobile and 150 or 300)
+if Library.IsMobile then
+	Library.MinSize = UDim2.new(0,200,0,250);
+end
+
+Library.MinSize = if Library.IsMobile then Vector2.new(550, 200) else Vector2.new(550, 300);
 
 local DPIScale, Hue, Step = 1, 0, 0
 
