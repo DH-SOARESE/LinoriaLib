@@ -763,6 +763,15 @@ MenuGroup:AddToggle('ShowKeybinds', {
     end
 })
 
+MenuGroup:AddToggle('ShowToolTip', {
+    Text = 'Show Tooltip',
+    Default = true,
+    Callback = function(value)
+        Library.ShowTooltip = value
+    end
+})
+
+
 -- Toggle watermark
 MenuGroup:AddToggle('ShowWatermark', {
     Text = 'Show Watermark',
