@@ -121,12 +121,18 @@ local Library = {
 
     -- colors and font --
     FontColor = Color3.fromRGB(255, 255, 255);
-	MainColor = Color3.fromRGB(28, 28, 28);
-	BackgroundColor = Color3.fromRGB(20, 20, 20);
-	AccentColor = Color3.fromRGB(0, 85, 255);
-	OutlineColor = Color3.fromRGB(50, 50, 50);
-	RiskColor = Color3.fromRGB(255, 50, 50),
-	DisabledColor = Color3.fromRGB(80, 80, 80),
+    MainColor = Color3.fromRGB(30, 30, 30);
+    BackgroundColor = Color3.fromRGB(35, 35, 35);
+
+    AccentColor = Color3.fromRGB(0, 33, 255);
+    DisabledAccentColor = Color3.fromRGB(142, 142, 142);
+
+    OutlineColor = Color3.fromRGB(20, 20, 20);
+    DisabledOutlineColor = Color3.fromRGB(70, 70, 70);
+
+    DisabledTextColor = Color3.fromRGB(142, 142, 142);
+
+    RiskColor = Color3.fromRGB(255, 50, 50);
 
     Black = Color3.new(0, 0, 0);
     Font = Enum.Font.Code,
@@ -5854,6 +5860,7 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
+    LibraryMainOuterFrame = Outer;
     
     Blocked(Outer);
     Protect(ScreenGui);
