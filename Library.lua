@@ -96,6 +96,7 @@ ModalElement.Text = ""
 ModalElement.ZIndex = -999
 ModalElement.Parent = ModalScreenGui
 
+
 local Toggles = {};
 local Options = {};
 local Labels = {};
@@ -121,12 +122,18 @@ local Library = {
 
     -- colors and font --
     FontColor = Color3.fromRGB(255, 255, 255);
-	MainColor = Color3.fromRGB(28, 28, 28);
-	BackgroundColor = Color3.fromRGB(20, 20, 20);
-	AccentColor = Color3.fromRGB(0, 85, 255);
-	OutlineColor = Color3.fromRGB(50, 50, 50);
-	RiskColor = Color3.fromRGB(255, 50, 50),
-	DisabledColor = Color3.fromRGB(80, 80, 80),
+    MainColor = Color3.fromRGB(30, 30, 30);
+    BackgroundColor = Color3.fromRGB(35, 35, 35);
+
+    AccentColor = Color3.fromRGB(0, 33, 255);
+    DisabledAccentColor = Color3.fromRGB(142, 142, 142);
+
+    OutlineColor = Color3.fromRGB(20, 20, 20);
+    DisabledOutlineColor = Color3.fromRGB(70, 70, 70);
+
+    DisabledTextColor = Color3.fromRGB(142, 142, 142);
+
+    RiskColor = Color3.fromRGB(255, 50, 50);
 
     Black = Color3.new(0, 0, 0);
     Font = Enum.Font.Code,
@@ -182,37 +189,6 @@ local Library = {
     Buttons = Buttons;
 };
 
-local LinoriaCursor = Instance.new("ScreenGui")
-LinoriaCursor.Name = "LinoriaCursor"
-LinoriaCursor.IgnoreGuiInset = true
-LinoriaCursor.ResetOnSpawn = false
-LinoriaCursor.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ParentUI(LinoriaCursor, math.huge)
-
-local CursorImage = Instance.new("ImageLabel")
-CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
-CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-CursorImage.BackgroundTransparency = 1
-CursorImage.Image = "rbxassetid://" .. Library.CursorImage
-CursorImage.ImageColor3 = Library.AccentColor
-CursorImage.ZIndex = 0
-CursorImage.Parent = LinoriaCursor
-
-local OldMouseIconState = InputService.MouseIconEnabled
-InputService.MouseIconEnabled = not Library.ShowCustomCursor
-
-RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-    local pos = InputService:GetMouseLocation()
-    CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
-    CursorImage.ImageColor3 = Library.AccentColor
-
-    if Library.ShowCustomCursor then
-        CursorImage.Visible = Library.Toggled
-    else
-        CursorImage.Visible = false
-    end
-end)
-
 if RunService:IsStudio() then
    Library.IsMobile = InputService.TouchEnabled and not InputService.MouseEnabled 
 else
@@ -220,11 +196,7 @@ else
     Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS);
 end
 
-if Library.IsMobile then
-	Library.MinSize = UDim2.new(0,200,0,250);
-end
-
-Library.MinSize = if Library.IsMobile then Vector2.new(550, 200) else Vector2.new(550, 300);
+Library.MinSize = Vector2.new(550, Library.IsMobile and 150 or 300)
 
 local DPIScale, Hue, Step = 1, 0, 0
 
@@ -2879,7 +2851,6 @@ function BaseGroupboxFuncs:AddLabel(...)
     end    
     return Label;    
 end;
-    
     function BaseGroupboxFuncs:AddButton(...)
         local Button = typeof(select(1, ...)) == "table" and select(1, ...) or {
             Text = select(1, ...),
@@ -2944,20 +2915,10 @@ end;
                 BorderColor3 = 'OutlineColor';
             });
 
-            Outer.MouseEnter:Connect(function()
-                if Groupbox.HighlightedButton and Groupbox.HighlightedButton ~= Outer then
-                    Groupbox.HighlightedButton.BorderColor3 = Color3.new(0, 0, 0)
-                end
-                Outer.BorderColor3 = Library.AccentColor
-                Groupbox.HighlightedButton = Outer
-            end)
-
-            Outer.MouseLeave:Connect(function()
-                Outer.BorderColor3 = Color3.new(0, 0, 0)
-                if Groupbox.HighlightedButton == Outer then
-                    Groupbox.HighlightedButton = nil
-                end
-            end)
+            Library:OnHighlight(Outer, Outer,
+                { BorderColor3 = 'AccentColor' },
+                { BorderColor3 = 'Black' }
+            );
 
             return Outer, Inner, Label
         end
@@ -3152,6 +3113,7 @@ end;
         table.insert(Buttons, Button);
         return Button;
     end;
+    
     function BaseGroupboxFuncs:AddDivider(LabelText)
     local Groupbox = self
     local Container = self.Container
@@ -3643,9 +3605,9 @@ end;
     end;  
 
     if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
-        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)
-        Tooltip.Disabled = Toggle.Disabled
-    end
+        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)  
+        Tooltip.Disabled = Toggle.Disabled;  
+    end  
 
     function Toggle:Display()  
         if Toggle.Disabled then  
@@ -5069,6 +5031,7 @@ end;
 
         return Viewport
     end;
+
     function BaseGroupboxFuncs:AddImage(Idx, Info)
         -- https://github.com/deividcomsono/Obsidian/blob/main/Library.lua#L4395 --
         local Image = {
@@ -5833,12 +5796,13 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
-    LibraryMainOuterFrame = Outer
+    Blocked(Outer);
+    Protect(ScreenGui);
+    
+    
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
     end
-    Blocked(Outer);
-    Protect(ScreenGui);
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -6663,8 +6627,8 @@ end
     end;
     
     local TransparencyCache = {}
-local Toggled = false
-local Fading = false
+    local Toggled = false
+    local Fading = false
 
 function Library:Toggle(Toggling)
     if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
@@ -6675,6 +6639,48 @@ function Library:Toggle(Toggling)
     Toggled = not Toggled
     Library.Toggled = Toggled
     ModalElement.Modal = Toggled
+
+    if Toggled then
+        Outer.Visible = true
+
+        if not LinoriaCursor then
+            LinoriaCursor = Instance.new("ScreenGui")
+            LinoriaCursor.Name = "LinoriaCursor"
+            LinoriaCursor.IgnoreGuiInset = true
+            LinoriaCursor.ResetOnSpawn = false
+            LinoriaCursor.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            ParentUI(LinoriaCursor, math.huge)
+
+            local CursorImage = Instance.new("ImageLabel")
+            CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
+            CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+            CursorImage.BackgroundTransparency = 1
+            CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+            CursorImage.ImageColor3 = Library.AccentColor
+            CursorImage.ZIndex = 0
+            CursorImage.Visible = Library.ShowCustomCursor
+            CursorImage.Parent = LinoriaCursor
+
+            local OldMouseIconState = InputService.MouseIconEnabled
+            InputService.MouseIconEnabled = not Library.ShowCustomCursor
+
+            RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
+                if not Toggled or not LinoriaCursor or not LinoriaCursor.Parent then
+                    InputService.MouseIconEnabled = OldMouseIconState
+                    RunService:UnbindFromRenderStep("LinoriaCursor")
+                    if LinoriaCursor or not Toggled then
+                        LinoriaCursor:Destroy()
+                        LinoriaCursor = nil
+                    end
+                    return
+                end
+                local pos = InputService:GetMouseLocation()
+                CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
+                CursorImage.ImageColor3 = Library.AccentColor
+                CursorImage.Visible = Library.ShowCustomCursor
+            end)
+        end
+    end
 
     for _, Option in ipairs(Options) do
         task.spawn(function()
@@ -6700,18 +6706,14 @@ function Library:Toggle(Toggling)
         elseif Desc:IsA("UIStroke") then
             Props = {"Transparency"}
         end
-
         if Props then
             local Cache = TransparencyCache[Desc] or {}
             TransparencyCache[Desc] = Cache
             for _, Prop in ipairs(Props) do
-                if Cache[Prop] == nil then
-                    Cache[Prop] = Desc[Prop]
-                end
-                local target = Toggled and Cache[Prop] or 1
-                if Desc[Prop] ~= target then
+                if Cache[Prop] == nil then Cache[Prop] = Desc[Prop] end
+                if Cache[Prop] ~= 1 then
                     TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), {
-                        [Prop] = target
+                        [Prop] = Toggled and Cache[Prop] or 1
                     }):Play()
                 end
             end
@@ -6731,7 +6733,6 @@ function Library:Toggle(Toggling)
 
     Fading = false
 end
-
     if Library.IsMobile then
         local ToggleUIOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
