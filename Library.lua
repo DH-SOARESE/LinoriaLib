@@ -392,11 +392,11 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
-function TruncateText(Label)
-    local Text = Label.Text
-    local sizeX = Label.AbsoluteSize.X
-    local font = Label.Font
-    local textSize = Label.TextSize
+function TruncateText(GuiObject)
+    local Text = GuiObject.Text
+    local sizeX = GuiObject.AbsoluteSize.X
+    local font = GuiObject.Font
+    local textSize = GuiObject.TextSize
 
     local left, right = 1, #Text
     local truncated = ""
@@ -414,7 +414,7 @@ function TruncateText(Label)
         end
     end
 
-    Label.Text = truncated
+    GuiObject.Text = truncated
 end
 
 function Blocked(frame)
@@ -2976,7 +2976,6 @@ end;
             TextXAlignment = Enum.TextXAlignment.Center;
             TextYAlignment = Enum.TextYAlignment.Center;
         });
-        TruncateText(Label)
 
         Library:Create('UIGradient', {
             Color = ColorSequence.new({
@@ -3133,7 +3132,7 @@ end;
             if typeof(Text) == "string" then
                 SubButton.Text = Text;
                 SubButton.Label.Text = SubButton.Text;
-                TruncateText(SubButton.Label)
+                TruncateText(SubButton.Label);
             end
         end;
 
@@ -3183,7 +3182,7 @@ end;
         if typeof(Text) == "string" then
             Button.Text = Text;
             Button.Label.Text = Button.Text;
-            TruncateText(Button.Label)
+            TruncateText(Button.Label);
         end
     end;
 
@@ -3910,7 +3909,7 @@ end;
             Parent = Container;    
             RichText = true;    
         });    
-        TruncateText(SliderText)
+        TruncateText(SliderText);
 
         table.insert(Blanks, Groupbox:AddBlank(3, Slider.Visible));    
     end    
@@ -4309,7 +4308,7 @@ end;
             Parent = Container;  
             RichText = true;  
         });  
-        TruncateText(DropdownLabel)
+        TruncateText(DropdownLabel);
 
         CompactBlank = Groupbox:AddBlank(3, Dropdown.Visible);  
     end  
