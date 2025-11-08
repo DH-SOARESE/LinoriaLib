@@ -3642,9 +3642,9 @@ end;
         Toggle:Display();  
     end;  
 
-    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
-        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)
-        Tooltip.Disabled = Toggle.Disabled
+    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then
+            Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)
+            Tooltip.Disabled = Toggle.Disabled
     end
 
     function Toggle:Display()  
