@@ -6672,12 +6672,10 @@ function Library:Toggle(Toggling)
     if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
     if Fading then return end
 
-    local FadeTime = WindowInfo.MenuFadeTime
-        Fading = true
-        Toggled = (not Toggled)
-
-        Library.Toggled = Toggled
-        ModalElement.Modal = Library.Toggled
+    local FadeTime = Config.MenuFadeTime or 0.25
+    Fading = true
+    Toggled = not Toggled
+    Outer.Visible = true
 
     for _, Option in ipairs(Options) do
         task.spawn(function()
@@ -6686,7 +6684,9 @@ function Library:Toggle(Toggling)
             elseif Option.Type == "KeyPicker" then
                 Option:SetModePickerVisibility(false)
             elseif Option.Type == "ColorPicker" then
-                Option.ContextMenu:Hide()
+                if Option.ContextMenu then
+                    Option.ContextMenu:Hide()
+                end
                 Option:Hide()
             end
         end)
@@ -6705,22 +6705,30 @@ function Library:Toggle(Toggling)
         end
 
         if Props then
-            local Cache = TransparencyCache[Desc] or {}
-            TransparencyCache[Desc] = Cache
+            local Cache = TransparencyCache[Desc]
+            if not Cache then
+                Cache = {}
+                TransparencyCache[Desc] = Cache
+            end
+
             for _, Prop in ipairs(Props) do
+                local Current = Desc[Prop]
                 if Cache[Prop] == nil then
-                    Cache[Prop] = Desc[Prop]
+                    Cache[Prop] = Current
                 end
-                local target = Toggled and Cache[Prop] or 1
-                if Desc[Prop] ~= target then
-                    TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), {
-                        [Prop] = target
-                    }):Play()
+
+                local Target = Toggled and Cache[Prop] or 1
+                if Current ~= Target then
+                    TweenService:Create(
+                        Desc,
+                        TweenInfo.new(FadeTime, Enum.EasingStyle.Linear),
+                        { [Prop] = Target }
+                    ):Play()
                 end
             end
         end
     end
-    
+
     if Toggled then
         for _, Option in ipairs(Options) do
             if Option.Type == "ColorPicker" then
