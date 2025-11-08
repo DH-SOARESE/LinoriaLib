@@ -392,7 +392,8 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
-function TruncateText(Label, Text)
+function TruncateText(Label)
+    local Text = Label.Text
     local sizeX = Label.AbsoluteSize.X
     local font = Label.Font
     local textSize = Label.TextSize
@@ -2966,6 +2967,7 @@ end;
             local Label = Library:CreateLabel({
                 Size = UDim2.new(1, 0, 1, 0);
                 TextSize = 14;
+                Text = Button.Text;
                 ZIndex = 6;
                 Parent = Inner;
                 RichText = true;
@@ -2974,8 +2976,7 @@ end;
                 TextXAlignment = Enum.TextXAlignment.Center;
                 TextYAlignment = Enum.TextYAlignment.Center;
             });
-            
-            TruncateText(Label, Button.Text);
+            TruncateText(Label)
 
             Library:Create('UIGradient', {
                 Color = ColorSequence.new({
@@ -3314,12 +3315,11 @@ end
     local InputLabel = Library:CreateLabel({
         Size = UDim2.new(1, 0, 0, 15);
         TextSize = 14;
+        Text = Info.Text;
         TextXAlignment = Enum.TextXAlignment.Left;
         ZIndex = 5;
         Parent = Container;
     });
-    
-    TruncateText(InputLabel, Info.Text);
 
     Groupbox:AddBlank(1);
 
@@ -3645,13 +3645,14 @@ end;
         Size = UDim2.new(1, -19, 0, 11);
         Position = UDim2.new(0, 19, 0, 0);  
         TextSize = 14;  
+        Text = Info.Text;  
         TextXAlignment = Enum.TextXAlignment.Left;  
         ZIndex = 6;  
         Parent = ToggleContainer;  
         RichText = true;  
     });  
     
-    TruncateText(ToggleLabel, Info.Text)
+    TruncateText(ToggleLabel);
 
     Library:Create('UIListLayout', {  
         Padding = UDim.new(0, 4);  
@@ -3902,6 +3903,7 @@ end;
         SliderText = Library:CreateLabel({    
             Size = UDim2.new(1, 0, 0, 10);    
             TextSize = 14;    
+            Text = Info.Text;    
             TextXAlignment = Enum.TextXAlignment.Left;    
             TextYAlignment = Enum.TextYAlignment.Bottom;    
             Visible = Slider.Visible;    
@@ -3909,8 +3911,7 @@ end;
             Parent = Container;    
             RichText = true;    
         });    
-        
-        TruncateText(SliderText, Info.Text)
+        TruncateText(SliderText)
 
         table.insert(Blanks, Groupbox:AddBlank(3, Slider.Visible));    
     end    
@@ -4301,6 +4302,7 @@ end;
         DropdownLabel = Library:CreateLabel({  
             Size = UDim2.new(1, 0, 0, 10);  
             TextSize = 14;  
+            Text = Info.Text;  
             TextXAlignment = Enum.TextXAlignment.Left;  
             TextYAlignment = Enum.TextYAlignment.Bottom;  
             Visible = Dropdown.Visible;  
@@ -4308,8 +4310,7 @@ end;
             Parent = Container;  
             RichText = true;  
         });  
-        
-        TruncateText(DropdownLabel, Info.Text)
+        TruncateText(DropdownLabel)
 
         CompactBlank = Groupbox:AddBlank(3, Dropdown.Visible);  
     end  
@@ -5915,12 +5916,14 @@ function Library:CreateWindow(...)
     local WindowLabel = Library:CreateLabel({
         Position = UDim2.new(0, 7, 0, 0);
         Size = UDim2.new(1, -14, 0, 25);
+        Text = Config.Title or '';
         TextXAlignment = Enum.TextXAlignment.Left;
         ZIndex = 1;
+        Name = "Window_label";
         Parent = Inner;
 });
 Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
-TruncateText(WindowLabel, Config.Title);
+TruncateText(WindowLabel);
 	
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
