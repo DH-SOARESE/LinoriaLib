@@ -392,6 +392,24 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
+function TruncateText(Label, Text)
+    local sizeX = Label.AbsoluteSize.X
+    local font = Label.Font
+    local textSize = Label.TextSize
+
+    local truncated = ""
+    for i = 1, #Text do
+        local substr = Text:sub(1, i)
+        local bounds = TextService:GetTextSize(substr, textSize, font, Vector2.new(math.huge, math.huge))
+        if bounds.X > sizeX then
+            break
+        end
+        truncated = substr
+    end
+
+    Label.Text = truncated
+end
+
 function Blocked(frame)
 	if not frame or not frame:IsA("Frame") then return end
 
@@ -3620,12 +3638,13 @@ end;
         Size = UDim2.new(1, -19, 0, 11);
         Position = UDim2.new(0, 19, 0, 0);  
         TextSize = 14;  
-        Text = Info.Text;  
         TextXAlignment = Enum.TextXAlignment.Left;  
         ZIndex = 6;  
         Parent = ToggleContainer;  
         RichText = true;  
     });  
+    
+    TruncateText(ToggleLabel, Info.Text)
 
     Library:Create('UIListLayout', {  
         Padding = UDim.new(0, 4);  
@@ -5887,14 +5906,12 @@ function Library:CreateWindow(...)
     local WindowLabel = Library:CreateLabel({
         Position = UDim2.new(0, 7, 0, 0);
         Size = UDim2.new(1, -14, 0, 25);
-        Text = Config.Title or '';
         TextXAlignment = Enum.TextXAlignment.Left;
-        TextTruncate = Enum.TextTruncate.AtEnd;
         ZIndex = 1;
-        Name = "Window_label";
         Parent = Inner;
 });
 Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
+TruncateText(WindowLabel, Config.Title);
 	
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
