@@ -397,14 +397,20 @@ function TruncateText(Label, Text)
     local font = Label.Font
     local textSize = Label.TextSize
 
+    local left, right = 1, #Text
     local truncated = ""
-    for i = 1, #Text do
-        local substr = Text:sub(1, i)
+
+    while left <= right do
+        local mid = math.floor((left + right) / 2)
+        local substr = Text:sub(1, mid)
         local bounds = TextService:GetTextSize(substr, textSize, font, Vector2.new(math.huge, math.huge))
-        if bounds.X > sizeX then
-            break
+        
+        if bounds.X <= sizeX then
+            truncated = substr
+            left = mid + 1
+        else
+            right = mid - 1
         end
-        truncated = substr
     end
 
     Label.Text = truncated
@@ -2960,16 +2966,16 @@ end;
             local Label = Library:CreateLabel({
                 Size = UDim2.new(1, 0, 1, 0);
                 TextSize = 14;
-                Text = Button.Text;
                 ZIndex = 6;
                 Parent = Inner;
                 RichText = true;
 
                 ClipsDescendants = true;
-                TextTruncate = Enum.TextTruncate.AtEnd;
                 TextXAlignment = Enum.TextXAlignment.Center;
                 TextYAlignment = Enum.TextYAlignment.Center;
-});
+            });
+            
+            TruncateText(Label, Button.Text);
 
             Library:Create('UIGradient', {
                 Color = ColorSequence.new({
@@ -3308,11 +3314,12 @@ end
     local InputLabel = Library:CreateLabel({
         Size = UDim2.new(1, 0, 0, 15);
         TextSize = 14;
-        Text = Info.Text;
         TextXAlignment = Enum.TextXAlignment.Left;
         ZIndex = 5;
         Parent = Container;
     });
+    
+    TruncateText(InputLabel, Info.Text);
 
     Groupbox:AddBlank(1);
 
@@ -3895,7 +3902,6 @@ end;
         SliderText = Library:CreateLabel({    
             Size = UDim2.new(1, 0, 0, 10);    
             TextSize = 14;    
-            Text = Info.Text;    
             TextXAlignment = Enum.TextXAlignment.Left;    
             TextYAlignment = Enum.TextYAlignment.Bottom;    
             Visible = Slider.Visible;    
@@ -3903,6 +3909,8 @@ end;
             Parent = Container;    
             RichText = true;    
         });    
+        
+        TruncateText(SliderText, Info.Text)
 
         table.insert(Blanks, Groupbox:AddBlank(3, Slider.Visible));    
     end    
@@ -4293,7 +4301,6 @@ end;
         DropdownLabel = Library:CreateLabel({  
             Size = UDim2.new(1, 0, 0, 10);  
             TextSize = 14;  
-            Text = Info.Text;  
             TextXAlignment = Enum.TextXAlignment.Left;  
             TextYAlignment = Enum.TextYAlignment.Bottom;  
             Visible = Dropdown.Visible;  
@@ -4301,6 +4308,8 @@ end;
             Parent = Container;  
             RichText = true;  
         });  
+        
+        TruncateText(DropdownLabel, Info.Text)
 
         CompactBlank = Groupbox:AddBlank(3, Dropdown.Visible);  
     end  
