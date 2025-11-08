@@ -721,8 +721,6 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
 
     UpdateText(InfoStr)
 
-    local IsHovering = false
-
     table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
         if Library:MouseIsOverOpenedFrame() or not Toggled then
             Tooltip.Visible = false
@@ -739,7 +737,7 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
             UpdateText(targetText)
         end
 
-        IsHovering = true
+        local IsHovering = true
         Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         Tooltip.Visible = true
 
@@ -748,6 +746,7 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
             Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         end
 
+        IsHovering = false
         Tooltip.Visible = false
     end))
 
@@ -3643,9 +3642,9 @@ end;
         Toggle:Display();  
     end;  
 
-    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then
-            Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)
-            Tooltip.Disabled = Toggle.Disabled
+    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
+        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)
+        Tooltip.Disabled = Toggle.Disabled
     end
 
     function Toggle:Display()  
@@ -5834,13 +5833,12 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
         Name = "Window";
     });
-    Blocked(Outer);
-    Protect(ScreenGui);
-    
-    
+    LibraryMainOuterFrame = Outer
     if Config.Resizable then
         Library:MakeResizable(Outer, Library.MinSize);
     end
+    Blocked(Outer);
+    Protect(ScreenGui);
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -6665,17 +6663,18 @@ end
     end;
     
     local TransparencyCache = {}
-    local Toggled = false
-    local Fading = false
+local Toggled = false
+local Fading = false
 
 function Library:Toggle(Toggling)
     if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
     if Fading then return end
 
-    local FadeTime = Config.MenuFadeTime or 0.25
+    local FadeTime = Config.MenuFadeTime
     Fading = true
     Toggled = not Toggled
-    Outer.Visible = true
+    Library.Toggled = Toggled
+    ModalElement.Modal = Toggled
 
     for _, Option in ipairs(Options) do
         task.spawn(function()
@@ -6684,9 +6683,7 @@ function Library:Toggle(Toggling)
             elseif Option.Type == "KeyPicker" then
                 Option:SetModePickerVisibility(false)
             elseif Option.Type == "ColorPicker" then
-                if Option.ContextMenu then
-                    Option.ContextMenu:Hide()
-                end
+                Option.ContextMenu:Hide()
                 Option:Hide()
             end
         end)
@@ -6705,29 +6702,24 @@ function Library:Toggle(Toggling)
         end
 
         if Props then
-            local Cache = TransparencyCache[Desc]
-            if not Cache then
-                Cache = {}
-                TransparencyCache[Desc] = Cache
-            end
-
+            local Cache = TransparencyCache[Desc] or {}
+            TransparencyCache[Desc] = Cache
             for _, Prop in ipairs(Props) do
-                local Current = Desc[Prop]
                 if Cache[Prop] == nil then
-                    Cache[Prop] = Current
+                    Cache[Prop] = Desc[Prop]
                 end
-
-                local Target = Toggled and Cache[Prop] or 1
-                if Current ~= Target then
-                    TweenService:Create(
-                        Desc,
-                        TweenInfo.new(FadeTime, Enum.EasingStyle.Linear),
-                        { [Prop] = Target }
-                    ):Play()
+                local target = Toggled and Cache[Prop] or 1
+                if Desc[Prop] ~= target then
+                    TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), {
+                        [Prop] = target
+                    }):Play()
                 end
             end
         end
     end
+
+    task.wait(FadeTime)
+    Outer.Visible = Toggled
 
     if Toggled then
         for _, Option in ipairs(Options) do
@@ -6737,8 +6729,6 @@ function Library:Toggle(Toggling)
         end
     end
 
-    task.wait(FadeTime)
-    Outer.Visible = Toggled
     Fading = false
 end
 
