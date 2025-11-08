@@ -2933,277 +2933,276 @@ function BaseGroupboxFuncs:AddLabel(...)
 end;
     
     function BaseGroupboxFuncs:AddButton(...)
-        local Button = typeof(select(1, ...)) == "table" and select(1, ...) or {
+    local Button = typeof(select(1, ...)) == "table" and select(1, ...) or {
+        Text = select(1, ...),
+        Func = select(2, ...)
+    }
+    Button.OriginalText = Button.Text;
+    
+    assert(typeof(Button.Func) == 'function', 'AddButton: `Func` callback is missing.');
+
+    local Blank = nil;
+    local Groupbox = self;
+    local Container = Groupbox.Container;
+    local IsVisible = if typeof(Button.Visible) == "boolean" then Button.Visible else true;
+
+    local function CreateBaseButton(Button)
+        local Outer = Library:Create('Frame', {
+            BackgroundColor3 = Color3.new(0, 0, 0);
+            BorderColor3 = Color3.new(0, 0, 0);
+            Size = UDim2.new(1, -4, 0, 20);
+            Visible = IsVisible;
+            ZIndex = 5;
+        });
+
+        local Inner = Library:Create('Frame', {
+            BackgroundColor3 = Library.MainColor;
+            BorderColor3 = Library.OutlineColor;
+            BorderMode = Enum.BorderMode.Inset;
+            Size = UDim2.new(1, 0, 1, 0);
+            ZIndex = 6;
+            Parent = Outer;
+        });
+
+        local Label = Library:CreateLabel({
+            Size = UDim2.new(1, 0, 1, 0);
+            TextSize = 14;
+            Text = Button.Text;
+            ZIndex = 6;
+            Parent = Inner;
+            RichText = true;
+
+            ClipsDescendants = true;
+            TextXAlignment = Enum.TextXAlignment.Center;
+            TextYAlignment = Enum.TextYAlignment.Center;
+        });
+        TruncateText(Label)
+
+        Library:Create('UIGradient', {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
+            });
+            Rotation = 90;
+            Parent = Inner;
+        });
+
+        Library:AddToRegistry(Outer, {
+            BorderColor3 = 'Black';
+        });
+
+        Library:AddToRegistry(Inner, {
+            BackgroundColor3 = 'MainColor';
+            BorderColor3 = 'OutlineColor';
+        });
+
+        Outer.MouseEnter:Connect(function()
+            if Groupbox.HighlightedButton and Groupbox.HighlightedButton ~= Outer then
+                Groupbox.HighlightedButton.BorderColor3 = Color3.new(0, 0, 0)
+            end
+            Outer.BorderColor3 = Library.AccentColor
+            Groupbox.HighlightedButton = Outer
+        end)
+
+        Outer.MouseLeave:Connect(function()
+            Outer.BorderColor3 = Color3.new(0, 0, 0)
+            if Groupbox.HighlightedButton == Outer then
+                Groupbox.HighlightedButton = nil
+            end
+        end)
+
+        return Outer, Inner, Label
+    end
+
+    local function InitEvents(Button)
+        local function WaitForEvent(event, timeout, validator)
+            local bindable = Instance.new('BindableEvent')
+            local connection = event:Once(function(...)
+                if typeof(validator) == 'function' and validator(...) then
+                    bindable:Fire(true)
+                else
+                    bindable:Fire(false)
+                end
+            end)
+            task.delay(timeout, function()
+                connection:disconnect()
+                bindable:Fire(false)
+            end)
+            return bindable.Event:Wait()
+        end
+
+        local function ValidateClick(Input)
+            if Library:MouseIsOverOpenedFrame(Input) then
+                return false
+            end
+
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                return true
+            elseif Input.UserInputType == Enum.UserInputType.Touch then
+                return true
+            else
+                return false
+            end
+        end
+
+        Button.Outer.InputBegan:Connect(function(Input)
+            if Button.Disabled then
+                return;
+            end;
+
+            if not ValidateClick(Input) then return end
+            if Button.Locked then return end
+
+            if Button.DoubleClick then
+                Library:RemoveFromRegistry(Button.Label)
+                Library:AddToRegistry(Button.Label, { TextColor3 = 'AccentColor' })
+
+                Button.Label.TextColor3 = Library.AccentColor
+                Button.Label.Text = 'Are you sure?'
+                Button.Locked = true
+
+                local clicked = WaitForEvent(Button.Outer.InputBegan, 0.5, ValidateClick)
+
+                Library:RemoveFromRegistry(Button.Label)
+                Library:AddToRegistry(Button.Label, { TextColor3 = 'FontColor' })
+
+                Button.Label.TextColor3 = Library.FontColor
+                Button.Label.Text = Button.Text
+                task.defer(rawset, Button, 'Locked', false)
+
+                if clicked then
+                    Library:SafeCallback(Button.Func)
+                end
+
+                return
+            end
+
+            Library:SafeCallback(Button.Func);
+        end)
+    end
+
+    Button.Outer, Button.Inner, Button.Label = CreateBaseButton(Button)
+    Button.Outer.Parent = Container
+
+    InitEvents(Button)
+
+    function Button:AddButton(...)
+        local SubButton = typeof(select(1, ...)) == "table" and select(1, ...) or {
             Text = select(1, ...),
             Func = select(2, ...)
         }
-        Button.OriginalText = Button.Text;
-        
-        assert(typeof(Button.Func) == 'function', 'AddButton: `Func` callback is missing.');
 
-        local Blank = nil;
-        local Groupbox = self;
-        local Container = Groupbox.Container;
-        local IsVisible = if typeof(Button.Visible) == "boolean" then Button.Visible else true;
+        assert(typeof(SubButton.Func) == 'function', 'AddButton: `Func` callback is missing.');
 
-        local function CreateBaseButton(Button)
-            local Outer = Library:Create('Frame', {
-                BackgroundColor3 = Color3.new(0, 0, 0);
-                BorderColor3 = Color3.new(0, 0, 0);
-                Size = UDim2.new(1, -4, 0, 20);
-                Visible = IsVisible;
-                ZIndex = 5;
-            });
+        self.Outer.Size = UDim2.new(0.5, -2, 0, 20)
 
-            local Inner = Library:Create('Frame', {
-                BackgroundColor3 = Library.MainColor;
-                BorderColor3 = Library.OutlineColor;
-                BorderMode = Enum.BorderMode.Inset;
-                Size = UDim2.new(1, 0, 1, 0);
-                ZIndex = 6;
-                Parent = Outer;
-            });
+        SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
 
-            local Label = Library:CreateLabel({
-                Size = UDim2.new(1, 0, 1, 0);
-                TextSize = 14;
-                Text = Button.Text;
-                ZIndex = 6;
-                Parent = Inner;
-                RichText = true;
+        SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
+        SubButton.Outer.Size = UDim2.new(1, -3, 0, self.Outer.AbsoluteSize.Y)
+        SubButton.Outer.Parent = self.Outer
 
-                ClipsDescendants = true;
-                TextXAlignment = Enum.TextXAlignment.Center;
-                TextYAlignment = Enum.TextYAlignment.Center;
-            });
-            TruncateText(Label)
+        function SubButton:UpdateColors()
+            SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.FontColor;
+        end;
 
-            Library:Create('UIGradient', {
-                Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
-                });
-                Rotation = 90;
-                Parent = Inner;
-            });
-
-            Library:AddToRegistry(Outer, {
-                BorderColor3 = 'Black';
-            });
-
-            Library:AddToRegistry(Inner, {
-                BackgroundColor3 = 'MainColor';
-                BorderColor3 = 'OutlineColor';
-            });
-
-            Outer.MouseEnter:Connect(function()
-                if Groupbox.HighlightedButton and Groupbox.HighlightedButton ~= Outer then
-                    Groupbox.HighlightedButton.BorderColor3 = Color3.new(0, 0, 0)
-                end
-                Outer.BorderColor3 = Library.AccentColor
-                Groupbox.HighlightedButton = Outer
-            end)
-
-            Outer.MouseLeave:Connect(function()
-                Outer.BorderColor3 = Color3.new(0, 0, 0)
-                if Groupbox.HighlightedButton == Outer then
-                    Groupbox.HighlightedButton = nil
-                end
-            end)
-
-            return Outer, Inner, Label
-        end
-
-        local function InitEvents(Button)
-            local function WaitForEvent(event, timeout, validator)
-                local bindable = Instance.new('BindableEvent')
-                local connection = event:Once(function(...)
-
-                    if typeof(validator) == 'function' and validator(...) then
-                        bindable:Fire(true)
-                    else
-                        bindable:Fire(false)
-                    end
-                end)
-                task.delay(timeout, function()
-                    connection:disconnect()
-                    bindable:Fire(false)
-                end)
-                return bindable.Event:Wait()
-            end
-
-            local function ValidateClick(Input)
-                if Library:MouseIsOverOpenedFrame(Input) then
-                    return false
-                end
-
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    return true
-                elseif Input.UserInputType == Enum.UserInputType.Touch then
-                    return true
-                else
-                    return false
-                end
-            end
-
-            Button.Outer.InputBegan:Connect(function(Input)
-                if Button.Disabled then
-                    return;
-                end;
-
-                if not ValidateClick(Input) then return end
-                if Button.Locked then return end
-
-                if Button.DoubleClick then
-                    Library:RemoveFromRegistry(Button.Label)
-                    Library:AddToRegistry(Button.Label, { TextColor3 = 'AccentColor' })
-
-                    Button.Label.TextColor3 = Library.AccentColor
-                    Button.Label.Text = 'Are you sure?'
-                    Button.Locked = true
-
-                    local clicked = WaitForEvent(Button.Outer.InputBegan, 0.5, ValidateClick)
-
-                    Library:RemoveFromRegistry(Button.Label)
-                    Library:AddToRegistry(Button.Label, { TextColor3 = 'FontColor' })
-
-                    Button.Label.TextColor3 = Library.FontColor
-                    Button.Label.Text = Button.Text
-                    task.defer(rawset, Button, 'Locked', false)
-
-                    if clicked then
-                        Library:SafeCallback(Button.Func)
-                    end
-
-                    return
-                end
-
-                Library:SafeCallback(Button.Func);
-            end)
-        end
-
-        Button.Outer, Button.Inner, Button.Label = CreateBaseButton(Button)
-        Button.Outer.Parent = Container
-
-        InitEvents(Button)
-
-        function Button:AddButton(...)
-            local SubButton = typeof(select(1, ...)) == "table" and select(1, ...) or {
-                Text = select(1, ...),
-                Func = select(2, ...)
-            }
-
-            assert(typeof(SubButton.Func) == 'function', 'AddButton: `Func` callback is missing.');
-
-            self.Outer.Size = UDim2.new(0.5, -2, 0, 20 * DPIScale)
-
-            SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
-
-            SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
-            SubButton.Outer.Size = UDim2.new(1, -3, 0, self.Outer.AbsoluteSize.Y)
-            SubButton.Outer.Parent = self.Outer
-
-            function SubButton:UpdateColors()
-                SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledAccentColor or Color3.new(1, 1, 1);
-            end;
-
-            function SubButton:AddToolTip(tooltip, disabledTooltip)
-                if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
-                    if SubButton.TooltipTable then
-                        SubButton.TooltipTable:Destroy()
-                    end
-                
-                    SubButton.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
-                    SubButton.TooltipTable.Disabled = SubButton.Disabled;
-                end
-
-                return SubButton
-            end
-
-            function SubButton:SetDisabled(Disabled)
-                SubButton.Disabled = Disabled;
-
+        function SubButton:AddToolTip(tooltip, disabledTooltip)
+            if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
                 if SubButton.TooltipTable then
-                    SubButton.TooltipTable.Disabled = Disabled;
+                    SubButton.TooltipTable:Destroy()
                 end
-
-                SubButton:UpdateColors();
-            end;
-
-            function SubButton:SetText(Text)
-                if typeof(Text) == "string" then
-                    SubButton.Text = Text;
-                    SubButton.Label.Text = SubButton.Text;
-                end
-            end;
-
-            if typeof(SubButton.Tooltip) == "string" or typeof(SubButton.DisabledTooltip) == "string" then
-                SubButton.TooltipTable = SubButton:AddToolTip(SubButton.Tooltip, SubButton.DisabledTooltip, SubButton.Outer)
+            
+                SubButton.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
                 SubButton.TooltipTable.Disabled = SubButton.Disabled;
             end
 
-            task.delay(0.1, SubButton.UpdateColors, SubButton);
-            InitEvents(SubButton)
-
-            table.insert(Buttons, SubButton);
             return SubButton
         end
 
-        function Button:UpdateColors()
-            Button.Label.TextColor3 = Button.Disabled and Library.DisabledAccentColor or Color3.new(1, 1, 1);
-        end;
+        function SubButton:SetDisabled(Disabled)
+            SubButton.Disabled = Disabled;
 
-        function Button:AddToolTip(tooltip, disabledTooltip)
-            if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
-                if Button.TooltipTable then
-                    Button.TooltipTable:Destroy()
-                end
-
-                Button.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
-                Button.TooltipTable.Disabled = Button.Disabled;
+            if SubButton.TooltipTable then
+                SubButton.TooltipTable.Disabled = Disabled;
             end
 
-            return Button
+            SubButton:UpdateColors();
         end;
 
-        if typeof(Button.Tooltip) == "string" or typeof(Button.DisabledTooltip) == "string" then
-            Button.TooltipTable = Button:AddToolTip(Button.Tooltip, Button.DisabledTooltip, Button.Outer)
+        function SubButton:SetText(Text)
+            if typeof(Text) == "string" then
+                SubButton.Text = Text;
+                SubButton.Label.Text = SubButton.Text;
+                TruncateText(SubButton.Label)
+            end
+        end;
+
+        if typeof(SubButton.Tooltip) == "string" or typeof(SubButton.DisabledTooltip) == "string" then
+            SubButton.TooltipTable = SubButton:AddToolTip(SubButton.Tooltip, SubButton.DisabledTooltip, SubButton.Outer)
+            SubButton.TooltipTable.Disabled = SubButton.Disabled;
+        end
+
+        task.delay(0.1, SubButton.UpdateColors, SubButton);
+        InitEvents(SubButton)
+
+        return SubButton
+    end
+
+    function Button:UpdateColors()
+        Button.Label.TextColor3 = Button.Disabled and Library.DisabledAccentColor or Library.FontColor;
+    end;
+
+    function Button:AddToolTip(tooltip, disabledTooltip)
+        if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
+            if Button.TooltipTable then
+                Button.TooltipTable:Destroy()
+            end
+
+            Button.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
             Button.TooltipTable.Disabled = Button.Disabled;
         end
 
-        function Button:SetVisible(Visibility)
-            IsVisible = Visibility;
-
-            Button.Outer.Visible = IsVisible;
-            if Blank then Blank.Visible = IsVisible end;
-
-            Groupbox:Resize();
-        end;
-
-        function Button:SetText(Text)
-            if typeof(Text) == "string" then
-                Button.Text = Text;
-                Button.Label.Text = Button.Text;
-            end
-        end;
-
-        function Button:SetDisabled(Disabled)
-            Button.Disabled = Disabled;
-
-            if Button.TooltipTable then
-                Button.TooltipTable.Disabled = Disabled;
-            end
-
-            Button:UpdateColors();
-        end;
-
-        task.delay(0.1, Button.UpdateColors, Button);
-        Blank = Groupbox:AddBlank(5, IsVisible);
-        Groupbox:Resize();
-
-        table.insert(Buttons, Button);
-        return Button;
+        return Button
     end;
+
+    if typeof(Button.Tooltip) == "string" or typeof(Button.DisabledTooltip) == "string" then
+        Button.TooltipTable = Button:AddToolTip(Button.Tooltip, Button.DisabledTooltip, Button.Outer)
+        Button.TooltipTable.Disabled = Button.Disabled;
+    end
+
+    function Button:SetVisible(Visibility)
+        IsVisible = Visibility;
+
+        Button.Outer.Visible = IsVisible;
+        if Blank then Blank.Visible = IsVisible end;
+
+        Groupbox:Resize();
+    end;
+
+    function Button:SetText(Text)
+        if typeof(Text) == "string" then
+            Button.Text = Text;
+            Button.Label.Text = Button.Text;
+            TruncateText(Button.Label)
+        end
+    end;
+
+    function Button:SetDisabled(Disabled)
+        Button.Disabled = Disabled;
+
+        if Button.TooltipTable then
+            Button.TooltipTable.Disabled = Disabled;
+        end
+
+        Button:UpdateColors();
+    end;
+
+    task.delay(0.1, Button.UpdateColors, Button);
+    Blank = Groupbox:AddBlank(5, IsVisible);
+    Groupbox:Resize();
+
+    return Button;
+end;
     function BaseGroupboxFuncs:AddDivider(LabelText)
     local Groupbox = self
     local Container = self.Container
