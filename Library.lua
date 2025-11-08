@@ -204,19 +204,25 @@ CursorImage.ImageColor3 = Library.AccentColor
 CursorImage.ZIndex = 0
 CursorImage.Parent = LinoriaCursor
 
-local OldMouseIconState = InputService.MouseIconEnabled
+Library:AddToRegistry(CursorImage, {
+	BackgroundColor3 = 'AccentColor';
+})
+
 InputService.MouseIconEnabled = not Library.ShowCustomCursor
 
-RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-    local pos = InputService:GetMouseLocation()
-    CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
-    CursorImage.ImageColor3 = Library.AccentColor
+InputService.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		local pos = input.Position
+		CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
+	end
+end)
 
-    if Library.ShowCustomCursor then
-        CursorImage.Visible = Library.Toggled
-    else
-        CursorImage.Visible = false
-    end
+RunService.RenderStepped:Connect(function()
+	if Library.ShowCustomCursor then
+		CursorImage.Visible = Library.Toggled
+	else
+		CursorImage.Visible = false
+	end
 end)
 
 if RunService:IsStudio() then
