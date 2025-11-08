@@ -96,37 +96,6 @@ ModalElement.Text = ""
 ModalElement.ZIndex = -999
 ModalElement.Parent = ModalScreenGui
 
-local LinoriaCursor = Instance.new("ScreenGui")
-LinoriaCursor.Name = "LinoriaCursor"
-LinoriaCursor.IgnoreGuiInset = true
-LinoriaCursor.ResetOnSpawn = false
-LinoriaCursor.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ParentUI(LinoriaCursor, math.huge)
-
-local CursorImage = Instance.new("ImageLabel")
-CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
-CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
-CursorImage.BackgroundTransparency = 1
-CursorImage.Image = "rbxassetid://" .. Library.CursorImage
-CursorImage.ImageColor3 = Library.AccentColor
-CursorImage.ZIndex = 0
-CursorImage.Visible = Library.ShowCustomCursor
-CursorImage.Parent = LinoriaCursor
-
-local OldMouseIconState = InputService.MouseIconEnabled
-InputService.MouseIconEnabled = not Library.ShowCustomCursor
-
-RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
-    local pos = InputService:GetMouseLocation()
-    CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
-    CursorImage.ImageColor3 = Library.AccentColor
-    CursorImage.Visible = Library.ShowCustomCursor
-
-    if CursorImage then
-        CursorImage.Visible = Library.ShowCustomCursor and Library.Toggled
-    end
-end)
-
 local Toggles = {};
 local Options = {};
 local Labels = {};
@@ -218,6 +187,39 @@ local Library = {
     Labels = Labels;
     Buttons = Buttons;
 };
+
+local LinoriaCursor = Instance.new("ScreenGui")
+LinoriaCursor.Name = "LinoriaCursor"
+LinoriaCursor.IgnoreGuiInset = true
+LinoriaCursor.ResetOnSpawn = false
+LinoriaCursor.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ParentUI(LinoriaCursor, math.huge)
+
+local CursorImage = Instance.new("ImageLabel")
+CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
+CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
+CursorImage.BackgroundTransparency = 1
+CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+CursorImage.ImageColor3 = Library.AccentColor
+CursorImage.ZIndex = 0
+CursorImage.Visible = Library.ShowCustomCursor
+CursorImage.Parent = LinoriaCursor
+
+local OldMouseIconState = InputService.MouseIconEnabled
+InputService.MouseIconEnabled = not Library.ShowCustomCursor
+
+RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Last.Value + 1000, function()
+    local pos = InputService:GetMouseLocation()
+    CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
+    CursorImage.ImageColor3 = Library.AccentColor
+    CursorImage.Visible = Library.ShowCustomCursor
+
+    if Library.ShowCustomCursor then
+        CursorImage.Visible = Library.Toggled
+        else
+        CursorImage.Visible = false
+    end
+end)
 
 if RunService:IsStudio() then
    Library.IsMobile = InputService.TouchEnabled and not InputService.MouseEnabled 
