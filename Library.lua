@@ -172,6 +172,8 @@ local Library = {
     ShowCustomCursor = true;
     ShowToggleFrameInKeybinds = true;
     NotifyOnError = false; -- true = Library:Notify for SafeCallback (still warns in the developer console)
+    
+    ShowTooltip = true;
 
     -- addons --
     SaveManager = nil;
@@ -812,10 +814,10 @@ end
     
     if LibraryMainOuterFrame then
         table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-            if LibraryMainOuterFrame.Visible == false then
-                IsHovering = false
-                Tooltip.Visible = false
-            end
+            if not LibraryMainOuterFrame.Visible or not Library.ShowTooltip then
+				IsHovering = false
+				Tooltip.Visible = false
+			end
         end))
     end
 
