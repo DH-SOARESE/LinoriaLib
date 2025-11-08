@@ -6123,7 +6123,7 @@ do
         ZIndex = 104;
         Parent = KeybindInner;
     })
-    Library:MakeDraggable(KeybindOuter)
+    Library:MakeDraggableUsingParent(_KeybindLabel, KeybindOuter);
 
     local KeybindContainer = Library:Create('Frame', {
         BackgroundTransparency = 1;
@@ -6500,9 +6500,6 @@ function Library:CreateWindow(...)
         Name = "Window";
     })
     LibraryMainOuterFrame = Outer
-    Library:MakeDraggable(Outer, 25, true)
-    if WindowInfo.Resizable then Library:MakeResizable(Outer, Library.MinSize)
-end
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -6521,12 +6518,15 @@ end
 
     local WindowLabel = Library:CreateLabel({
         Position = UDim2.new(0, 7, 0, 0);
-        Size = UDim2.new(0, 0, 0, 25);
-        Text = WindowInfo.Title or '';
+        Size = UDim2.new(1, -14, 0, 25);
+        Text = Config.Title or '';
         TextXAlignment = Enum.TextXAlignment.Left;
+        TextTruncate = Enum.TextTruncate.AtEnd;
         ZIndex = 1;
+        Name = "Window_label";
         Parent = Inner;
-    })
+});
+Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
 
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
