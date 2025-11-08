@@ -3643,7 +3643,7 @@ end;
     end;  
 
     if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
-        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleContainer)  
+        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)  
         Tooltip.Disabled = Toggle.Disabled;  
     end  
 
@@ -3935,10 +3935,10 @@ end;
         end    
     );    
 
-    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then    
-        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, SliderOuter)    
-        Tooltip.Disabled = Slider.Disabled;    
-    end    
+    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
+        Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleContainer)
+        Tooltip.Disabled = Toggle.Disabled
+    end
 
     function Slider:UpdateColors()    
         if SliderText then    
