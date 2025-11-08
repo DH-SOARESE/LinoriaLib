@@ -393,28 +393,33 @@ function Library:CreateLabel(Properties, IsHud)
 end;
 
 function TruncateText(GuiObject)
-    local Text = GuiObject.Text
-    local sizeX = GuiObject.AbsoluteSize.X
-    local font = GuiObject.Font
-    local textSize = GuiObject.TextSize
+    local function Update()
+        local Text = GuiObject.Text
+        local sizeX = GuiObject.AbsoluteSize.X
+        local font = GuiObject.Font
+        local textSize = GuiObject.TextSize
 
-    local left, right = 1, #Text
-    local truncated = ""
+        local left, right = 1, #Text
+        local truncated = ""
 
-    while left <= right do
-        local mid = math.floor((left + right) / 2)
-        local substr = Text:sub(1, mid)
-        local bounds = TextService:GetTextSize(substr, textSize, font, Vector2.new(math.huge, math.huge))
-        
-        if bounds.X <= sizeX then
-            truncated = substr
-            left = mid + 1
-        else
-            right = mid - 1
+        while left <= right do
+            local mid = math.floor((left + right) / 2)
+            local substr = Text:sub(1, mid)
+            local bounds = TextService:GetTextSize(substr, textSize, font, Vector2.new(math.huge, math.huge))
+            
+            if bounds.X <= sizeX then
+                truncated = substr
+                left = mid + 1
+            else
+                right = mid - 1
+            end
         end
+
+        GuiObject.Text = truncated
     end
 
-    GuiObject.Text = truncated
+    GuiObject:GetPropertyChangedSignal("Text"):Connect(Update)
+    GuiObject:GetPropertyChangedSignal("AbsoluteSize"):Connect(Update)
 end
 
 function Blocked(frame)
