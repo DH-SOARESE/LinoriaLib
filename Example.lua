@@ -1,3 +1,4 @@
+
 local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 
 local function loadLibrary(path)
@@ -23,8 +24,9 @@ Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
 Library.NotifySide = 'Right'
 
+
 local Window = Library:CreateWindow({
-    Title = 'LinoriaLib | Advanced UI System',
+    Title = 'LinoriaLib',
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -32,6 +34,7 @@ local Window = Library:CreateWindow({
     TabPadding = 8,
     MenuFadeTime = 0.2
 })
+
 
 local Tabs = {
     Controls = Window:AddTab('Controls', '7734068321'),
@@ -41,16 +44,23 @@ local Tabs = {
     Settings = Window:AddTab('Settings', '7963356958')
 }
 
--- ==================== CONTROLS TAB ====================
 
 local ToggleGroup = Tabs.Controls:AddLeftGroupbox('Toggle System')
 
 ToggleGroup:AddToggle('BasicToggle', {
-    Text = 'Basic Toggle',
+    Text = 'Basic toggle',
     Default = false,
     Tooltip = 'Simple on/off control',
+    Callback = function(State)
+        print("[Toggle] Basic:", State)
+    end
+})
+
+ToggleGroup:AddToggle('DisabledToggle', {
+    Text = 'Disabled toggle',
+    Default = false,
+    Disabled = true,
     Callback = function(value)
-        print('[Toggle] Basic:', value)
     end
 })
 
@@ -137,7 +147,7 @@ ButtonGroup:AddButton({
     Text = 'Chain Action',
     Func = function()
         print('[Button] Chain started')
-        Library:Notify('cessing...', 1)
+        Library:Notify('Processing...', 1)
     end
 }):AddButton({
     Text = 'Verify',
@@ -303,7 +313,6 @@ InputGroup:AddInput('ReadOnly', {
     Tooltip = 'Cannot be modified'
 })
 
--- ==================== DISPLAY TAB ====================
 
 local DropdownGroup = Tabs.Display:AddLeftGroupbox('Dropdown Menus')
 
@@ -409,14 +418,14 @@ VideoGroup:AddSlider('VideoVolume', {
 })
 
 VideoGroup:AddButton({
-    Text = 'Playing',
+    Text = 'Play',
     Func = function()
         PlaybackVideo:SetPlaying(true)
     end
 })
 
 VideoGroup:AddToggle('VideoLooped', {
-    Text = 'Looped',
+    Text = 'Loop',
     Default = true,
     Callback = function(value)
         PlaybackVideo:SetLooped(value)
@@ -479,7 +488,6 @@ end)
 
 ViewportGroup:AddLabel('Interactive 3D character model')
 
--- ==================== ADVANCED TAB ====================
 
 local DependencyGroup = Tabs.Advanced:AddLeftGroupbox('Dependencies')
 
@@ -600,12 +608,11 @@ SubTab3:AddButton({
 local KeybindGroup = Tabs.Advanced:AddRightGroupbox('Keybind System')
 
 KeybindGroup:AddLabel('Toggle Mode (Press to switch):')
-
-KeybindGroup:AddToggle("ExampleToggle", {
-    Text = "ExampleToggle",
+KeybindGroup:AddToggle('ExampleToggle_Toggle', {
+    Text = 'Example Toggle',
     Default = false,
-    Callback = function(Value)
-        print("Toggle:", Value)
+    Callback = function(value)
+        print('[Toggle] Toggle mode:', value)
     end
 }):AddKeyPicker('ToggleKey', {
     Default = 'F',
@@ -618,11 +625,11 @@ KeybindGroup:AddToggle("ExampleToggle", {
 })
 
 KeybindGroup:AddLabel('Hold Mode (Active while held):')
-KeybindGroup:AddToggle("ExampleToggle", {
-    Text = "ExampleToggle",
+KeybindGroup:AddToggle('ExampleToggle_Hold', {
+    Text = 'Example Toggle',
     Default = false,
-    Callback = function(Value)
-        print("Toggle:", Value)
+    Callback = function(value)
+        print('[Toggle] Hold mode:', value)
     end
 }):AddKeyPicker('HoldKey', {
     Default = 'LeftShift',
@@ -634,11 +641,11 @@ KeybindGroup:AddToggle("ExampleToggle", {
 })
 
 KeybindGroup:AddLabel('Always Mode (Permanent):')
-KeybindGroup:AddToggle("ExampleToggle", {
-    Text = "ExampleToggle",
+KeybindGroup:AddToggle('ExampleToggle_Always', {
+    Text = 'Example Toggle',
     Default = false,
-    Callback = function(Value)
-        print("Toggle:", Value)
+    Callback = function(value)
+        print('[Toggle] Always mode:', value)
     end
 }):AddKeyPicker('AlwaysKey', {
     Default = 'None',
@@ -649,7 +656,51 @@ KeybindGroup:AddToggle("ExampleToggle", {
     end
 })
 
--- ==================== SYSTEM TAB ====================
+KeybindGroup:AddLabel('Keybind'):AddKeyPicker('KeyPicker', {
+    Default = 'MB2',
+    Mode = 'Toggle',
+    Text = 'Auto lockpick safes',
+    SyncToggleState = false,
+    NoUI = false,
+    Callback = function(value)
+        print('[cb] Keybind clicked!', value)
+    end,
+    ChangedCallback = function(newKey, modifiers)
+        print('[cb] Keybind changed!', newKey, table.unpack(modifiers or {}))
+    end
+})
+
+Options.KeyPicker:OnClick(function()
+    print('Keybind clicked!', Options.KeyPicker:GetState())
+end)
+
+Options.KeyPicker:OnChanged(function()
+    print('Keybind changed!', Options.KeyPicker.Value, table.unpack(Options.KeyPicker.Modifiers or {}))
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        if Library.Unloaded then break end
+        if Options.KeyPicker:GetState() then
+            print('KeyPicker is being held down')
+        end
+    end
+end)
+
+Options.KeyPicker:SetValue({'MB2', 'Hold'})
+
+local KeybindNumber = 0
+KeybindGroup:AddLabel('Press Keybind'):AddKeyPicker('KeyPicker2', {
+    Default = 'X',
+    Mode = 'Press',
+    WaitForCallback = false,
+    Text = 'Increase Number',
+    Callback = function()
+        KeybindNumber = KeybindNumber + 1
+        print('[cb] Keybind clicked! Number increased to:', KeybindNumber)
+    end
+})
+
 
 local StatusGroup = Tabs.System:AddLeftGroupbox('System Status')
 
@@ -710,7 +761,7 @@ NotifGroup:AddButton({
 NotifGroup:AddButton({
     Text = 'Long Notification',
     Func = function()
-        Library:Notify('This is a longer notification message that vides more detailed information to the user', 5)
+        Library:Notify('This is a longer notification message that provides more detailed information to the user', 5)
     end
 })
 
@@ -749,7 +800,6 @@ ActionGroup:AddButton({
     end
 })
 
--- ==================== SETTINGS TAB ====================
 
 local UIGroup = Tabs.Settings:AddLeftGroupbox('UI Configuration')
 
@@ -761,6 +811,14 @@ UIGroup:AddToggle('ShowKeybinds', {
     Tooltip = 'Display active keybinds panel',
     Callback = function(value)
         Library.KeybindFrame.Visible = value
+    end
+})
+
+UIGroup:AddToggle('ShowToolTip', {
+    Text = 'Show Tooltip',
+    Default = true,
+    Callback = function(value)
+        Library.ShowTooltip = value
     end
 })
 
@@ -785,11 +843,11 @@ UIGroup:AddToggle('CustomCursor', {
 UIGroup:AddDivider()
 
 UIGroup:AddLabel('Menu Toggle Keybind:')
-UIGroup:AddToggle("ExampleToggle", {
-    Text = "ExampleToggle",
+UIGroup:AddToggle("MenuToggle", {
+    Text = "Menu Toggle",
     Default = false,
-    Callback = function(Value)
-        print("Toggle:", Value)
+    Callback = function(value)
+        print("[Menu] Toggle:", value)
     end
 }):AddKeyPicker('MenuKeybind', {
     Default = 'RightShift',
@@ -811,6 +869,7 @@ SaveManager:SetFolder('LinoriaLib/configs')
 
 SaveManager:BuildConfigSection(Tabs.Settings)
 ThemeManager:ApplyToTab(Tabs.Settings)
+
 
 Library:SetWatermarkVisibility(true)
 
@@ -839,6 +898,11 @@ local function UpdateWatermark()
 end
 
 UpdateWatermark()
+
+
+Library:OnUnload(function()
+    Library:Notify('LinoriaLib Unloaded')
+end)
 
 SaveManager:LoadAutoloadConfig()
 
