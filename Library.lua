@@ -756,46 +756,30 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     UpdateText(InfoStr)
 
     table.insert(TooltipTable.Signals, HoverInstance.MouseEnter:Connect(function()
-        if Library:MouseIsOverOpenedFrame() then
+        if Library:MouseIsOverOpenedFrame() or not Library.ShowTooltip then
             Tooltip.Visible = false
             return
         end
 
-        if not Library.ShowTooltip then
-            Tooltip.Visible = false
-            return
-        end
-
-        if not TooltipTable.Disabled then
-            if not InfoStr or InfoStr == "" then
-                Tooltip.Visible = false
-                return
-            end
-            if Label.Text ~= InfoStr then
-                UpdateText(InfoStr)
-            end
+        if TooltipTable.Disabled then
+            if not DisabledInfoStr or DisabledInfoStr == "" then return end
+            UpdateText(DisabledInfoStr)
         else
-            if not DisabledInfoStr or DisabledInfoStr == "" then
-                Tooltip.Visible = false
-                return
-            end
-            if Label.Text ~= DisabledInfoStr then
-                UpdateText(DisabledInfoStr)
-            end
+            if not InfoStr or InfoStr == "" then return end
+            UpdateText(InfoStr)
         end
 
         IsHovering = true
         Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
         Tooltip.Visible = true
 
-        while IsHovering do
-            if TooltipTable.Disabled and not DisabledInfoStr then break end
-            RunService.Heartbeat:Wait()
-            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-        end
-
-        IsHovering = false
-        Tooltip.Visible = false
+        task.spawn(function()
+            while IsHovering do
+                if not Tooltip.Visible then break end
+                Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
+                RunService.Heartbeat:Wait()
+            end
+        end)
     end))
 
     table.insert(TooltipTable.Signals, HoverInstance.MouseLeave:Connect(function()
