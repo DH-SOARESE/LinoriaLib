@@ -5651,11 +5651,10 @@ function Library:SetWatermarkVisibility(Bool)
 end;
 
 function Library:SetWatermark(Text)
-    Text = Text or "LinoriaLib";
-    local X, Y = Library:GetTextBounds(Text, Library.Font, 14);
-    Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3);
-    Library.WatermarkText.Text = (Text);
-end;
+    local X, Y = Library:GetTextBounds((Text and Text ~= '') and Text or Config.Title or 'LinoriaLib', Library.Font, 14)
+    Library.Watermark.Size = UDim2.new(0, X + 15, 0, Y * 1.5 + 3)
+    Library.WatermarkText.Text = (Text and Text ~= '') and Text or Config.Title or 'LinoriaLib'
+end
 
 function Library:SetNotifySide(Side: string)
     Library.NotifySide = Side;
