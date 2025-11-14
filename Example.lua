@@ -1,30 +1,46 @@
-
 local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
+local folderName = "Linoria Library"
+local basePath = folderName
+local addonsPath = basePath .. "/addons"
 
-local function loadLibrary(path)
-    local success, result = pcall(function()
-        return loadstring(game:HttpGet(LinoriaLib .. path))()
-    end)
-    
-    if not success then
-        error("Failed to load " .. path .. ": " .. tostring(result))
+if not isfolder(basePath) then makefolder(basePath) end
+if not isfolder(addonsPath) then makefolder(addonsPath) end
+
+local function ensureFile(filePath, url)
+    if not isfile(filePath) then
+        local success, result = pcall(function()
+            return game:HttpGet(url)
+        end)
+        if success and result then
+            writefile(filePath, result)
+        else
+            warn("Falha ao baixar " .. filePath .. ": " .. tostring(result))
+        end
     end
-    
-    return result
 end
 
-local Library = loadLibrary('Library.lua')
-local ThemeManager = loadLibrary('addons/ThemeManager.lua')
-local SaveManager = loadLibrary('addons/SaveManager.lua')
+ensureFile(basePath .. "/Library.lua", LinoriaLib .. "Library.lua")
+ensureFile(addonsPath .. "/SaveManager.lua", LinoriaLib .. "addons/SaveManager.lua")
+ensureFile(addonsPath .. "/ThemeManager.lua", LinoriaLib .. "addons/ThemeManager.lua")
 
+local Library = loadfile(basePath .. "/Library.lua")()
+local SaveManager = loadfile(addonsPath .. "/SaveManager.lua")()
+local ThemeManager = loadfile(addonsPath .. "/ThemeManager.lua")()
+
+SaveManager:SetLibrary(Library)
+ThemeManager:SetLibrary(Library)
+
+
+-- Shortcuts for options and toggles
 local Options = Library.Options
 local Toggles = Library.Toggles
 
+-- Global Library settings
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
 Library.NotifySide = 'Right'
 
-
+-- Create main window
 local Window = Library:CreateWindow({
     Title = 'LinoriaLib',
     Center = true,
@@ -35,7 +51,7 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
-
+-- Define tabs
 local Tabs = {
     Controls = Window:AddTab('Controls', '7734068321'),
     Display = Window:AddTab('Display', '7743871002'),
@@ -44,6 +60,7 @@ local Tabs = {
     Settings = Window:AddTab('Settings', '7963356958')
 }
 
+-- ==================== CONTROLS TAB ====================
 
 local ToggleGroup = Tabs.Controls:AddLeftGroupbox('Toggle System')
 
@@ -52,15 +69,16 @@ ToggleGroup:AddToggle('BasicToggle', {
     Default = false,
     Tooltip = 'Simple on/off control',
     Callback = function(State)
-        print("[Toggle] Basic:", State)
+        print("State: " .. tostring(State))
     end
 })
 
-ToggleGroup:AddToggle('DisabledToggle', {
-    Text = 'Disabled toggle',
+ToggleGroup:AddToggle('DisableToggle', {
+    Text = 'Disable Toggle',
     Default = false,
-    Disabled = true,
+    Disabled = true, 
     Callback = function(value)
+        -- No Callback 
     end
 })
 
@@ -313,6 +331,7 @@ InputGroup:AddInput('ReadOnly', {
     Tooltip = 'Cannot be modified'
 })
 
+-- ==================== DISPLAY TAB ====================
 
 local DropdownGroup = Tabs.Display:AddLeftGroupbox('Dropdown Menus')
 
@@ -418,14 +437,14 @@ VideoGroup:AddSlider('VideoVolume', {
 })
 
 VideoGroup:AddButton({
-    Text = 'Play',
+    Text = 'Playing',
     Func = function()
         PlaybackVideo:SetPlaying(true)
     end
 })
 
 VideoGroup:AddToggle('VideoLooped', {
-    Text = 'Loop',
+    Text = 'Looped',
     Default = true,
     Callback = function(value)
         PlaybackVideo:SetLooped(value)
@@ -488,6 +507,7 @@ end)
 
 ViewportGroup:AddLabel('Interactive 3D character model')
 
+-- ==================== ADVANCED TAB ====================
 
 local DependencyGroup = Tabs.Advanced:AddLeftGroupbox('Dependencies')
 
@@ -607,12 +627,13 @@ SubTab3:AddButton({
 
 local KeybindGroup = Tabs.Advanced:AddRightGroupbox('Keybind System')
 
+-- Toggle Mode
 KeybindGroup:AddLabel('Toggle Mode (Press to switch):')
 KeybindGroup:AddToggle('ExampleToggle_Toggle', {
     Text = 'Example Toggle',
     Default = false,
     Callback = function(value)
-        print('[Toggle] Toggle mode:', value)
+        print('Toggle:', value)
     end
 }):AddKeyPicker('ToggleKey', {
     Default = 'F',
@@ -624,12 +645,13 @@ KeybindGroup:AddToggle('ExampleToggle_Toggle', {
     end
 })
 
+-- Hold Mode
 KeybindGroup:AddLabel('Hold Mode (Active while held):')
 KeybindGroup:AddToggle('ExampleToggle_Hold', {
     Text = 'Example Toggle',
     Default = false,
     Callback = function(value)
-        print('[Toggle] Hold mode:', value)
+        print('Toggle:', value)
     end
 }):AddKeyPicker('HoldKey', {
     Default = 'LeftShift',
@@ -640,12 +662,13 @@ KeybindGroup:AddToggle('ExampleToggle_Hold', {
     end
 })
 
+-- Always Mode
 KeybindGroup:AddLabel('Always Mode (Permanent):')
 KeybindGroup:AddToggle('ExampleToggle_Always', {
     Text = 'Example Toggle',
     Default = false,
     Callback = function(value)
-        print('[Toggle] Always mode:', value)
+        print('Toggle:', value)
     end
 }):AddKeyPicker('AlwaysKey', {
     Default = 'None',
@@ -656,6 +679,7 @@ KeybindGroup:AddToggle('ExampleToggle_Always', {
     end
 })
 
+-- KeyPicker (Independent)
 KeybindGroup:AddLabel('Keybind'):AddKeyPicker('KeyPicker', {
     Default = 'MB2',
     Mode = 'Toggle',
@@ -687,8 +711,9 @@ task.spawn(function()
     end
 end)
 
-Options.KeyPicker:SetValue({'MB2', 'Hold'})
+Options.KeyPicker:SetValue({ 'MB2', 'Hold' })
 
+-- Keybind Counter
 local KeybindNumber = 0
 KeybindGroup:AddLabel('Press Keybind'):AddKeyPicker('KeyPicker2', {
     Default = 'X',
@@ -696,11 +721,12 @@ KeybindGroup:AddLabel('Press Keybind'):AddKeyPicker('KeyPicker2', {
     WaitForCallback = false,
     Text = 'Increase Number',
     Callback = function()
-        KeybindNumber = KeybindNumber + 1
+        KeybindNumber += 1
         print('[cb] Keybind clicked! Number increased to:', KeybindNumber)
     end
 })
 
+-- ==================== SYSTEM TAB ====================
 
 local StatusGroup = Tabs.System:AddLeftGroupbox('System Status')
 
@@ -800,6 +826,7 @@ ActionGroup:AddButton({
     end
 })
 
+-- ==================== SETTINGS TAB ====================
 
 local UIGroup = Tabs.Settings:AddLeftGroupbox('UI Configuration')
 
@@ -843,11 +870,11 @@ UIGroup:AddToggle('CustomCursor', {
 UIGroup:AddDivider()
 
 UIGroup:AddLabel('Menu Toggle Keybind:')
-UIGroup:AddToggle("MenuToggle", {
-    Text = "Menu Toggle",
+UIGroup:AddToggle("ExampleToggle", {
+    Text = "ExampleToggle",
     Default = false,
-    Callback = function(value)
-        print("[Menu] Toggle:", value)
+    Callback = function(Value)
+        print("Toggle:", Value)
     end
 }):AddKeyPicker('MenuKeybind', {
     Default = 'RightShift',
@@ -858,6 +885,7 @@ UIGroup:AddToggle("MenuToggle", {
     end
 })
 
+-- Setup Theme and Save Managers
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 
@@ -870,40 +898,17 @@ SaveManager:SetFolder('LinoriaLib/configs')
 SaveManager:BuildConfigSection(Tabs.Settings)
 ThemeManager:ApplyToTab(Tabs.Settings)
 
-
+-- Watermark setup
 Library:SetWatermarkVisibility(true)
+Library:SetWatermark("LinoriaLib")
 
-local function UpdateWatermark()
-    local watermarkFPS = 60
-    local watermarkFrame = 0
-    local watermarkTime = tick()
-    
-    RunService.Heartbeat:Connect(function()
-        watermarkFrame = watermarkFrame + 1
-        
-        if tick() - watermarkTime >= 1 then
-            watermarkFPS = watermarkFrame
-            watermarkTime = tick()
-            watermarkFrame = 0
-        end
-        
-        local ping = Stats.Network.ServerStatsItem['Data Ping']:GetValue()
-        
-        Library:SetWatermark(string.format(
-            'LinoriaLib | %d FPS | %dms',
-            math.floor(watermarkFPS),
-            math.floor(ping)
-        ))
-    end)
-end
-
-UpdateWatermark()
-
-
+-- Unload callback
 Library:OnUnload(function()
-    Library:Notify('LinoriaLib Unloaded')
+    Library:Notify('LinoriaLib Unload')
 end)
 
+-- Load autoload config
 SaveManager:LoadAutoloadConfig()
 
+-- Initial notification
 Library:Notify('LinoriaLib system initialized', 4)
