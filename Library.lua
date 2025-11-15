@@ -3849,7 +3849,6 @@ end;
 end;
     function BaseGroupboxFuncs:AddSlider(Idx, Info)
     assert(Info.Default,    string.format('AddSlider (IDX: %s): Missing default value.', tostring(Idx)));
-    assert(Info.Text,       string.format('AddSlider (IDX: %s): Missing slider text.', tostring(Idx)));
     assert(Info.Min,        string.format('AddSlider (IDX: %s): Missing minimum value.', tostring(Idx)));
     assert(Info.Max,        string.format('AddSlider (IDX: %s): Missing maximum value.', tostring(Idx)));
     assert(Info.Rounding,   string.format('AddSlider (IDX: %s): Missing rounding value.', tostring(Idx)));
@@ -3863,7 +3862,7 @@ end;
         Type = 'Slider';
         Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
         Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
-        OriginalText = Info.Text; Text = Info.Text;
+        OriginalText = Info.Text or ""; Text = Info.Text or "";
 
         Prefix = typeof(Info.Prefix) == "string" and Info.Prefix or "";    
         Suffix = typeof(Info.Suffix) == "string" and Info.Suffix or "";    
@@ -3878,7 +3877,7 @@ end;
     local Container = Groupbox.Container;    
     local Tooltip;    
 
-    if not Info.Compact then    
+    if not Info.Compact and Info.Text then    
         SliderText = Library:CreateLabel({    
             Size = UDim2.new(1, 0, 0, 10);    
             TextSize = 14;    
@@ -4011,8 +4010,9 @@ end;
         end
 
         if Info.Compact then    
-            DisplayLabel.Text = string.format("%s: %s%s%s",
+            DisplayLabel.Text = string.format("%s%s%s%s%s",
                 Slider.Text,
+                Slider.Text ~= "" and ": " or "",
                 Slider.Prefix,
                 FormattedValue,
                 (IsFixedText and "" or Slider.Suffix)
