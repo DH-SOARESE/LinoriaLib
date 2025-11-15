@@ -1,3 +1,4 @@
+--[[ Example for download 
 local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 local folderName = "Linoria Library"
 local basePath = folderName
@@ -29,7 +30,25 @@ local ThemeManager = loadfile(addonsPath .. "/ThemeManager.lua")()
 
 SaveManager:SetLibrary(Library)
 ThemeManager:SetLibrary(Library)
+]]
 
+local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
+
+local function loadLibrary(path)
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(LinoriaLib .. path))()
+    end)
+    
+    if not success then
+        error("Failed to load " .. path .. ": " .. tostring(result))
+    end
+    
+    return result
+end
+
+local Library = loadLibrary('Library.lua')
+local ThemeManager = loadLibrary('addons/ThemeManager.lua')
+local SaveManager = loadLibrary('addons/SaveManager.lua')
 
 -- Shortcuts for options and toggles
 local Options = Library.Options
