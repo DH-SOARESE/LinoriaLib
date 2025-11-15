@@ -15,7 +15,7 @@ local function ensureFile(filePath, url)
         if success and result then
             writefile(filePath, result)
         else
-            warn("Falha ao baixar " .. filePath .. ": " .. tostring(result))
+            warn("Error " .. filePath .. ": " .. tostring(result))
         end
     end
 end
