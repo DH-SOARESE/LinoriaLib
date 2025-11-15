@@ -130,7 +130,7 @@ local ToggleExample = Groupbox:AddToggle('ExampleToggle', {
 ### Slider
 ```lua
 local BrightnessSlider = Groupbox:AddSlider('ScreenBrightness', {
-    Text = 'Screen Brightness',
+    Text = 'Screen Brightness', --Optional Text
     Default = 50,
     Min = 0,
     Max = 100,
