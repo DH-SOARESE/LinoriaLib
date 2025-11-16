@@ -2250,6 +2250,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         local DropdownArrow = Library:Create('ImageLabel', {
             AnchorPoint = Vector2.new(0, 0.5);
             BackgroundTransparency = 1;
+            ImageColor3 = Library.AccentColor;
             Position = UDim2.new(1, -16, 0.5, 0);
             Size = UDim2.new(0, 12, 0, 12);
             Image = 'http://www.roblox.com/asset/?id=6282522798';
