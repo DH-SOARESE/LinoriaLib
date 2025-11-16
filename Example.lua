@@ -1,4 +1,4 @@
---[[ Installation by download 
+--[[ Example by download ]
 local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 local folderName = "Linoria Library"
 local basePath = folderName
@@ -204,18 +204,18 @@ ButtonGroup:AddButton({
     end
 })
 
-local SliderGroup = Tabs.Controls:AddRightGroupbox('Slider Controls')
+local SliderGroup = Tabs.Controls:AddRightGroupbox('Slider Controls Example')
 
-SliderGroup:AddSlider('IntSlider', {
+SliderGroup:AddSlider('IntegerSlider', {
     Text = 'Integer Value',
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
     Compact = false,
-    Tooltip = 'Whole number range',
+    Tooltip = 'Select a whole number between 0 and 100',
     Callback = function(value)
-        print('[Slider] Integer:', value)
+        print('Integer Slider Value: ' .. value)
     end
 })
 
@@ -226,9 +226,9 @@ SliderGroup:AddSlider('DecimalSlider', {
     Max = 1,
     Rounding = 2,
     Compact = true,
-    Tooltip = 'Precise decimal control',
+    Tooltip = 'Select a precise decimal value (2 decimal places)',
     Callback = function(value)
-        print('[Slider] Decimal:', value)
+        print('Decimal Slider Value: ' .. value)
     end
 })
 
@@ -240,22 +240,22 @@ SliderGroup:AddSlider('CurrencySlider', {
     Rounding = 0,
     Prefix = '$',
     Suffix = '.00',
-    Tooltip = 'Formatted as currency',
+    Tooltip = 'Adjust the amount in currency format',
     Callback = function(value)
-        print('[Slider] Currency:', value)
+        print('Currency Slider Value: ' .. value)
     end
 })
 
-SliderGroup:AddSlider('PercentSlider', {
+SliderGroup:AddSlider('PercentageSlider', {
     Text = 'Percentage',
     Default = 75,
     Min = 0,
     Max = 100,
     Rounding = 0,
     Suffix = '%',
-    Tooltip = 'Percentage value',
+    Tooltip = 'Select a percentage value',
     Callback = function(value)
-        print('[Slider] Percent:', value)
+        print('Percentage Slider Value: ' .. value)
     end
 })
 
@@ -268,13 +268,13 @@ SliderGroup:AddSlider('ThresholdSlider', {
     ValueText = {
         {Value = 0, Text = "Off"},
         {Value = 25, Text = "Low"},
-        {Value = 50, Text = "Med"},
+        {Value = 50, Text = "Medium"},
         {Value = 75, Text = "High"},
         {Value = 100, Text = "Max"}
     },
-    Tooltip = 'Named threshold levels',
+    Tooltip = 'Select a named threshold level',
     Callback = function(value)
-        print('[Slider] Threshold:', value)
+        print('Threshold Slider Value: ' .. value)
     end
 })
 
@@ -284,10 +284,35 @@ SliderGroup:AddSlider('CompactSlider', {
     Min = 0,
     Max = 1024,
     Rounding = 0,
-    HideMax = true,
-    Tooltip = 'Hidden maximum for cleaner display',
+    Compact = true,
+    Tooltip = 'A slider with compact design for large ranges',
     Callback = function(value)
-        print('[Slider] Compact:', value)
+        print('Compact Slider Value: ' .. value)
+    end
+})
+
+SliderGroup:AddSlider('HideMaxSlider', {
+    Text = 'Hidden Max Slider',
+    Default = 0,
+    Min = -400,
+    Max = 400,
+    Rounding = 0,
+    HideMax = true,
+    Tooltip = 'Slider hides maximum value for cleaner display',
+    Callback = function(value)
+        print('HideMax Slider Value: ' .. value)
+    end
+})
+
+SliderGroup:AddSlider('NoTitleSlider', {
+    Default = math.random(-1000, 1000),
+    Min = math.random(-1000, 0),
+    Max = math.random(0, 1000),
+    Rounding = math.random(0, 5),
+    HideMax = true,
+    Tooltip = 'Slider without a title label, starts with random decimal and random rounding',
+    Callback = function(value)
+        print('No Title Slider Value: ' .. value)
     end
 })
 
