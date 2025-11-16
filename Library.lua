@@ -3775,7 +3775,7 @@ end;
     assert(Info.Rounding,   string.format('AddSlider (IDX: %s): Missing rounding value.', tostring(Idx)));
 
     local Slider = {
-        Value = Info.Default;
+        Value = math.clamp(Info.Default, Info.Min, Info.Max);
         Min = Info.Min;
         Max = Info.Max;
         Rounding = Info.Rounding;
