@@ -3649,7 +3649,7 @@ end;
             return;  
         end;  
 
-        ToggleLabel.TextColor3 = Toggle.Risky and Library.RiskColor or Color3.new(1, 1, 1);  
+        ToggleLabel.TextColor3 = Toggle.Risky and Library.RiskColor or Library.FontColor;  
 
         ToggleInner.BackgroundColor3 = Toggle.Value and Library.AccentColor or Library.MainColor;  
         ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor;  
