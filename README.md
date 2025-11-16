@@ -118,7 +118,7 @@ local Tabs = {
 
 ### Groupboxes
 ```lua
-local Left  = Tabs.Main:AddLeftGroupbox('Name', 'Center') -- Optional name, side position can be {Left, Center, Right}
+local Left  = Tabs.Main:AddLeftGroupbox('Left') -- Optional name, side position can be {Left, Center, Right}
 local Right = Tabs.Main:AddRightGroupbox('Right')
 ```
 
@@ -198,7 +198,7 @@ Groupbox:AddToggle('ExampleToggle', {
 | Addons       | table    | {}                   | List of attached UI elements that depend on the toggle (e.g., key pickers). |
 | OriginalText | string   | —                    | Stores the initial label text. |
 | Tooltip      | string   | nil                  | Tooltip text shown on hover. |
-| DisabledTooltip | string | nil                | Disable the Tooltip option. |
+| DisabledTooltip | string | nil                | Tooltip text shown when disabled. |
 
 ### Slider
 ```lua
@@ -265,7 +265,7 @@ end)
 | Compact          | boolean | false                | If true, displays text and value in a compact format. |
 | HideMax          | boolean | false                | If true, hides the maximum value display. |
 | Tooltip          | string  | nil                  | Text displayed on hover. |
-| DisabledTooltip  | string  | nil                  | Disable the Tooltip option.. |
+| DisabledTooltip  | string  | nil                  | Tooltip displayed when slider is disabled. |
 
 ### Dropdown
 ```lua
@@ -413,7 +413,7 @@ end)
 
 ### 🎨 ColorPicker
 ```lua
-Groupbox:AddColorPicker('ColorPicker', {
+Toggle:AddColorPicker('ColorPicker', {
     Title = 'Highlight Color',
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.1,
@@ -441,7 +441,7 @@ Groupbox:AddColorPicker('ColorPicker', {
 
 ###  KeyPicker
 ```lua
-Groupbox:AddKeyPicker('KeyPicker', {
+Toggle:AddKeyPicker('KeyPicker', {
     Default = 'E',
     Mode = 'Toggle',
     Text = 'Enable',
@@ -450,7 +450,7 @@ Groupbox:AddKeyPicker('KeyPicker', {
     end
 })
 
-Groupbox:AddKeyPicker('FeatureKey', {
+Toggle:AddKeyPicker('FeatureKey', {
     Default = 'E',
     Mode = 'Toggle',
     Text = 'Primary Feature',
@@ -473,18 +473,18 @@ Groupbox:AddKeyPicker('KeyFeatureKEY', {
 
 #### KeyPicker Properties
 
-| Property         | Type    | Default              | Description |
-|------------------|---------|----------------------|-------------|
-| Default          | string  | Required             | Default key (e.g., 'E'). |
-| Mode             | string  | 'Toggle'             | Mode: 'Toggle', 'Hold', 'Always'. |
-| Text             | string  | Required             | Label text. |
-| SyncToggleState  | boolean | false                | If true, syncs state with an attached toggle. |
-| NoSync           | boolean | false                | If true, disables syncing. |
-| Visible          | boolean | true                 | Whether the key picker is visible. |
-| Disabled         | boolean | false                | Whether the key picker is disabled. |
-| Tooltip          | string  | nil                  | Tooltip text shown on hover. |
-| DisabledTooltip  | string  | nil                  | Tooltip text shown when disabled. |
-| Callback         | function| function(Value) end  | Called when the key is pressed or state changes. |
+| Property             | Type                | Default             | Description |
+|----------------------|---------------------|---------------------|-----------|
+| Default            | string or nil   | **Required**        | Default key (e.g. "E", "MB1", "None"). Use nil or "None" for unbound. |
+| Text               | string            | ""                | Text shown in the keybind list (e.g. "Fly"). |
+| Mode               | string            | "Toggle"          | Initial mode. Possible values: "Always", "Toggle", "Hold", **"Press"**. |
+| Modes              | table             | {"Always","Toggle","Hold","Press"} | List of modes that appear in the selector (you can remove any you don’t want). |
+| Callback           | function(toggled) | nil               | Called every time the state changes (toggle/press/hold). Receives true when active, false when inactive. |
+| ChangedCallback    | function(newKey)  | nil               | Called when the bound key is changed (bind/unbind). Receives the new Enum.UserInputType or nil. |
+| SyncToggleState    | boolean           | false             | If true, the keybind directly controls its parent toggle’s state (commonly used for toggles with a keybind). Forces "Toggle" mode. |
+| NoUI               | boolean           | false             | If true, no visual elements are created (useful for completely hidden keybinds). |
+| **InMenu**           | boolean           | true              | **New** – If false, the keybind **will not appear** in the on-screen keybind list (perfect for secret or internal binds). |
+
 
 ### Image
 #### Roblox Asset Image
