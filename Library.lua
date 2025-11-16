@@ -2932,6 +2932,7 @@ end;
         });
 
         Outer.MouseEnter:Connect(function()
+            if Button.Disabled then return end
             if Groupbox.HighlightedButton and Groupbox.HighlightedButton ~= Outer then
                 Groupbox.HighlightedButton.BorderColor3 = Color3.new(0, 0, 0)
             end
@@ -2940,6 +2941,7 @@ end;
         end)
 
         Outer.MouseLeave:Connect(function()
+            if Button.Disabled then return end
             Outer.BorderColor3 = Color3.new(0, 0, 0)
             if Groupbox.HighlightedButton == Outer then
                 Groupbox.HighlightedButton = nil
@@ -3038,7 +3040,8 @@ end;
         SubButton.Outer.Parent = self.Outer
 
         function SubButton:UpdateColors()
-            SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.FontColor;
+            SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledTextColor or Library.FontColor;
+            SubButton.Inner.BorderColor3 = SubButton.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
         end;
 
         function SubButton:AddToolTip(tooltip, disabledTooltip)
@@ -3061,7 +3064,20 @@ end;
                 SubButton.TooltipTable.Disabled = Disabled;
             end
 
-            SubButton:UpdateColors();
+            if Disabled then
+                Library:RemoveFromRegistry(SubButton.Inner);
+                SubButton.Inner.BackgroundColor3 = Library.MainColor;  -- Keep current MainColor
+                SubButton.Inner.BorderColor3 = Library.DisabledOutlineColor;
+                SubButton.Label.TextColor3 = Library.DisabledTextColor;
+            else
+                SubButton.Inner.BackgroundColor3 = Library.MainColor;
+                SubButton.Inner.BorderColor3 = Library.OutlineColor;
+                SubButton.Label.TextColor3 = Library.FontColor;
+                Library:AddToRegistry(SubButton.Inner, {
+                    BackgroundColor3 = 'MainColor';
+                    BorderColor3 = 'OutlineColor';
+                });
+            end
         end;
 
         function SubButton:SetText(Text)
@@ -3084,7 +3100,8 @@ end;
     end
 
     function Button:UpdateColors()
-        Button.Label.TextColor3 = Button.Disabled and Library.DisabledAccentColor or Library.FontColor;
+        Button.Label.TextColor3 = Button.Disabled and Library.DisabledTextColor or Library.FontColor;
+        Button.Inner.BorderColor3 = Button.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
     end;
 
     function Button:AddToolTip(tooltip, disabledTooltip)
@@ -3129,7 +3146,20 @@ end;
             Button.TooltipTable.Disabled = Disabled;
         end
 
-        Button:UpdateColors();
+        if Disabled then
+            Library:RemoveFromRegistry(Button.Inner);
+            Button.Inner.BackgroundColor3 = Library.MainColor;  -- Keep current MainColor
+            Button.Inner.BorderColor3 = Library.DisabledOutlineColor;
+            Button.Label.TextColor3 = Library.DisabledTextColor;
+        else
+            Button.Inner.BackgroundColor3 = Library.MainColor;
+            Button.Inner.BorderColor3 = Library.OutlineColor;
+            Button.Label.TextColor3 = Library.FontColor;
+            Library:AddToRegistry(Button.Inner, {
+                BackgroundColor3 = 'MainColor';
+                BorderColor3 = 'OutlineColor';
+            });
+        end
     end;
 
     task.delay(0.1, Button.UpdateColors, Button);
