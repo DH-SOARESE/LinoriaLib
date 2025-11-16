@@ -1574,6 +1574,7 @@ end;
             Callback = Info.Callback or function(Value) end;
             ChangedCallback = Info.ChangedCallback or function(New) end;
             SyncToggleState = Info.SyncToggleState or false;
+            InMenu = Info.InMenu ~= false;
         };
 
         local SpecialKeys = {
@@ -1775,7 +1776,7 @@ end;
             Parent = ModeSelectInner;
         });
 
-        local Modes = Info.Modes or { 'Always', 'Toggle', 'Hold' };
+        local Modes = Info.Modes or { 'Always', 'Toggle', 'Hold', 'Press' };
         local ModeButtons = {};
         local UnbindButton = {};
 
@@ -1877,9 +1878,13 @@ end;
             if KeybindsToggle.Loaded then
                 KeybindsToggle:SetNormal(not ShowToggle)
 
-                KeybindsToggle:SetVisibility(true);
-                KeybindsToggle:SetText(string.format('[%s] %s (%s)', tostring(KeyPicker.Value), Info.Text, KeyPicker.Mode));
-                KeybindsToggle:Display(State);
+                if KeyPicker.InMenu then
+                    KeybindsToggle:SetVisibility(true);
+                    KeybindsToggle:SetText(string.format('[%s] %s (%s)', tostring(KeyPicker.Value), Info.Text, KeyPicker.Mode));
+                    KeybindsToggle:Display(State);
+                else
+                    KeybindsToggle:SetVisibility(false);
+                end
             end
 
             local YSize = 0
@@ -1918,6 +1923,8 @@ end;
                 else
                     return InputService:IsKeyDown(Enum.KeyCode[KeyPicker.Value]) and not InputService:GetFocusedTextBox();
                 end;
+            elseif KeyPicker.Mode == 'Press' then
+                return KeyPicker.Toggled;
             else
                 return KeyPicker.Toggled;
             end;
@@ -2052,19 +2059,26 @@ end;
             if KeyPicker.Value == "Unknown" then return end
         
             if (not Picking) and (not InputService:GetFocusedTextBox()) then
-                if KeyPicker.Mode == 'Toggle' then
-                    local Key = KeyPicker.Value;
+                local Key = KeyPicker.Value;
+                local is_match = false;
 
-                    if Input.UserInputType == Enum.UserInputType.Keyboard then
-                        if Input.KeyCode.Name == Key then
-                            KeyPicker.Toggled = not KeyPicker.Toggled;
-                            KeyPicker:DoClick()
-                        end;
-                    elseif SpecialKeysInput[Input.UserInputType] == Key then
+                if Input.UserInputType == Enum.UserInputType.Keyboard then
+                    if Input.KeyCode.Name == Key then
+                        is_match = true;
+                    end
+                elseif SpecialKeysInput[Input.UserInputType] == Key then
+                    is_match = true;
+                end
+
+                if is_match then
+                    if KeyPicker.Mode == 'Toggle' then
                         KeyPicker.Toggled = not KeyPicker.Toggled;
                         KeyPicker:DoClick();
-                    end;
-                end;
+                    elseif KeyPicker.Mode == 'Press' then
+                        KeyPicker.Toggled = true;
+                        KeyPicker:DoClick();
+                    end
+                end
 
                 KeyPicker:Update();
             end;
@@ -2082,6 +2096,26 @@ end;
 
         Library:GiveSignal(InputService.InputEnded:Connect(function(Input)
             if (not Picking) then
+                if KeyPicker.Value == "Unknown" then return end
+
+                local Key = KeyPicker.Value;
+                local is_match = false;
+
+                if Input.UserInputType == Enum.UserInputType.Keyboard then
+                    if Input.KeyCode.Name == Key then
+                        is_match = true;
+                    end
+                elseif SpecialKeysInput[Input.UserInputType] == Key then
+                    is_match = true;
+                end
+
+                if is_match then
+                    if KeyPicker.Mode == 'Press' then
+                        KeyPicker.Toggled = false;
+                        KeyPicker:DoClick();
+                    end
+                end
+
                 KeyPicker:Update();
             end;
         end))
@@ -2093,7 +2127,6 @@ end;
 
         return self;
     end;
-
 function BaseAddonsFuncs:AddDropdown(Idx, Info)
         Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == "boolean" then Info.ReturnInstanceInstead else false;
 
