@@ -198,7 +198,7 @@ Groupbox:AddToggle('ExampleToggle', {
 | Addons       | table    | {}                   | List of attached UI elements that depend on the toggle (e.g., key pickers). |
 | OriginalText | string   | —                    | Stores the initial label text. |
 | Tooltip      | string   | nil                  | Tooltip text shown on hover. |
-| DisabledTooltip | string | nil                | Tooltip text shown when disabled. |
+| DisabledTooltip | string | nil                | Disable the Tooltip option. |
 
 ### Slider
 ```lua
@@ -265,7 +265,7 @@ end)
 | Compact          | boolean | false                | If true, displays text and value in a compact format. |
 | HideMax          | boolean | false                | If true, hides the maximum value display. |
 | Tooltip          | string  | nil                  | Text displayed on hover. |
-| DisabledTooltip  | string  | nil                  | Tooltip displayed when slider is disabled. |
+| DisabledTooltip  | string  | nil                  | Disable the Tooltip option.. |
 
 ### Dropdown
 ```lua
