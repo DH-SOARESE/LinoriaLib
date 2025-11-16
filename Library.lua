@@ -2354,8 +2354,8 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         });
 
         function Dropdown:UpdateColors()
-            ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or FontColor;
-            DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or AccentColor;
+            ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
+            DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.AccentColor;
         end;
 
         function Dropdown:GenerateDisplayText(SelectedValue)
