@@ -9,14 +9,82 @@
 - 💾 Save System
 - 🎭 Customizable Themes
 
-### 📦 Installation
+## 📥 Installation
+
+### 🚀 Quick Install (Direct Loading)
+Load the library directly from GitHub without saving files locally:
+
 ```lua
--- Automatic library loading
+-- Repository base URL
 local repo = 'https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/'
 
+-- Load core library and addons
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+```
+
+**Pros:** Fast and simple  
+**Cons:** Requires internet connection on every script execution
+
+---
+
+### 💾 Local Install (Persistent Files)
+Download and cache the library files locally for offline use:
+
+```lua
+local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
+local folderName = "Linoria Library"
+local basePath = folderName
+local addonsPath = basePath .. "/addons"
+
+-- Create necessary folders
+if not isfolder(basePath) then makefolder(basePath) end
+if not isfolder(addonsPath) then makefolder(addonsPath) end
+
+-- Helper function to download and save files
+local function ensureFile(filePath, url)
+    if not isfile(filePath) then
+        local success, result = pcall(function()
+            return game:HttpGet(url)
+        end)
+        if success and result then
+            writefile(filePath, result)
+            print("✓ Downloaded: " .. filePath)
+        else
+            warn("✗ Failed to download " .. filePath .. ": " .. tostring(result))
+        end
+    end
+end
+
+-- Download library files
+ensureFile(basePath .. "/Library.lua", LinoriaLib .. "Library.lua")
+ensureFile(addonsPath .. "/SaveManager.lua", LinoriaLib .. "addons/SaveManager.lua")
+ensureFile(addonsPath .. "/ThemeManager.lua", LinoriaLib .. "addons/ThemeManager.lua")
+
+-- Load from local files
+local Library = loadfile(basePath .. "/Library.lua")()
+local SaveManager = loadfile(addonsPath .. "/SaveManager.lua")()
+local ThemeManager = loadfile(addonsPath .. "/ThemeManager.lua")()
+
+-- Initialize managers
+SaveManager:SetLibrary(Library)
+ThemeManager:SetLibrary(Library)
+```
+
+**Pros:** Works offline after first download, faster load times  
+**Cons:** Requires more initial setup
+```
+### Key improvements:
+
+1. **Descriptive titles** - "Quick Install" vs "Local Install" makes the difference clear
+2. **Clear explanations** - Added descriptions of what each method does
+3. **Pros and Cons** - Helps users choose the best method
+4. **Better comments** - Clearer and more informative
+5. **Visual feedback** - Added success/error prints in the download method
+6. **Visual organization** - Horizontal separator between methods
+7. **Appropriate emojis** - 🚀 for quick, 💾 for persistent
+8. **Manager initialization** - Included the missing setup in the second method
 ```
 
 ### 1. Creating a Window
