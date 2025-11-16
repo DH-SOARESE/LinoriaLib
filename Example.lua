@@ -1,4 +1,4 @@
---[[ Example for download 
+--[[ Installation by download 
 local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 local folderName = "Linoria Library"
 local basePath = folderName
