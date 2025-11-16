@@ -480,7 +480,7 @@ local ToggleESP = Groupbox:AddToggle('ShowESP', {
 })
 
 local ESPDepBox = Groupbox:AddDependencyBox()
-ESPDepBox:SetupDependencies({ { ToggleESP, true } })
+ESPDepBox:SetupDependencies({ { Toggles.ToggleESP, true } })
 
 ESPDepBox:AddSlider('Example', {
     Text = 'Example',
