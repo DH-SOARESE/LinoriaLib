@@ -3775,7 +3775,7 @@ end;
     assert(Info.Rounding,   string.format('AddSlider (IDX: %s): Missing rounding value.', tostring(Idx)));
 
     local Slider = {
-        Value = math.clamp(Info.Default, Info.Min, Info.Max);
+        Value = Info.Default;
         Min = Info.Min;
         Max = Info.Max;
         Rounding = Info.Rounding;
@@ -6619,8 +6619,8 @@ end
     end;
     
     local TransparencyCache = {}
-local Toggled = false
-local Fading = false
+    local Toggled = false
+    local Fading = false
 
 function Library:Toggle(Toggling)
     if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
@@ -6632,17 +6632,27 @@ function Library:Toggle(Toggling)
     Library.Toggled = Toggled
     ModalElement.Modal = Toggled
 
-    for _, Option in ipairs(Options) do
-        task.spawn(function()
-            if Option.Type == "Dropdown" then
-                Option:CloseDropdown()
-            elseif Option.Type == "KeyPicker" then
-                Option:SetModePickerVisibility(false)
-            elseif Option.Type == "ColorPicker" then
-                Option.ContextMenu:Hide()
-                Option:Hide()
+    if not Toggled then
+        for _, Desc in ipairs(Outer:GetDescendants()) do
+            local Props
+            if Desc:IsA("ImageLabel") then
+                Props = {"ImageTransparency", "BackgroundTransparency"}
+            elseif Desc:IsA("TextLabel") or Desc:IsA("TextBox") then
+                Props = {"TextTransparency"}
+            elseif Desc:IsA("Frame") or Desc:IsA("ScrollingFrame") then
+                Props = {"BackgroundTransparency"}
+            elseif Desc:IsA("UIStroke") then
+                Props = {"Transparency"}
             end
-        end)
+
+            if Props then
+                local Cache = TransparencyCache[Desc] or {}
+                TransparencyCache[Desc] = Cache
+                for _, Prop in ipairs(Props) do
+                    Cache[Prop] = Desc[Prop]
+                end
+            end
+        end
     end
 
     for _, Desc in ipairs(Outer:GetDescendants()) do
@@ -6660,10 +6670,12 @@ function Library:Toggle(Toggling)
         if Props then
             local Cache = TransparencyCache[Desc] or {}
             TransparencyCache[Desc] = Cache
+
             for _, Prop in ipairs(Props) do
                 if Cache[Prop] == nil then
                     Cache[Prop] = Desc[Prop]
                 end
+
                 local target = Toggled and Cache[Prop] or 1
                 if Desc[Prop] ~= target then
                     TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), {
@@ -6671,6 +6683,21 @@ function Library:Toggle(Toggling)
                     }):Play()
                 end
             end
+        end
+    end
+
+    if not Toggled then
+        for _, Option in ipairs(Options) do
+            task.spawn(function()
+                if Option.Type == "Dropdown" then
+                    Option:CloseDropdown()
+                elseif Option.Type == "KeyPicker" then
+                    Option:SetModePickerVisibility(false)
+                elseif Option.Type == "ColorPicker" then
+                    Option.ContextMenu:Hide()
+                    Option:Hide()
+                end
+            end)
         end
     end
 
