@@ -4413,7 +4413,7 @@ end;
             DropdownLabel.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
         end;  
         ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor; 
-        DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.AccentColo;
+        DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.AccentColor;
     end;  
 
     function Dropdown:Display()  
