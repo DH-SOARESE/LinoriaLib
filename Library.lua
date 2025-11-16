@@ -2257,10 +2257,6 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             ZIndex = 8;
             Parent = DropdownInner;
         });
-        
-        Library:AddToRegistry(DropdownArrow, {
-            ImageColor3 = 'AccentColor',
-        });
 
         local ItemList = Library:CreateLabel({
             Position = UDim2.new(0, 5, 0, 0);
@@ -2358,7 +2354,8 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         });
 
         function Dropdown:UpdateColors()
-            ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Color3.new(1, 1, 1);
+            ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or FontColor;
+            DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or AccentColor;
         end;
 
         function Dropdown:GenerateDisplayText(SelectedValue)
