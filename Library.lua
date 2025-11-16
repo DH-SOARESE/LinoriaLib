@@ -2256,6 +2256,10 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             ZIndex = 8;
             Parent = DropdownInner;
         });
+        
+        Library:AddToRegistry(DropdownArrow, {
+            ImageColor3 = 'AccentColor',
+        });
 
         local ItemList = Library:CreateLabel({
             Position = UDim2.new(0, 5, 0, 0);
