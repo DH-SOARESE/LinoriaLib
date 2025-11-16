@@ -50,7 +50,7 @@ local Tabs = {
 
 ### Groupboxes
 ```lua
-local Left  = Tabs.Main:AddLeftGroupbox('Left', 'Center') -- Optional name, side position can be {Left, Center, Right}
+local Left  = Tabs.Main:AddLeftGroupbox('Left') -- Optional name, side position can be {Left, Center, Right}
 local Right = Tabs.Main:AddRightGroupbox('Right')
 ```
 
@@ -61,14 +61,14 @@ local Tab1 = SubTabs:AddTab('Sub tab1')
 local Tab2 = SubTabs:AddTab('Sub tab2')
 ```
 
-##  Interface Elements
+## Interface Elements
 
 ### Toggle
 ```lua
-local MyToggle = Groupbox:AddToggle('ShowESP', {
-    Text = 'Enable ESP',
+Groupbox:AddToggle('BasicToggle', {
+    Text = 'Enable Feature',
     Default = false,
-    Tooltip = 'Toggles the ESP system',
+    Tooltip = 'Toggles the feature on or off',
     Risky = false,
     Disabled = false,
     DisabledTooltip = false,
@@ -76,31 +76,36 @@ local MyToggle = Groupbox:AddToggle('ShowESP', {
         print('Toggle:', Value)
     end
 })
+```
 
-MyToggle:SetValue(true)
-MyToggle:OnChanged(function(value)
-    print('State changed:', value)
+#### Toggle Controls
+```lua
+Toggles.BasicToggle:SetText('example') -- string 
+Toggles.BasicToggle:SetValue(not Toggles.BasicToggle.Value) -- boolean 
+Toggles.BasicToggle:SetVisible(not Toggles.BasicToggle.Visible) -- boolean 
+Toggles.BasicToggle:OnChanged(function(value) -- function 
+    print('New value changed callback:', value)
 end)
 ```
 
 #### Toggle with KeyPicker and ColorPicker
 ```lua
-local ToggleExample = Groupbox:AddToggle('ExampleToggle', {
-    Text = 'Enable ESP',
+Groupbox:AddToggle('ExampleToggle', {
+    Text = 'Enable Feature',
     Default = false,
     Callback = function(Value)
-        print('ESP:', Value and 'Enabled' or 'Disabled')
+        print('Feature:', Value and 'Enabled' or 'Disabled')
     end
-}):AddKeyPicker('ESPKeyPicker', {
+}):AddKeyPicker('FeatureKeyPicker', {
     Default = 'E',
     Mode = 'Toggle',
-    Text = 'ESP',
+    Text = 'Feature',
     SyncToggleState = true,
     Callback = function(Toggled)
-        print('ESP KeyPicker Toggle:', Toggled)
+        print('Feature KeyPicker Toggle:', Toggled)
     end
-}):AddColorPicker('ESPColor', {
-    Title = 'ESP Color',
+}):AddColorPicker('FeatureColor', {
+    Title = 'Feature Color',
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.1,
     Callback = function(Color, Alpha)
@@ -129,8 +134,8 @@ local ToggleExample = Groupbox:AddToggle('ExampleToggle', {
 
 ### Slider
 ```lua
-local BrightnessSlider = Groupbox:AddSlider('ScreenBrightness', {
-    Text = 'Screen Brightness', --Optional Text
+Groupbox:AddSlider('ScreenBrightness', {
+    Text = 'Screen Brightness', -- Optional Text
     Default = 50,
     Min = 0,
     Max = 100,
@@ -143,7 +148,7 @@ local BrightnessSlider = Groupbox:AddSlider('ScreenBrightness', {
     end
 })
 
-local VolumeSlider = Groupbox:AddSlider('GeneralVolume', {
+Groupbox:AddSlider('GeneralVolume', {
     Text = 'Volume',
     Default = 0.5,
     Min = 0,
@@ -161,10 +166,17 @@ local VolumeSlider = Groupbox:AddSlider('GeneralVolume', {
 
 #### Slider Controls
 ```lua
-VolumeSlider:SetDisabled(false)
-VolumeSlider:SetMin(0.1)
-VolumeSlider:SetMax(2.0)
-VolumeSlider:SetValue(1.2)
+Options.ScreenBrightness:SetText('example') -- string 
+Options.ScreenBrightness:SetMin(0.1) -- number 
+Options.ScreenBrightness:SetMax(2.0) -- number 
+Options.ScreenBrightness:SetValue(1.2) -- number 
+Options.ScreenBrightness:SetPrefix('to left') -- string 
+Options.ScreenBrightness:SetSuffix('to right') -- string 
+Options.ScreenBrightness:SetDisabled(false) -- boolean 
+Options.ScreenBrightness:SetVisible(true) -- boolean 
+Options.ScreenBrightness:OnChanged(function(value) -- function 
+    print('New value changed callback:', value)
+end)
 ```
 
 #### Slider Properties
@@ -189,7 +201,7 @@ VolumeSlider:SetValue(1.2)
 
 ### Dropdown
 ```lua
-local GameModeDropdown = Groupbox:AddDropdown('GameMode', {
+Groupbox:AddDropdown('GameMode', {
     Text = 'Select Game Mode',
     Values = {'Easy', 'Medium', 'Hard'},
     Default = 'Medium',
@@ -201,7 +213,7 @@ local GameModeDropdown = Groupbox:AddDropdown('GameMode', {
     end
 })
 
-local PlayerDropdown = Groupbox:AddDropdown('PlayerSelect', {
+Groupbox:AddDropdown('PlayerSelect', {
     Text = 'Select Player',
     SpecialType = 'Player',
     ExcludeLocalPlayer = true,
@@ -211,6 +223,21 @@ local PlayerDropdown = Groupbox:AddDropdown('PlayerSelect', {
         print('Selected players:', table.concat(Values, ', '))
     end
 })
+```
+
+#### Dropdown Controls
+```lua
+Options.GameMode:SetText('Example') -- string 
+Options.GameMode:AddValues({'New Option 1', 'New Option 2'}) -- table
+Options.GameMode:SetValue({}) -- table
+Options.GameMode:SetDisabledValues({'Easy'}) -- table
+Options.GameMode:AddDisabledValues({'Hard'}) -- table
+Options.GameMode:SetVisible(true) -- boolean 
+Options.GameMode:SetDisabled(false) -- boolean 
+Options.GameMode:OnChanged(function(value) -- function 
+    print('New value changed callback:', value)
+end)
+
 ```
 
 #### Dropdown Properties
@@ -238,7 +265,7 @@ local PlayerDropdown = Groupbox:AddDropdown('PlayerSelect', {
 ### ⌨️ Input
 #### Basic Input
 ```lua
-local InputExample = Groupbox:AddInput('UsernameInput', {
+Groupbox:AddInput('UsernameInput', {
     Text = 'Player Name',
     Default = 'Player123',
     Placeholder = 'Enter your username...',
@@ -286,10 +313,13 @@ Groupbox:AddInput('LockedInput', {
 
 #### Input Controls
 ```lua
-InputExample:SetValue('New text')
-InputExample:SetDisabled(true)
-InputExample:SetVisible(false)
-InputExample:OnChanged(function(v)
+Options.UsernameInput:SetValue('Example') -- string 
+Options.UsernameInput:SetDisabled(true) -- boolean 
+Options.UsernameInput:SetVisible(false) -- boolean 
+Options.UsernameInput:SetDisabled(false) -- boolean 
+Options.UsernameInput:SetVisible(false) -- boolean 
+Options.UsernameInput:SetValue('not') -- string 
+Options.UsernameInput:OnChanged(function(v) -- function 
     print('Value changed:', v)
 end)
 ```
@@ -352,17 +382,17 @@ Groupbox:AddKeyPicker('KeyPicker', {
     end
 })
 
-Groupbox:AddKeyPicker('ESPKey', {
+Groupbox:AddKeyPicker('FeatureKey', {
     Default = 'E',
     Mode = 'Toggle',
-    Text = 'Primary ESP',
+    Text = 'Primary Feature',
     SyncToggleState = true,
     Callback = function(Toggled)
         print('KeyPicker Toggle:', Toggled)
     end
 })
 
-Groupbox:AddKeyPicker('KeyESPKEY', {
+Groupbox:AddKeyPicker('KeyFeatureKEY', {
     Default = 'N',
     Mode = 'Toggle',
     Text = 'M',
@@ -391,7 +421,7 @@ Groupbox:AddKeyPicker('KeyESPKEY', {
 ### Image
 #### Roblox Asset Image
 ```lua
-local Logo = Groupbox:AddImage('MainLogo', {
+Groupbox:AddImage('MainLogo', {
     Image = 'rbxassetid://1234567890',
     Height = 150,
     Color = Color3.fromRGB(255, 255, 255),
@@ -406,7 +436,7 @@ local Logo = Groupbox:AddImage('MainLogo', {
 
 #### Lucide Icon
 ```lua
-local Icon = Groupbox:AddImage('WarningIcon', {
+Groupbox:AddImage('WarningIcon', {
     Image = 'alert-triangle',
     Color = Color3.fromRGB(255, 200, 0),
     Height = 60,
@@ -419,7 +449,7 @@ local Icon = Groupbox:AddImage('WarningIcon', {
 
 #### External Image (URL)
 ```lua
-local Banner = Groupbox:AddImage('PromoBanner', {
+Groupbox:AddImage('PromoBanner', {
     Image = 'https://i.imgur.com/Example.png',
     Height = 180,
     Color = Color3.fromRGB(255, 255, 255),
@@ -447,7 +477,7 @@ local Banner = Groupbox:AddImage('PromoBanner', {
 
 ### Video
 ```lua
-local Video = Groupbox:AddVideo('MyVideo', {
+Groupbox:AddVideo('MyVideo', {
     Video = 'rbxassetid://Your Image ID',
     Height = 200,
     Looped = true,
@@ -470,31 +500,31 @@ local Video = Groupbox:AddVideo('MyVideo', {
 
 ###  DependencyBox
 ```lua
-local ToggleESP = Groupbox:AddToggle('ShowESP', {
+Groupbox:AddToggle('BasicToggle', {
     Text = 'Toggle Example',
     Default = false,
-    Tooltip = 'Enables the ESP system.',
+    Tooltip = 'Enables the feature.',
     Callback = function(Value)
         print('Toggled:', Value)
     end
 })
 
-local ESPDepBox = Groupbox:AddDependencyBox()
-ESPDepBox:SetupDependencies({ { Toggles.ToggleESP, true } })
+local FeatureDepBox = Groupbox:AddDependencyBox()
+FeatureDepBox:SetupDependencies({ { Toggles.BasicToggle, true } })
 
-ESPDepBox:AddSlider('Example', {
+FeatureDepBox:AddSlider('Example', {
     Text = 'Example',
     Default = 0.5,
     Min = 0,
     Max = 1,
     Rounding = 2,
-    Tooltip = 'Adjusts ESP opacity.',
+    Tooltip = 'Adjusts feature opacity.',
     Callback = function(Value)
         print('Ex:', Value)
     end
 })
 
-ESPDepBox:AddDropdown('Example', {
+FeatureDepBox:AddDropdown('Example', {
     Text = 'Example',
     Values = { 'A', 'B', 'C' },
     Default = 'A',
@@ -615,23 +645,19 @@ Library:Notify('Success message!')
 Library:Notify('Error detected!', 10, 4590657391)
 
 Library:Notify({
-    Title = 'KoltESP',
+    Title = 'ExampleLib',
     Description = 'Example of Description',
     Time = 7,
     SoundId = 6534947243
 })
 
 local EXAMPLE = Library:Notify({
-    Title = 'KoltESP',
+    Title = 'ExampleLib',
     Description = 'Example of Description',
     Time = 10
 })
 
-task.wait(3)
-
-task.wait(3)
-
-local signal = Instance.new('BindableEvent')
+local signal = Instance.new('Attachment')
 
 Library:Notify({
     Title = 'Monitor',
@@ -639,19 +665,15 @@ Library:Notify({
     Time = signal
 })
 
-task.wait(5)
-signal:Destroy()
-
-
 ```
 
-##  Accessing and Manipulating Values
+##  Accessing Values
 ```lua
-print(Toggles.MyToggle.Value)
+print(Toggles.BasicToggle.Value)
 print(Options.Speed.Value)
 print(Options.GameMode.Value)
 
-Toggles.MyToggle:SetValue(true)
+Toggles.BasicToggle:SetValue(true)
 Options.Speed:SetValue(50)
 Options.GameMode:SetValue('Fast')
 ```
