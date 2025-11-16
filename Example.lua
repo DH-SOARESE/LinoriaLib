@@ -1,4 +1,4 @@
---[[ Example by download ]
+--[[ Example by download 
 local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
 local folderName = "Linoria Library"
 local basePath = folderName
@@ -911,21 +911,13 @@ UIGroup:AddToggle('CustomCursor', {
     end
 })
 
-UIGroup:AddDivider()
-
-UIGroup:AddLabel('Menu Toggle Keybind:')
-UIGroup:AddToggle("ExampleToggle", {
-    Text = "ExampleToggle",
-    Default = false,
-    Callback = function(Value)
-        print("Toggle:", Value)
-    end
-}):AddKeyPicker('MenuKeybind', {
-    Default = 'RightShift',
-    NoUI = true,
+UIGroup:AddLabel('Menu Toggle Keybind:'):AddKeyPicker('MenuKeybind', {
+    Mode = "Press",
+    Default = 'Q',
     Text = 'Menu Toggle',
-    Callback = function(value)
-        print('[Menu] Keybind:', value)
+    InMenu = false,
+    Callback = function()
+        Library:Toggle()
     end
 })
 
