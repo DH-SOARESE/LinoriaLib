@@ -118,7 +118,7 @@ local Tabs = {
 
 ### Groupboxes
 ```lua
-local Left  = Tabs.Main:AddLeftGroupbox('Left') -- Optional name, side position can be {Left, Center, Right}
+local Left  = Tabs.Main:AddLeftGroupbox('Name', 'Center') -- Optional name, side position can be {Left, Center, Right}
 local Right = Tabs.Main:AddRightGroupbox('Right')
 ```
 
