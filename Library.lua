@@ -4410,10 +4410,10 @@ end;
 
     function Dropdown:UpdateColors()  
         if DropdownLabel then  
-            DropdownLabel.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Color3.new(1, 1, 1);  
+            DropdownLabel.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
         end;  
-        ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Color3.new(1, 1, 1);  
-        DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Color3.new(1, 1, 1);  
+        ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor; 
+        DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.AccentColo;
     end;  
 
     function Dropdown:Display()  
