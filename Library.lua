@@ -213,7 +213,8 @@ RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Input.Value, fu
     CursorImage.ImageColor3 = Library.AccentColor
     CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
     CursorImage.Visible = Library.ShowCustomCursor and Library.Toggled
-    if CursorImage.Image ~= (CursorImage.Image = "rbxassetid://" .. Library.CursorImage) then
+
+    if CursorImage.Image ~= "rbxassetid://" .. Library.CursorImage then
         CursorImage.Image = "rbxassetid://" .. Library.CursorImage
     end
 end)
