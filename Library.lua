@@ -4062,27 +4062,11 @@ end;
     });  
 
     function Dropdown:UpdateColors()  
-        local textColorKey = Dropdown.Disabled and 'DisabledTextColor' or 'FontColor'
-        local textColor = Library[textColorKey]
-        local arrowColorKey = Dropdown.Disabled and 'DisabledTextColor' or 'AccentColor'
-        local arrowColor = Library[arrowColorKey]
-        local borderColorKey = Dropdown.Disabled and 'DisabledOutlineColor' or 'OutlineColor'
-        local borderColor = Library[borderColorKey]
-
         if DropdownLabel then  
-            DropdownLabel.TextColor3 = textColor
-            Library.RegistryMap[DropdownLabel].Properties.TextColor3 = textColorKey
+            DropdownLabel.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
         end;  
-        ItemList.TextColor3 = textColor
-        Library.RegistryMap[ItemList].Properties.TextColor3 = textColorKey
-        DropdownArrow.ImageColor3 = arrowColor
-        if not Library.RegistryMap[DropdownArrow] then
-            Library:AddToRegistry(DropdownArrow, { ImageColor3 = arrowColorKey })
-        else
-            Library.RegistryMap[DropdownArrow].Properties.ImageColor3 = arrowColorKey
-        end
-        DropdownInner.BorderColor3 = borderColor
-        Library.RegistryMap[DropdownInner].Properties.BorderColor3 = borderColorKey
+        ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor; 
+        DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.AccentColor;
     end;  
 
     function Dropdown:Display()  
@@ -4145,11 +4129,10 @@ end;
 
             Count = Count + 1;  
 
-            local borderKey = IsDisabled and 'DisabledOutlineColor' or 'OutlineColor'
             local Button = Library:Create('TextButton', {  
                 AutoButtonColor = false,  
                 BackgroundColor3 = Library.MainColor;  
-                BorderColor3 = Library[borderKey];  
+                BorderColor3 = Library.OutlineColor;  
                 BorderMode = Enum.BorderMode.Middle;  
                 Size = UDim2.new(1, -1, 0, 20);  
                 Text = '';  
@@ -4159,7 +4142,7 @@ end;
 
             Library:AddToRegistry(Button, {  
                 BackgroundColor3 = 'MainColor';  
-                BorderColor3 = borderKey;  
+                BorderColor3 = 'OutlineColor';  
             });  
 
             local ButtonLabel = Library:CreateLabel({  
@@ -4175,11 +4158,8 @@ end;
             });  
 
             Library:OnHighlight(Button, Button,  
-                { BorderColor3 = 'AccentColor', ZIndex = 24 },  
-                { BorderColor3 = borderKey, ZIndex = 23 },
-                function()
-                    return not IsDisabled;
-                end  
+                { BorderColor3 = IsDisabled and 'DisabledAccentColor' or 'AccentColor', ZIndex = 24 },  
+                { BorderColor3 = 'OutlineColor', ZIndex = 23 }  
             );  
 
             local Selected;  
@@ -4196,8 +4176,8 @@ end;
                 else  
                     Selected = Dropdown.Value == Value;  
                 end;  
-                ButtonLabel.TextColor3 = Selected and Library.AccentColor or (IsDisabled and Library.DisabledTextColor or Library.FontColor);  
-                Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or (IsDisabled and 'DisabledTextColor' or 'FontColor');  
+                ButtonLabel.TextColor3 = Selected and Library.AccentColor or (IsDisabled and Library.DisabledAccentColor or Library.FontColor);  
+                Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or (IsDisabled and 'DisabledAccentColor' or 'FontColor');  
             end;  
 
             if not IsDisabled then  
@@ -4453,7 +4433,7 @@ end;
     Dropdown:BuildDropdownList();  
     Dropdown:Display();  
 
-    Dropdown:UpdateColors()  
+    task.delay(0.1, Dropdown.UpdateColors, Dropdown)  
     Blank = Groupbox:AddBlank(Info.BlankSize or 5, Dropdown.Visible);  
     Groupbox:Resize();  
 
