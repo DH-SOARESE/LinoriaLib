@@ -2868,7 +2868,7 @@ function BaseGroupboxFuncs:AddLabel(...)
     return Label;    
 end;
     
-    function BaseGroupboxFuncs:AddButton(...)
+function BaseGroupboxFuncs:AddButton(...)
     local Button = typeof(select(1, ...)) == "table" and select(1, ...) or {
         Text = select(1, ...),
         Func = select(2, ...)
@@ -2880,9 +2880,10 @@ end;
     local Blank = nil;
     local Groupbox = self;
     local Container = Groupbox.Container;
-    local IsVisible = if typeof(Button.Visible) == "boolean" then Button.Visible else true;
 
     local function CreateBaseButton(Button)
+        local IsVisible = if typeof(Button.Visible) == "boolean" then Button.Visible else true;
+
         local Outer = Library:Create('Frame', {
             BackgroundColor3 = Color3.new(0, 0, 0);
             BorderColor3 = Color3.new(0, 0, 0);
@@ -3022,6 +3023,7 @@ end;
     Button.Outer.Parent = Container
     Button.Groupbox = Groupbox
     Button.IsSub = false
+    Button.SubButtons = {}
 
     InitEvents(Button)
 
@@ -3034,16 +3036,12 @@ end;
             Text = select(1, ...),
             Func = select(2, ...)
         }
+        SubButton.OriginalText = SubButton.Text
 
         assert(typeof(SubButton.Func) == 'function', 'AddButton: `Func` callback is missing.');
 
-        self.Outer.Size = UDim2.new(0.5, -2, 0, 20)
-
         SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
 
-        SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
-        SubButton.Outer.Size = UDim2.new(1, -3, 0, self.Outer.AbsoluteSize.Y)
-        SubButton.Outer.Parent = self.Outer
         SubButton.Groupbox = self.Groupbox
         SubButton.IsSub = true
 
@@ -3058,7 +3056,7 @@ end;
                     SubButton.TooltipTable:Destroy()
                 end
             
-                SubButton.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
+                SubButton.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, SubButton.Outer)
                 SubButton.TooltipTable.Disabled = SubButton.Disabled;
             end
 
@@ -3097,12 +3095,78 @@ end;
         end;
 
         if typeof(SubButton.Tooltip) == "string" or typeof(SubButton.DisabledTooltip) == "string" then
-            SubButton.TooltipTable = SubButton:AddToolTip(SubButton.Tooltip, SubButton.DisabledTooltip, SubButton.Outer)
+            SubButton.TooltipTable = SubButton:AddToolTip(SubButton.Tooltip, SubButton.DisabledTooltip)
             SubButton.TooltipTable.Disabled = SubButton.Disabled;
         end
 
         task.delay(0.1, SubButton.UpdateColors, SubButton);
         InitEvents(SubButton)
+
+        if #self.SubButtons == 0 then
+            local Row = Library:Create('Frame', {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 20),
+                ZIndex = self.Outer.ZIndex,
+            })
+
+            local Layout = Library:Create('UIListLayout', {
+                FillDirection = Enum.FillDirection.Horizontal,
+                VerticalAlignment = Enum.VerticalAlignment.Center,
+                SortOrder = Enum.SortOrder.LayoutOrder,
+                Padding = UDim.new(0, 2),
+                Parent = Row,
+            })
+
+            local container = self.Outer.Parent
+            local layoutOrder = self.Outer.LayoutOrder
+
+            self.Outer.Parent = nil
+            Row.Parent = container
+            Row.LayoutOrder = layoutOrder
+
+            self.Outer.Position = UDim2.new(0, 0, 0, 0)
+            self.Outer.Size = UDim2.new(0, 100, 0, 20)  -- Temporary size
+            self.Outer.LayoutOrder = 0
+            self.Outer.Parent = Row
+
+            self.RowFrame = Row
+
+            function self:UpdateRowSize()
+                local row = self.RowFrame
+                if not row then return end
+
+                local layout = row:FindFirstChildOfClass("UIListLayout")
+                local pad = layout.Padding.Offset
+                local count = #self.SubButtons + 1
+                local total_pad = pad * (count - 1)
+
+                local cont_size = container.AbsoluteSize.X
+                if cont_size <= 0 then return end
+
+                local avail = cont_size - 4
+                local w = math.floor((avail - total_pad) / count)
+
+                self.Outer.Size = UDim2.new(0, w, 0, 20)
+                for _, sub in ipairs(self.SubButtons) do
+                    sub.Outer.Size = UDim2.new(0, w, 0, 20)
+                end
+            end
+
+            self:UpdateRowSize()
+
+            if not self.SizeConn then
+                self.SizeConn = container:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+                    self:UpdateRowSize()
+                end)
+            end
+        end
+
+        SubButton.Outer.LayoutOrder = #self.SubButtons + 1
+        SubButton.Outer.Size = UDim2.new(0, 100, 0, 20)  -- Temporary size
+        SubButton.Outer.Parent = self.RowFrame
+        table.insert(self.SubButtons, SubButton)
+
+        self:UpdateRowSize()
 
         return SubButton
     end
@@ -3126,14 +3190,18 @@ end;
     end;
 
     if typeof(Button.Tooltip) == "string" or typeof(Button.DisabledTooltip) == "string" then
-        Button.TooltipTable = Button:AddToolTip(Button.Tooltip, Button.DisabledTooltip, Button.Outer)
+        Button.TooltipTable = Button:AddToolTip(Button.Tooltip, Button.DisabledTooltip)
         Button.TooltipTable.Disabled = Button.Disabled;
     end
 
     function Button:SetVisible(Visibility)
-        IsVisible = Visibility;
+        local IsVisible = Visibility;
 
-        Button.Outer.Visible = IsVisible;
+        if self.RowFrame then
+            self.RowFrame.Visible = IsVisible
+        else
+            self.Outer.Visible = IsVisible
+        end
         if Blank then Blank.Visible = IsVisible end;
 
         Groupbox:Resize();
@@ -3171,7 +3239,7 @@ end;
     end;
 
     task.delay(0.1, Button.UpdateColors, Button);
-    Blank = Groupbox:AddBlank(5, IsVisible);
+    Blank = Groupbox:AddBlank(5, Button.Outer.Visible);
     Groupbox:Resize();
 
     return Button;
