@@ -21,7 +21,7 @@ end);
 
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
-local Mouse = InputService:GetMouseLocation() 
+local Mouse = LocalPlayer:GetMouse();
 
 local assert = function(condition, errorMessage) 
     if (not condition) then
@@ -208,14 +208,9 @@ CursorImage.Parent = LinoriaCursor
 InputService.MouseIconEnabled = not Library.ShowCustomCursor
 
 RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Input.Value, function()
-    CursorImage.Position = UDim2.fromOffset(Mouse.X, Mouse.Y)
+    local mousePos = InputService:GetMouseLocation()
+    CursorImage.Position = UDim2.fromOffset(mousePos.X, mousePos.Y)
     CursorImage.ImageColor3 = Library.AccentColor
-
-    if CursorImage.Image ~= ("rbxassetid://" .. Library.CursorImage) then
-        CursorImage.Image = "rbxassetid://" .. Library.CursorImage
-    end
-
-    CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
     CursorImage.Visible = Library.ShowCustomCursor and Library.Toggled
 end)
 
@@ -6835,7 +6830,7 @@ end
 
 function Library:ToggleLock()
     self.CantDragForced = not self.CantDragForced
-    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+    LockUIButton.Text = self.CantDragForced and "Unlock UI" or "Lock UI"
 end
 
     if Library.IsMobile then
@@ -6978,13 +6973,9 @@ end
 Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
 Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
-ToggleUIButton.MouseButton1Click:Connect(function()
-    Library:Toggle()
-end)
+ToggleUIButton.MouseButton1Click:Connect(Library:Toggle)
 
-LockUIButton.MouseButton1Click:Connect(function()
-    Library:ToggleLock()
-end)
+LockUIButton.MouseButton1Click:Connect(Library:ToggleLock)
 
 end;
     if Config.AutoShow then task.spawn(Library.Toggle) end
