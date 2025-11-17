@@ -6970,12 +6970,17 @@ end
         })
     
 
-Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
-Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
+    Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
+    
+    Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
-ToggleUIButton.MouseButton1Click:Connect(Library:Toggle)
+ToggleUIButton.MouseButton1Click:Connect(function()
+    Library:Toggle()
+end)
 
-LockUIButton.MouseButton1Click:Connect(Library:ToggleLock)
+LockUIButton.MouseButton1Click:Connect(function()
+    Library:ToggleLock()
+end)
 
 end;
     if Config.AutoShow then task.spawn(Library.Toggle) end
