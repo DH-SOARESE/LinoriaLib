@@ -6827,12 +6827,6 @@ function Library:Toggle(Toggling)
 
     Fading = false
 end
-
-function Library:ToggleLock()
-    self.CantDragForced = not self.CantDragForced
-    LockUIButton.Text = self.CantDragForced and "Unlock UI" or "Lock UI"
-end
-
     if Library.IsMobile then
         local ToggleUIOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
@@ -6968,24 +6962,28 @@ end
         Library:AddToRegistry(LockUIButton, {
             TextColor3 = 'FontColor';
         })
-    
+        
+        Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
+        Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
 
-    Library:MakeDraggableUsingParent(ToggleUIButton, ToggleUIOuter)
-    
-    Library:MakeDraggableUsingParent(LockUIButton, LockUIOuter)
+    ToggleUIButton.MouseButton1Click:Connect(function()
+        Library:Toggle()
+    end)
 
-ToggleUIButton.MouseButton1Click:Connect(function()
-    Library:Toggle()
-end)
+    LockUIButton.MouseButton1Click:Connect(function()
+        Library:ToggleLock()
+    end)
 
-LockUIButton.MouseButton1Click:Connect(function()
-    Library:ToggleLock()
-end)
+    function Library:ToggleLock()
+        self.CantDragForced = not self.CantDragForced
+        LockUIButton.Text = self.CantDragForced and "Unlock UI" or "Lock UI"
+    end
 
 end;
+
     if Config.AutoShow then task.spawn(Library.Toggle) end
-    Window.Holder = Outer;
-    Library.Window = Window;
+        Window.Holder = Outer;
+        Library.Window = Window;
     return Window;
 end;
 
