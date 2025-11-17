@@ -25,7 +25,7 @@ local Mouse = LocalPlayer:GetMouse();
 
 local assert = function(condition, errorMessage) 
     if (not condition) then
-        error(if errorMessage then errorMessage else "assert failed", 3);
+  lĺoif errorMessage then errorMessage else "assert failed", 3);
     end;
 end;
 
@@ -3020,10 +3020,16 @@ end;
 
     Button.Outer, Button.Inner, Button.Label = CreateBaseButton(Button)
     Button.Outer.Parent = Container
+    Button.Groupbox = Groupbox
+    Button.IsSub = false
 
     InitEvents(Button)
 
     function Button:AddButton(...)
+        if Button.IsSub then
+            return Button.Groupbox:AddButton(...)
+        end
+
         local SubButton = typeof(select(1, ...)) == "table" and select(1, ...) or {
             Text = select(1, ...),
             Func = select(2, ...)
@@ -3038,6 +3044,8 @@ end;
         SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
         SubButton.Outer.Size = UDim2.new(1, -3, 0, self.Outer.AbsoluteSize.Y)
         SubButton.Outer.Parent = self.Outer
+        SubButton.Groupbox = self.Groupbox
+        SubButton.IsSub = true
 
         function SubButton:UpdateColors()
             SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledTextColor or Library.FontColor;
