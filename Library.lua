@@ -972,12 +972,6 @@ do
         local newX = startPos.X.Offset + delta.X
         local newY = startPos.Y.Offset + delta.Y
 
-        -- Ensure the frame stays within the screen bounds
-        local pickerWidth, pickerHeight = PickerFrameOuter.AbsoluteSize.X, PickerFrameOuter.AbsoluteSize.Y
-        local screenWidth, screenHeight = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
-        newX = math.clamp(newX, 0, screenWidth - pickerWidth)
-        newY = math.clamp(newY, 0, screenHeight - pickerHeight)
-
         PickerFrameOuter.Position = UDim2.fromOffset(newX, newY)
     end
 
@@ -1438,6 +1432,9 @@ do
         if enter then
             local r, g, b = RgbBox.Text:match('(%d+),%s*(%d+),%s*(%d+)')
             if r and g and b then
+                r = math.clamp(tonumber(r) or 0, 0, 255)
+                g = math.clamp(tonumber(g) or 0, 0, 255)
+                b = math.clamp(tonumber(b) or 0, 0, 255)
                 ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(Color3.fromRGB(r, g, b))
             end
         end
@@ -2868,7 +2865,7 @@ function BaseGroupboxFuncs:AddLabel(...)
     return Label;    
 end;
     
-function BaseGroupboxFuncs:AddButton(...)
+    function BaseGroupboxFuncs:AddButton(...)
     local Button = typeof(select(1, ...)) == "table" and select(1, ...) or {
         Text = select(1, ...),
         Func = select(2, ...)
@@ -2932,7 +2929,6 @@ function BaseGroupboxFuncs:AddButton(...)
         });
 
         Outer.MouseEnter:Connect(function()
-            if Button.Disabled then return end
             if Groupbox.HighlightedButton and Groupbox.HighlightedButton ~= Outer then
                 Groupbox.HighlightedButton.BorderColor3 = Color3.new(0, 0, 0)
             end
@@ -2941,7 +2937,6 @@ function BaseGroupboxFuncs:AddButton(...)
         end)
 
         Outer.MouseLeave:Connect(function()
-            if Button.Disabled then return end
             Outer.BorderColor3 = Color3.new(0, 0, 0)
             if Groupbox.HighlightedButton == Outer then
                 Groupbox.HighlightedButton = nil
@@ -3040,8 +3035,7 @@ function BaseGroupboxFuncs:AddButton(...)
         SubButton.Outer.Parent = self.Outer
 
         function SubButton:UpdateColors()
-            SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledTextColor or Library.FontColor;
-            SubButton.Inner.BorderColor3 = SubButton.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
+            SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.FontColor;
         end;
 
         function SubButton:AddToolTip(tooltip, disabledTooltip)
@@ -3064,20 +3058,7 @@ function BaseGroupboxFuncs:AddButton(...)
                 SubButton.TooltipTable.Disabled = Disabled;
             end
 
-            if Disabled then
-                Library:RemoveFromRegistry(SubButton.Inner);
-                SubButton.Inner.BackgroundColor3 = Library.MainColor;  -- Keep current MainColor
-                SubButton.Inner.BorderColor3 = Library.DisabledOutlineColor;
-                SubButton.Label.TextColor3 = Library.DisabledTextColor;
-            else
-                SubButton.Inner.BackgroundColor3 = Library.MainColor;
-                SubButton.Inner.BorderColor3 = Library.OutlineColor;
-                SubButton.Label.TextColor3 = Library.FontColor;
-                Library:AddToRegistry(SubButton.Inner, {
-                    BackgroundColor3 = 'MainColor';
-                    BorderColor3 = 'OutlineColor';
-                });
-            end
+            SubButton:UpdateColors();
         end;
 
         function SubButton:SetText(Text)
@@ -3100,8 +3081,7 @@ function BaseGroupboxFuncs:AddButton(...)
     end
 
     function Button:UpdateColors()
-        Button.Label.TextColor3 = Button.Disabled and Library.DisabledTextColor or Library.FontColor;
-        Button.Inner.BorderColor3 = Button.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
+        Button.Label.TextColor3 = Button.Disabled and Library.DisabledAccentColor or Library.FontColor;
     end;
 
     function Button:AddToolTip(tooltip, disabledTooltip)
@@ -3146,20 +3126,7 @@ function BaseGroupboxFuncs:AddButton(...)
             Button.TooltipTable.Disabled = Disabled;
         end
 
-        if Disabled then
-            Library:RemoveFromRegistry(Button.Inner);
-            Button.Inner.BackgroundColor3 = Library.MainColor;  -- Keep current MainColor
-            Button.Inner.BorderColor3 = Library.DisabledOutlineColor;
-            Button.Label.TextColor3 = Library.DisabledTextColor;
-        else
-            Button.Inner.BackgroundColor3 = Library.MainColor;
-            Button.Inner.BorderColor3 = Library.OutlineColor;
-            Button.Label.TextColor3 = Library.FontColor;
-            Library:AddToRegistry(Button.Inner, {
-                BackgroundColor3 = 'MainColor';
-                BorderColor3 = 'OutlineColor';
-            });
-        end
+        Button:UpdateColors();
     end;
 
     task.delay(0.1, Button.UpdateColors, Button);
