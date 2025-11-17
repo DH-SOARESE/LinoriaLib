@@ -6974,10 +6974,14 @@ end
         Library:ToggleLock()
     end)
 
-    function Library:ToggleLock()
+    function Library:ToggleLock(state)
+    if typeof(state) == "boolean" then
+        self.CantDragForced = state
+    else
         self.CantDragForced = not self.CantDragForced
-        LockUIButton.Text = self.CantDragForced and "Unlock UI" or "Lock UI"
     end
+    LockUIButton.Text = self.CantDragForced and "Unlock UI" or "Lock UI"
+end
 
 end;
 
