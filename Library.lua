@@ -25,7 +25,7 @@ local Mouse = LocalPlayer:GetMouse();
 
 local assert = function(condition, errorMessage) 
     if (not condition) then
-  lĺoif errorMessage then errorMessage else "assert failed", 3);
+        error(if errorMessage then errorMessage else "assert failed", 3);
     end;
 end;
 
