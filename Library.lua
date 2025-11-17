@@ -21,7 +21,7 @@ end);
 
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
-local Mouse = LocalPlayer:GetMouse();
+local Mouse = InputService:GetMouseLocation() 
 
 local assert = function(condition, errorMessage) 
     if (not condition) then
