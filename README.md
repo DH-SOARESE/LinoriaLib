@@ -151,7 +151,7 @@ Groupbox:AddToggle('BasicToggle', {
 Toggles.BasicToggle:SetText('example') -- string 
 Toggles.BasicToggle:SetValue(not Toggles.BasicToggle.Value) -- boolean 
 Toggles.BasicToggle:SetVisible(not Toggles.BasicToggle.Visible) -- boolean 
-Toggles.BasicToggle:OnChanged(function(value) -- function 
+Toggles.BasicToggle:OnChanged(function(value) -- Callback 
     print('New value changed callback:', value)
 end)
 ```
@@ -242,7 +242,7 @@ Options.ScreenBrightness:SetPrefix('to left') -- string
 Options.ScreenBrightness:SetSuffix('to right') -- string 
 Options.ScreenBrightness:SetDisabled(false) -- boolean 
 Options.ScreenBrightness:SetVisible(true) -- boolean 
-Options.ScreenBrightness:OnChanged(function(value) -- function 
+Options.ScreenBrightness:OnChanged(function(value) -- Callback 
     print('New value changed callback:', value)
 end)
 ```
@@ -302,7 +302,7 @@ Options.GameMode:SetDisabledValues({'Easy'}) -- table
 Options.GameMode:AddDisabledValues({'Hard'}) -- table
 Options.GameMode:SetVisible(true) -- boolean 
 Options.GameMode:SetDisabled(false) -- boolean 
-Options.GameMode:OnChanged(function(value) -- function 
+Options.GameMode:OnChanged(function(value) -- Callback 
     print('New value changed callback:', value)
 end)
 
@@ -387,7 +387,7 @@ Options.UsernameInput:SetVisible(false) -- boolean
 Options.UsernameInput:SetDisabled(false) -- boolean 
 Options.UsernameInput:SetVisible(false) -- boolean 
 Options.UsernameInput:SetValue('not') -- string 
-Options.UsernameInput:OnChanged(function(v) -- function 
+Options.UsernameInput:OnChanged(function(v) -- Callback 
     print('Value changed:', v)
 end)
 ```
@@ -426,6 +426,16 @@ Toggle:AddColorPicker('ColorPicker', {
 })
 ```
 
+#### ColorPicker Controls 
+
+```lua
+ColorPicker:SetValueRGB(Color3.fromRGB(255, 0, 0), 0.5) -- Color3 and number 
+ColorPicker:OnChanged(function(v, i) -- Callback 
+    print("Cor:", v, "Alpha:", i)
+end)
+
+```
+
 #### ColorPicker Properties
 
 | Property     | Type     | Default                     | Description |
@@ -460,7 +470,7 @@ Toggle:AddKeyPicker('FeatureKey', {
     end
 })
 
-Groupbox:AddKeyPicker('KeyFeatureKEY', {
+Label:AddKeyPicker('KeyFeatureKEY', {
     Default = 'N',
     Mode = 'Toggle',
     Text = 'M',
@@ -469,6 +479,17 @@ Groupbox:AddKeyPicker('KeyFeatureKEY', {
         print('KEYKeyPicker Toggle:', Toggled)
     end
 })
+```
+
+#### KeyPicker Controls
+
+```lua
+KeyPicker:SetValue({"E", "Hold"}) -- table 
+KeyPicker:SetModePickerVisibility(true) -- boolean 
+KeyPicker:OnChanged(function(newKey) -- Callback 
+    print("New tecla:", newKey)
+end)
+
 ```
 
 #### KeyPicker Properties
@@ -528,6 +549,20 @@ Groupbox:AddImage('PromoBanner', {
 })
 ```
 
+#### Image Controls 
+
+```lua
+Options.WarningIcon:SetVisible(true) -- boolean
+Options.WarningIcon:SetTransparency(0.5) -- number
+Options.WarningIcon:SetScaleType(Enum.ScaleType.Stretch) -- ScaleType
+Options.WarningIcon:SetRectSize(Vector2.new(100, 50)) -- Vector2
+Options.WarningIcon:SetRectOffset(Vector2.new(0, 0)) -- Vector2
+Options.WarningIcon:SetColor(Color3.fromRGB(255, 255, 255)) -- Color3
+Options.WarningIcon:SetImage("rbxassetid://1234567890") -- string
+Options.WarningIcon:SetHeight(50) -- number
+
+```
+
 #### Image Properties
 
 | Property     | Type             | Default              | Description |
@@ -555,15 +590,26 @@ Groupbox:AddVideo('MyVideo', {
 })
 ```
 
+#### Video Controls 
+
+```lua
+Options.MyVideo:SetVideo('ID') -- string
+Options.MyVideo:SetVisible(true) -- boolean
+Options.MyVideo:SetPlaying(true) -- boolean
+Options.MyVideo:SetLooped(true) -- boolean
+Options.MyVideo:SetVolume(5) -- number
+Options.MyVideo:SetHeight(250) -- number
+```
+
 ### Video Properties
 | Property    | Type      | Description                                                                 |
 |-------------|-----------|-----------------------------------------------------------------------------|
-| **Video**   | `string`  | Sets the video asset ID in Roblox, in the format `rbxassetid://<ID>`. Example: `'rbxassetid://123456789'`. |
-| **Height**  | `number`  | Sets the height of the video in the interface, in pixels. Example: `200`.   |
-| **Looped**  | `boolean` | Determines whether the video will loop. Example: `true` to repeat continuously. |
-| **Playing** | `boolean` | Sets whether the video starts playing automatically. Example: `true` to start immediately. |
-| **Volume**  | `number`  | Controls the video's audio volume (from 0 to 1). Example: `0.5` for half the maximum volume. |
-| **Visible** | `boolean` | Sets whether the video is visible in the interface. Example: `true` to display the video. |
+| Video   | string  | Sets the video asset ID in Roblox, in the format rbxassetid://<ID>. Example: 'rbxassetid://123456789'. |
+| Height  | number  | Sets the height of the video in the interface, in pixels. Example: 200.   |
+| Looped  | boolean | Determines whether the video will loop. Example: true to repeat continuously. |
+| Playing | boolean | Sets whether the video starts playing automatically. Example: true to start immediately. |
+| Volume  | number  | Controls the video's audio volume (from 0 to 1). Example: 0.5 for half the maximum volume. |
+| Visible | boolean | Sets whether the video is visible in the interface. Example: true to display the video. |
 
 
 ###  DependencyBox
@@ -602,6 +648,13 @@ FeatureDepBox:AddDropdown('Example', {
     end
 })
 ```
+#### DependencyBox Control 
+
+```lua
+FeatureDepBox:SetupDependencies({
+    {Toggles.BasicToggle, not Toggles.BasicToggle},
+})
+```
 
 #### DependencyBox Properties
 
@@ -612,7 +665,8 @@ FeatureDepBox:AddDropdown('Example', {
 
 ###  Buttons
 ```lua
-Groupbox:AddButton({
+local Button1
+Button1 = Groupbox:AddButton({
     Text = 'Execute Action',
     Tooltip = 'Click to execute',
     Func = function()
@@ -637,6 +691,15 @@ Groupbox:AddButton({
 })
 ```
 
+#### Buton controls
+
+```lua
+Button1:SetVisible(true) -- boolean 
+Button1:SetText('Example') -- string 
+Button1:SetDisabled(true) -- boolean 
+
+```
+
 #### Button Properties
 
 | Property        | Type     | Default              | Description |
@@ -649,9 +712,10 @@ Groupbox:AddButton({
 | DisabledTooltip | string   | nil                  | Tooltip shown when the button is disabled. |
 | Visible         | boolean  | true                 | Whether the button is visible. |
 
+
 ###  Labels and Dividers
 ```lua
-Groupbox:AddLabel('Status: Connected')
+local Label = Groupbox:AddLabel('Status: Connected')
 Groupbox:AddLabel('Multi-line:\nEverything working!', true)
 Groupbox:AddDivider()
 Groupbox:AddDivider('Divider with label')
@@ -665,6 +729,11 @@ Groupbox:AddDivider('Divider with label')
 | Multiline  | boolean | false    | If true, allows multi-line text wrapping. |
 | Visible    | boolean | true     | Whether the label is visible. |
 | Tooltip    | string  | nil      | Tooltip text shown on hover. |
+
+#### Label Control
+```lua
+Label:SetText(Text)    
+```
 
 #### Divider Properties
 
