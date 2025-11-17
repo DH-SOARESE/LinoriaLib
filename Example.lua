@@ -1,8 +1,8 @@
 --[[ Example by download 
-local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
-local folderName = "Linoria Library"
+local LinoriaLib = 'https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/'
+local folderName = 'Linoria Library'
 local basePath = folderName
-local addonsPath = basePath .. "/addons"
+local addonsPath = basePath .. '/addons'
 
 if not isfolder(basePath) then makefolder(basePath) end
 if not isfolder(addonsPath) then makefolder(addonsPath) end
@@ -15,24 +15,24 @@ local function ensureFile(filePath, url)
         if success and result then
             writefile(filePath, result)
         else
-            warn("Error " .. filePath .. ": " .. tostring(result))
+            warn('Error ' .. filePath .. ': ' .. tostring(result))
         end
     end
 end
 
-ensureFile(basePath .. "/Library.lua", LinoriaLib .. "Library.lua")
-ensureFile(addonsPath .. "/SaveManager.lua", LinoriaLib .. "addons/SaveManager.lua")
-ensureFile(addonsPath .. "/ThemeManager.lua", LinoriaLib .. "addons/ThemeManager.lua")
+ensureFile(basePath .. '/Library.lua', LinoriaLib .. 'Library.lua')
+ensureFile(addonsPath .. '/SaveManager.lua', LinoriaLib .. 'addons/SaveManager.lua')
+ensureFile(addonsPath .. '/ThemeManager.lua', LinoriaLib .. 'addons/ThemeManager.lua')
 
-local Library = loadfile(basePath .. "/Library.lua")()
-local SaveManager = loadfile(addonsPath .. "/SaveManager.lua")()
-local ThemeManager = loadfile(addonsPath .. "/ThemeManager.lua")()
+local Library = loadfile(basePath .. '/Library.lua')()
+local SaveManager = loadfile(addonsPath .. '/SaveManager.lua')()
+local ThemeManager = loadfile(addonsPath .. '/ThemeManager.lua')()
 
 SaveManager:SetLibrary(Library)
 ThemeManager:SetLibrary(Library)
 ]]
 
-local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
+local LinoriaLib = 'https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/'
 
 local function loadLibrary(path)
     local success, result = pcall(function()
@@ -40,7 +40,7 @@ local function loadLibrary(path)
     end)
     
     if not success then
-        error("Failed to load " .. path .. ": " .. tostring(result))
+        error('Failed to load ' .. path .. ': ' .. tostring(result))
     end
     
     return result
@@ -58,6 +58,7 @@ local Toggles = Library.Toggles
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
 Library.NotifySide = 'Right'
+Library.CursorSize = 15
 
 -- Create main window
 local Window = Library:CreateWindow({
@@ -72,11 +73,11 @@ local Window = Library:CreateWindow({
 
 -- Define tabs
 local Tabs = {
-    Controls = Window:AddTab('Controls', '7734068321'),
-    Display = Window:AddTab('Display', '7743871002'),
-    Advanced = Window:AddTab('Advanced', '7743875358'),
-    System = Window:AddTab('System', '7734053426'),
-    Settings = Window:AddTab('Settings', '7963356958')
+    Controls = Window:AddTab('Controls', '80485236798991'),
+    Display = Window:AddTab('Display', '134567380715608'),
+    Advanced = Window:AddTab('Advanced', '114673753213917'),
+    System = Window:AddTab('System', '9692125126'),
+    Settings = Window:AddTab('Settings', '119015428034090')
 }
 
 -- ==================== CONTROLS TAB ====================
@@ -88,7 +89,7 @@ ToggleGroup:AddToggle('BasicToggle', {
     Default = false,
     Tooltip = 'Simple on/off control',
     Callback = function(State)
-        print("State: " .. tostring(State))
+        print('State: ' .. tostring(State))
     end
 })
 
@@ -266,11 +267,11 @@ SliderGroup:AddSlider('ThresholdSlider', {
     Max = 100,
     Rounding = 0,
     ValueText = {
-        {Value = 0, Text = "Off"},
-        {Value = 25, Text = "Low"},
-        {Value = 50, Text = "Medium"},
-        {Value = 75, Text = "High"},
-        {Value = 100, Text = "Max"}
+        {Value = 0, Text = 'Off'},
+        {Value = 25, Text = 'Low'},
+        {Value = 50, Text = 'Medium'},
+        {Value = 75, Text = 'High'},
+        {Value = 100, Text = 'Max'}
     },
     Tooltip = 'Select a named threshold level',
     Callback = function(value)
@@ -459,8 +460,8 @@ MediaGroup:AddButton({
 
 local VideoGroup = Tabs.Display:AddRightGroupbox('Video Playback')
 
-local PlaybackVideo = VideoGroup:AddVideo("PlaybackVideo", {
-    Video = "rbxassetid://5670824523",
+local PlaybackVideo = VideoGroup:AddVideo('PlaybackVideo', {
+    Video = 'rbxassetid://5670824523',
     Height = 180,
     Looped = true,
     Playing = true,
@@ -497,7 +498,7 @@ VideoGroup:AddToggle('VideoLooped', {
 
 local ViewportGroup = Tabs.Display:AddRightGroupbox('3D Preview')
 
-local Players = game:GetService("Players")
+local Players = game:GetService('Players')
 local LocalPlayer = Players.LocalPlayer
 
 local function WaitForCharacter(player)
@@ -508,32 +509,32 @@ local function WaitForCharacter(player)
 end
 
 local function CloneCharacter(character)
-    local clone = Instance.new("Model")
-    clone.Name = character.Name .. "_Clone"
+    local clone = Instance.new('Model')
+    clone.Name = character.Name .. '_Clone'
 
     for _, obj in ipairs(character:GetDescendants()) do
-        if obj:IsA("BasePart") then
+        if obj:IsA('BasePart') then
             local part = obj:Clone()
             part.Anchored = true
             part.CanCollide = false
             part.Parent = clone
-        elseif obj:IsA("Accessory") then
-            local handle = obj:FindFirstChild("Handle")
-            if handle and handle:IsA("BasePart") then
+        elseif obj:IsA('Accessory') then
+            local handle = obj:FindFirstChild('Handle')
+            if handle and handle:IsA('BasePart') then
                 local acc = handle:Clone()
                 acc.Parent = clone
             end
         end
     end
 
-    clone.PrimaryPart = clone:FindFirstChildWhichIsA("BasePart")
+    clone.PrimaryPart = clone:FindFirstChildWhichIsA('BasePart')
     return clone
 end
 
 local Character = WaitForCharacter(LocalPlayer)
 local ClonedChar = CloneCharacter(Character)
 
-local Viewport = ViewportGroup:AddViewport("CharPreview", {
+local Viewport = ViewportGroup:AddViewport('CharPreview', {
     Object = ClonedChar,
     Clone = false,
     Interactive = true,
@@ -759,14 +760,14 @@ Options.KeyPicker:SetValue({ 'MB2', 'Hold' })
 
 -- Keybind Counter
 local KeybindNumber = 0
-KeybindGroup:AddLabel('Press Keybind'):AddKeyPicker('KeyPicker2', {
+KeybindGroup:AddLabel('Increase Number'):AddKeyPicker('KeyPicker2', {
     Default = 'X',
     Mode = 'Press',
     WaitForCallback = false,
     Text = 'Increase Number',
     Callback = function()
         KeybindNumber += 1
-        print('[cb] Keybind clicked! Number increased to:', KeybindNumber)
+        Library:Notify('[cb] Keybind clicked! Number increased to: ' .. KeybindNumber)
     end
 })
 
@@ -911,13 +912,21 @@ UIGroup:AddToggle('CustomCursor', {
     end
 })
 
-UIGroup:AddLabel('Menu Toggle Keybind:'):AddKeyPicker('MenuKeybind', {
-    Mode = "Press",
+UIGroup:AddLabel('Menu Toggle Keybind:'):AddKeyPicker('ToggleUI', {
+    Mode = 'Toggle',
     Default = 'Q',
-    Text = 'Menu Toggle',
     InMenu = false,
     Callback = function()
         Library:Toggle()
+    end
+})
+
+UIGroup:AddLabel('Menu CantDrag Keybind:'):AddKeyPicker('ToggleLock', {
+    Mode = 'Toggle',
+    Default = 'L',
+    InMenu = false,
+    Callback = function()
+        Library:ToggleLock()
     end
 })
 
@@ -936,7 +945,7 @@ ThemeManager:ApplyToTab(Tabs.Settings)
 
 -- Watermark setup
 Library:SetWatermarkVisibility(true)
-Library:SetWatermark("LinoriaLib")
+Library:SetWatermark('LinoriaLib')
 
 -- Unload callback
 Library:OnUnload(function()
