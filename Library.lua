@@ -2211,6 +2211,7 @@ end;
 
         return self;
     end;
+
 function BaseAddonsFuncs:AddDropdown(Idx, Info)
         Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == "boolean" then Info.ReturnInstanceInstead else false;
 
@@ -2334,7 +2335,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         local DropdownArrow = Library:Create('ImageLabel', {
             AnchorPoint = Vector2.new(0, 0.5);
             BackgroundTransparency = 1;
-            ImageColor3 = Library.AccentColor;
+            ImageColor3 = Library.FontColor;
             Position = UDim2.new(1, -16, 0.5, 0);
             Size = UDim2.new(0, 12, 0, 12);
             Image = 'rbxassetid://118256101676935';
@@ -2343,7 +2344,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         });
 
         Library:AddToRegistry(DropdownArrow, {
-            ImageColor3 = 'AccentColor';
+            ImageColor3 = 'FontColor';
         });
 
         local ItemList = Library:CreateLabel({
@@ -2443,15 +2444,14 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
 
         function Dropdown:UpdateColors()
             local textProp = Dropdown.Disabled and 'DisabledTextColor' or 'FontColor';
-            local accentProp = Dropdown.Disabled and 'DisabledTextColor' or 'AccentColor';
             local borderProp = Dropdown.Disabled and 'DisabledOutlineColor' or 'OutlineColor';
 
             ItemList.TextColor3 = Library[textProp];
-            DropdownArrow.ImageColor3 = Library[accentProp];
+            DropdownArrow.ImageColor3 = Library[textProp];
             DropdownInner.BorderColor3 = Library[borderProp];
 
             Library.RegistryMap[ItemList].Properties.TextColor3 = textProp;
-            Library.RegistryMap[DropdownArrow].Properties.ImageColor3 = accentProp;
+            Library.RegistryMap[DropdownArrow].Properties.ImageColor3 = textProp;
             Library.RegistryMap[DropdownInner].Properties.BorderColor3 = borderProp;
         end;
 
@@ -2879,7 +2879,6 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
 end;
 
 local BaseGroupbox = {};
-
 do
     local BaseGroupboxFuncs = {};
 
