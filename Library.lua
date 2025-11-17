@@ -208,10 +208,13 @@ CursorImage.Parent = LinoriaCursor
 InputService.MouseIconEnabled = not Library.ShowCustomCursor
 
 RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Input.Value, function()
-    local pos = InputService:GetMouseLocation()
-    CursorImage.Position = UDim2.fromOffset(pos.X, pos.Y)
+    CursorImage.Position = UDim2.fromOffset(Mouse.X, Mouse.Y)
     CursorImage.ImageColor3 = Library.AccentColor
-    CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+
+    if CursorImage.Image ~= ("rbxassetid://" .. Library.CursorImage) then
+        CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+    end
+
     CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
     CursorImage.Visible = Library.ShowCustomCursor and Library.Toggled
 end)
