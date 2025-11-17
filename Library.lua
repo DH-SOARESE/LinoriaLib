@@ -936,12 +936,15 @@ do
         BackgroundColor3 = ColorPicker.Value;
         BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
         BorderMode = Enum.BorderMode.Inset;
+        BorderSizePixel = 0;
         Size = UDim2.new(0, 28, 0, 15);
         ZIndex = 6;
         Parent = ToggleLabel;
     });
 
     local CheckerFrame = Library:Create('ImageLabel', {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.5),
         BorderSizePixel = 0;
         Size = UDim2.new(0, 27, 0, 13);
         ZIndex = 5;
@@ -950,16 +953,13 @@ do
         Parent = DisplayFrame;
     });
 
-    local PreviewStroke;
-    if Info.Transparency then
-        PreviewStroke = Library:Create('UIStroke', {
-            Color = ColorPicker.Value,
-            Transparency = 0,
-            Thickness = 1,
-            Enabled = false,
-            Parent = DisplayFrame
-        });
-    end;
+    local PreviewStroke = Library:Create('UIStroke', {
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Color = Library:GetDarkerColor(ColorPicker.Value),
+        Transparency = 0,
+        Thickness = 1,
+        Parent = DisplayFrame
+    });
 
     local PickerFrameOuter = Library:Create('Frame', {
         Name = 'Color';
@@ -1361,19 +1361,71 @@ do
         Parent = HueSelectorInner;
     });
 
-    HueBox.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-            pcall(setclipboard, HueBox.Text)
-            Library:Notify('Copied HEX to clipboard!', 2)
-        end
-    end)
+    local RunService = game:GetService('RunService')
 
-    RgbBox.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-            pcall(setclipboard, RgbBox.Text)
-            Library:Notify('Copied RGB to clipboard!', 2)
+    do -- HueBox long press
+        local pressStart
+        local holdConnection
+        local function cancelHold()
+            if holdConnection then
+                holdConnection:Disconnect()
+                holdConnection = nil
+            end
+            pressStart = nil
         end
-    end)
+
+        HueBox.InputBegan:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                pressStart = tick()
+                holdConnection = RunService.Heartbeat:Connect(function()
+                    if tick() - pressStart >= 2 then
+                        pcall(setclipboard, HueBox.Text)
+                        Library:Notify('Copied HEX to clipboard!', 2)
+                        holdConnection:Disconnect()
+                        holdConnection = nil
+                    end
+                end)
+            end
+        end)
+
+        HueBox.InputEnded:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                cancelHold()
+            end
+        end)
+    end
+
+    do -- RgbBox long press
+        local pressStart
+        local holdConnection
+        local function cancelHold()
+            if holdConnection then
+                holdConnection:Disconnect()
+                holdConnection = nil
+            end
+            pressStart = nil
+        end
+
+        RgbBox.InputBegan:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                pressStart = tick()
+                holdConnection = RunService.Heartbeat:Connect(function()
+                    if tick() - pressStart >= 2 then
+                        pcall(setclipboard, RgbBox.Text)
+                        Library:Notify('Copied RGB to clipboard!', 2)
+                        holdConnection:Disconnect()
+                        holdConnection = nil
+                    end
+                end)
+            end
+        end)
+
+        RgbBox.InputEnded:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                cancelHold()
+            end
+        end)
+    end
 
     function ColorPicker:Display()
         ColorPicker.Value = Color3.fromHSV(ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib);
@@ -1382,12 +1434,12 @@ do
         Library:Create(DisplayFrame, {
             BackgroundColor3 = ColorPicker.Value;
             BackgroundTransparency = ColorPicker.Transparency;
-            BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
         });
 
-        if PreviewStroke then
-            PreviewStroke.Color = ColorPicker.Value
-            PreviewStroke.Enabled = ColorPicker.Transparency > 0
+        PreviewStroke.Color = ColorPicker.Transparency > 0 and ColorPicker.Value or Library:GetDarkerColor(ColorPicker.Value)
+
+        if CheckerFrame then
+            CheckerFrame.Visible = ColorPicker.Transparency > 0
         end;
 
         if TransparencyBoxInner then
@@ -1398,7 +1450,7 @@ do
         CursorOuter.Position = UDim2.new(ColorPicker.Sat, 0, 1 - ColorPicker.Vib, 0);
         HueCursor.Position = UDim2.new(0, 0, ColorPicker.Hue, 0);
 
-        HueBox.Text = '#' .. ColorPicker.Value:ToHex()
+        HueBox.Text = '#' .. ColorPicker.Value:ToHex():upper()
         RgbBox.Text = table.concat({ math.floor(ColorPicker.Value.R * 255), math.floor(ColorPicker.Value.G * 255), math.floor(ColorPicker.Value.B * 255) }, ', ')
 
         Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value, ColorPicker.Transparency);
