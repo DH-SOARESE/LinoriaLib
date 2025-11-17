@@ -972,6 +972,12 @@ do
         local newX = startPos.X.Offset + delta.X
         local newY = startPos.Y.Offset + delta.Y
 
+        -- Ensure the frame stays within the screen bounds
+        local pickerWidth, pickerHeight = PickerFrameOuter.AbsoluteSize.X, PickerFrameOuter.AbsoluteSize.Y
+        local screenWidth, screenHeight = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
+        newX = math.clamp(newX, 0, screenWidth - pickerWidth)
+        newY = math.clamp(newY, 0, screenHeight - pickerHeight)
+
         PickerFrameOuter.Position = UDim2.fromOffset(newX, newY)
     end
 
@@ -1432,9 +1438,6 @@ do
         if enter then
             local r, g, b = RgbBox.Text:match('(%d+),%s*(%d+),%s*(%d+)')
             if r and g and b then
-                r = math.clamp(tonumber(r) or 0, 0, 255)
-                g = math.clamp(tonumber(g) or 0, 0, 255)
-                b = math.clamp(tonumber(b) or 0, 0, 255)
                 ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(Color3.fromRGB(r, g, b))
             end
         end
