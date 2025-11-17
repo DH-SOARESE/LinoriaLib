@@ -950,6 +950,17 @@ do
         Parent = DisplayFrame;
     });
 
+    local PreviewStroke;
+    if Info.Transparency then
+        PreviewStroke = Library:Create('UIStroke', {
+            Color = ColorPicker.Value,
+            Transparency = 0,
+            Thickness = 1,
+            Enabled = false,
+            Parent = DisplayFrame
+        });
+    end;
+
     local PickerFrameOuter = Library:Create('Frame', {
         Name = 'Color';
         BackgroundColor3 = Color3.new(1, 1, 1);
@@ -1350,6 +1361,20 @@ do
         Parent = HueSelectorInner;
     });
 
+    HueBox.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+            pcall(setclipboard, HueBox.Text)
+            Library:Notify('Copied HEX to clipboard!', 2)
+        end
+    end)
+
+    RgbBox.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+            pcall(setclipboard, RgbBox.Text)
+            Library:Notify('Copied RGB to clipboard!', 2)
+        end
+    end)
+
     function ColorPicker:Display()
         ColorPicker.Value = Color3.fromHSV(ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib);
         SatVibMap.BackgroundColor3 = Color3.fromHSV(ColorPicker.Hue, 1, 1);
@@ -1359,6 +1384,11 @@ do
             BackgroundTransparency = ColorPicker.Transparency;
             BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
         });
+
+        if PreviewStroke then
+            PreviewStroke.Color = ColorPicker.Value
+            PreviewStroke.Enabled = ColorPicker.Transparency > 0
+        end;
 
         if TransparencyBoxInner then
             TransparencyBoxInner.BackgroundColor3 = ColorPicker.Value;
