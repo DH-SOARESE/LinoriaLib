@@ -1432,9 +1432,9 @@ do
         if enter then
             local r, g, b = RgbBox.Text:match('(%d+),%s*(%d+),%s*(%d+)')
             if r and g and b then
-                r = math.clamp(tonumber(r), 0, 255)
-                g = math.clamp(tonumber(g), 0, 255)
-                b = math.clamp(tonumber(b), 0, 255)
+                r = math.clamp(tonumber(r) or 0, 0, 255)
+                g = math.clamp(tonumber(g) or 0, 0, 255)
+                b = math.clamp(tonumber(b) or 0, 0, 255)
                 ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib = Color3.toHSV(Color3.fromRGB(r, g, b))
             end
         end
