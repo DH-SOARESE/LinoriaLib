@@ -6833,6 +6833,11 @@ function Library:Toggle(Toggling)
     Fading = false
 end
 
+function Library:ToggleLock()
+    self.CantDragForced = not self.CantDragForced
+    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+end
+
     if Library.IsMobile then
         local ToggleUIOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
@@ -6978,8 +6983,7 @@ ToggleUIButton.MouseButton1Click:Connect(function()
 end)
 
 LockUIButton.MouseButton1Click:Connect(function()
-    Library.CantDragForced = not Library.CantDragForced
-    LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+    Library:ToggleLock()
 end)
 
 end;
