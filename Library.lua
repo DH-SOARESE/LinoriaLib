@@ -888,18 +888,9 @@ function Library:LinoriaUnload() -- The name was changed to avoid conflicts with
     for _, UnloadCallback in pairs(Library.UnloadSignals) do
         Library:SafeCallback(UnloadCallback)
     end
-    for k in pairs (Toggles) do
-        Toggles[k]:SetValue(Toggles[k].OriginalValue)
-    end
-    for k in pairs(Options) do
-        pcall(function()
-            if Options[k].UID == "Slider" or Options[k].UID == "Dropdown" or Options[k].UID == "Textbox" then
-                Options[k]:SetValue(Options[k].OriginalValue)
-            elseif Options[k].UID == "ColorPicker" then
-                Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
-            end
-        end)
-    end
+    
+    Library:ResetUI()
+    
     Toggled = false
     ScreenGui:Destroy()
     ModalScreenGui:Destroy()
@@ -909,17 +900,38 @@ function Library:LinoriaUnload() -- The name was changed to avoid conflicts with
 end
 
 function Library:ResetUI()
-    for k in pairs (Toggles) do
-        Toggles[k]:SetValue(Toggles[k].OriginalValue)
+    for k in pairs(Toggles) do
+        local success, err = pcall(function()
+            Toggles[k]:SetValue(Toggles[k].OriginalValue)
+        end)
+        if not success then
+            warn(
+                "[Toggle] ",
+                "Feature: " .. k .. "\n",
+                "This feature encountered an error; please check the reason.\n",
+                "Reason for the error:"
+            )
+            print(err)
+        end
     end
+
     for k in pairs(Options) do
-        pcall(function()
+        local success, err = pcall(function()
             if Options[k].UID == "Slider" or Options[k].UID == "Dropdown" or Options[k].UID == "Textbox" then
                 Options[k]:SetValue(Options[k].OriginalValue)
             elseif Options[k].UID == "ColorPicker" then
                 Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
             end
         end)
+        if not success then
+            warn(
+                "[" .. Options[k].UID .. "] ",
+                "Feature: " .. k .. "\n",
+                "This feature encountered an error; please check the reason.\n",
+                "Reason for the error: "
+            )
+            print(err)
+        end
     end
 end
 
@@ -6152,7 +6164,7 @@ function Window:AddTab(Name, Image)
                 ImageColor3 = Library.AccentColor;
                 Size = UDim2.new(0, 16, 0, 16),
                 Position = UDim2.new(0, 4, 0.5, -8),
-                Image = 'rbxassetid://' .. Tab.Image,
+                Image = 'rbxassetid://' .. tostring(Tab.Image),
                 ZIndex = 1,
                 Parent = TabButton,
          });
