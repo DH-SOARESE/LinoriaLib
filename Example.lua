@@ -57,9 +57,11 @@ local Toggles = Library.Toggles
 -- Global Library settings
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
-Library.NotifySide = 'Right'
-Library.CursorSize = 15 -- Default '20'
+
+Library.NotifySide = 'Right' -- Default 'Left'
+Library.MobileButtonsSide = "Right" -- Default 'Left'
 Library.CursorImage = '15985408996' --Default '12230889708'
+Library.CursorSize = 15 -- Default '20'
 
 -- Create main window
 local Window = Library:CreateWindow({
@@ -68,7 +70,7 @@ local Window = Library:CreateWindow({
     AutoShow = true,
     Resizable = true,
     ShowCustomCursor = true,
-    TabPadding = 8,
+    TabPadding = 2,
     MenuFadeTime = 0.2
 })
 
