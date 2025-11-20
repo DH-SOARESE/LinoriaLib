@@ -875,7 +875,7 @@ function Library:GiveSignal(Signal)
     table.insert(Library.Signals, Signal)
 end
 
-function Library:Unload()
+function Library:LinoriaUnload() -- The name was changed to avoid conflicts with other user interface libraries.
     -- Unload all of the signals
     for Idx = #Library.Signals, 1, -1 do
         local Connection = table.remove(Library.Signals, Idx)
@@ -886,12 +886,39 @@ function Library:Unload()
     for _, UnloadCallback in pairs(Library.UnloadSignals) do
         Library:SafeCallback(UnloadCallback)
     end
+    for k in pairs (Toggles) do
+        Toggles[k]:SetValue(Toggles[k].OriginalValue)
+    end
+    for k in pairs(Options) do
+        pcall(function()
+            if Options[k].UID == "Slider" or Options[k].UID == "Dropdown" or Options[k].UID == "Textbox" then
+                Options[k]:SetValue(Options[k].OriginalValue)
+            elseif Options[k].UID == "ColorPicker" then
+                Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
+            end
+        end)
+    end
     Toggled = false
     ScreenGui:Destroy()
     ModalScreenGui:Destroy()
     LinoriaCursor:Destroy()
     Library.Unloaded = true
     getgenv().Linoria = nil
+end
+
+function Library:ResetUI()
+    for k in pairs (Toggles) do
+        Toggles[k]:SetValue(Toggles[k].OriginalValue)
+    end
+    for k in pairs(Options) do
+        pcall(function()
+            if Options[k].UID == "Slider" or Options[k].UID == "Dropdown" or Options[k].UID == "Textbox" then
+                Options[k]:SetValue(Options[k].OriginalValue)
+            elseif Options[k].UID == "ColorPicker" then
+                Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
+            end
+        end)
+    end
 end
 
 function Library:OnUnload(Callback)
@@ -924,8 +951,11 @@ do
         Value = Info.Default;
         Transparency = Info.Transparency or 0;
         Type = 'ColorPicker';
-        Title = typeof(Info.Title) == "string" and Info.Title or 'Color picker',
+        Title = typeof(Info.Title) == "string" and Info.Title or 'Color picker';
         Callback = Info.Callback or function(Color) end;
+        OriginalValue = Info.Default;
+        OriginalValueTransparency = Info.Transparency or 0;
+        UID = "ColorPicker";
     };
 
     function ColorPicker:SetHSVFromRGB(Color)
@@ -2242,6 +2272,8 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             SpecialType = Info.SpecialType; -- can be either 'Player' or 'Team'
             Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
             Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
+            OriginalValue = Info.Default;
+            UID = "Dropdown";
             Callback = Info.Callback or function(Value) end;
 
             OriginalText = Info.Text; Text = Info.Text;
@@ -2438,8 +2470,17 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         });
 
         function Dropdown:UpdateColors()
-            ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
-            DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
+            local textProp = Dropdown.Disabled and 'DisabledTextColor' or 'FontColor';
+            local accentProp = Dropdown.Disabled and 'DisabledTextColor' or 'AccentColor';
+            local borderProp = Dropdown.Disabled and 'DisabledOutlineColor' or 'OutlineColor';
+
+            ItemList.TextColor3 = Library[textProp];
+            DropdownArrow.ImageColor3 = Library[accentProp];
+            DropdownInner.BorderColor3 = Library[borderProp];
+
+            Library.RegistryMap[ItemList].Properties.TextColor3 = textProp;
+            Library.RegistryMap[DropdownArrow].Properties.ImageColor3 = accentProp;
+            Library.RegistryMap[DropdownInner].Properties.BorderColor3 = borderProp;
         end;
 
         function Dropdown:GenerateDisplayText(SelectedValue)
@@ -2542,7 +2583,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
                 });
 
                 Library:OnHighlight(Button, Button,
-                    { BorderColor3 = IsDisabled and 'DisabledAccentColor' or 'AccentColor', ZIndex = 24 },
+                    { BorderColor3 = IsDisabled and 'DisabledTextColor' or 'AccentColor', ZIndex = 24 },
                     { BorderColor3 = 'OutlineColor', ZIndex = 23 }
                 );
 
@@ -2561,8 +2602,8 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
                         Selected = Dropdown.Value == Value;
                     end;
 
-                    ButtonLabel.TextColor3 = Selected and Library.AccentColor or (IsDisabled and Library.DisabledAccentColor or Library.FontColor);
-                    Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or (IsDisabled and 'DisabledAccentColor' or 'FontColor');
+                    ButtonLabel.TextColor3 = Selected and Library.AccentColor or (IsDisabled and Library.DisabledTextColor or Library.FontColor);
+                    Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or (IsDisabled and 'DisabledTextColor' or 'FontColor');
                 end;
 
                 if not IsDisabled then
@@ -2847,7 +2888,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             Dropdown:Display();
         end
 
-        task.delay(0.1, Dropdown.UpdateColors, Dropdown)
+        Dropdown:UpdateColors()
 
         Dropdown.DisplayFrame = DropdownOuter;
         if ParentObj.Addons then
@@ -3321,6 +3362,8 @@ end
         Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
         AllowEmpty = if typeof(Info.AllowEmpty) == "boolean" then Info.AllowEmpty else true;
         EmptyReset = if typeof(Info.EmptyReset) == "string" then Info.EmptyReset else "---";
+        OriginalValue = Info.Default;
+        UID = "Textbox";
         Type = 'Input';
 
         Callback = Info.Callback or function(Value) end;
@@ -3614,6 +3657,7 @@ end;
         Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;  
         Risky = if typeof(Info.Risky) == "boolean" then Info.Risky else false;  
         OriginalText = Info.Text; Text = Info.Text;  
+        OriginalValue = Info.Default;
 
         Callback = Info.Callback or function(Value) end;  
         Addons = {};  
@@ -3902,6 +3946,8 @@ end;
         Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
         Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
         OriginalText = Info.Text or ""; Text = Info.Text or "";
+        OriginalValue = math.clamp(Info.Default, Info.Min, Info.Max);
+        UID = "Slider";
 
         Prefix = typeof(Info.Prefix) == "string" and Info.Prefix or "";    
         Suffix = typeof(Info.Suffix) == "string" and Info.Suffix or "";    
@@ -4300,6 +4346,8 @@ end;
         SpecialType = Info.SpecialType;  
         Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;  
         Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;  
+        OriginalValue = Info.Default;
+        UID = "Dropdown";
         Callback = Info.Callback or function(Value) end;  
 
         OriginalText = Info.Text; Text = Info.Text;  
@@ -4492,7 +4540,7 @@ end;
         Parent = Scrolling;  
     });  
 
-    function Dropdown:UpdateColors()  
+    function Dropdown:UpdateColors()
         if DropdownLabel then  
             DropdownLabel.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
         end;  
@@ -4535,6 +4583,26 @@ end;
         else  
             return Dropdown.Value and 1 or 0;  
         end;  
+    end;  
+
+    function Dropdown:GetSelected()  
+        if Info.Multi or Info.DictMulti then  
+            local selected = {}  
+            for _, Value in ipairs(Dropdown.Values) do  
+                local StringValue = if typeof(Value) == "Instance" then Value.Name else tostring(Value)  
+                local key = Info.DictMulti and StringValue or Value  
+                if Dropdown.Value[key] then  
+                    table.insert(selected, StringValue)  
+                end  
+            end  
+            return selected  
+        else  
+            if Dropdown.Value then  
+                return if typeof(Dropdown.Value) == "Instance" then Dropdown.Value.Name else Dropdown.Value  
+            else  
+                return nil  
+            end  
+        end  
     end;  
 
     function Dropdown:BuildDropdownList()  
@@ -4635,8 +4703,8 @@ end;
                         Table:UpdateButton();  
                         Dropdown:Display();  
                         Library:UpdateDependencyBoxes();  
-                        Library:SafeCallback(Dropdown.Callback, Dropdown.Value);  
-                        Library:SafeCallback(Dropdown.Changed, Dropdown.Value);  
+                        Library:SafeCallback(Dropdown.Callback, Dropdown:GetSelected());  
+                        Library:SafeCallback(Dropdown.Changed, Dropdown:GetSelected());  
                         Library:AttemptSave();  
                     end;  
                 end);  
@@ -4751,7 +4819,7 @@ end;
         if Dropdown.Disabled then  
             return;  
         end;  
-        Library:SafeCallback(Func, Dropdown.Value);  
+        Library:SafeCallback(Func, Dropdown:GetSelected());  
     end;  
 
     function Dropdown:SetValue(Val)  
@@ -4775,8 +4843,8 @@ end;
 
         Dropdown:BuildDropdownList();  
         if not Dropdown.Disabled then  
-            Library:SafeCallback(Dropdown.Callback, Dropdown.Value);  
-            Library:SafeCallback(Dropdown.Changed, Dropdown.Value);  
+            Library:SafeCallback(Dropdown.Callback, Dropdown:GetSelected());  
+            Library:SafeCallback(Dropdown.Changed, Dropdown:GetSelected());  
         end;  
     end;  
 
