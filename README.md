@@ -1,33 +1,18 @@
-LinoriaLib - Complete Documentation
+# LinoriaLib - Complete Documentation
+*A modern, lightweight, and optimized UI library for Roblox*
 
-A modern, lightweight, and optimized UI library for Roblox
+### 🚀 Features
+- ✨ Lightweight and Optimized
+- 🎨 Modern Interface
+- 📱 Mobile-Friendly
+- 🔧 Easy to Use
+- 💾 Save System
+- 🎭 Customizable Themes
 
-Table of Contents
+## 📥 Installation
 
-· Features
-· Installation
-· Quick Start
-· Interface Elements
-· Containers
-· Save System & Themes
-· Special Features
-· Examples
-· Performance
-
-🚀 Features
-
-· ✨ Lightweight and Optimized
-· 🎨 Modern Interface
-· 📱 Mobile-Friendly
-· 🔧 Easy to Use
-· 💾 Save System
-· 🎭 Customizable Themes
-
-📥 Installation
-
-Quick Install (Direct Loading)
-
-Load the library directly from GitHub. Suitable for testing and simple projects.
+### 🚀 Quick Install (Direct Loading)
+Load the library directly from GitHub without saving files locally:
 
 ```lua
 -- Repository base URL
@@ -39,14 +24,13 @@ local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 ```
 
-Advantages: Rapid setup, no file management required.
-Disadvantages: Requires internet connectivity for each execution; potential delays from HTTP requests.
+**Pros:** Fast and simple  
+**Cons:** Requires internet connection on every script execution
 
 ---
 
-Local Install (Persistent Files)
-
-Download and save files locally for offline access and improved performance. Recommended for production environments.
+### 💾 Local Install (Persistent Files)
+Download and cache the library files locally for offline use:
 
 ```lua
 local LinoriaLib = "https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/"
@@ -54,7 +38,7 @@ local folderName = "Linoria Library"
 local basePath = folderName
 local addonsPath = basePath .. "/addons"
 
--- Create necessary directories
+-- Create necessary folders
 if not isfolder(basePath) then makefolder(basePath) end
 if not isfolder(addonsPath) then makefolder(addonsPath) end
 
@@ -88,22 +72,29 @@ SaveManager:SetLibrary(Library)
 ThemeManager:SetLibrary(Library)
 ```
 
-Advantages: Offline accessibility, faster loading after initial download, persistence across sessions.
-Disadvantages: Requires initial internet connection and file write permissions; more complex implementation.
+**Pros:** Works offline after first download, faster load times  
+**Cons:** Requires more initial setup
+```
+### Key improvements:
 
-🛠️ Quick Start
+1. **Descriptive titles** - "Quick Install" vs "Local Install" makes the difference clear
+2. **Clear explanations** - Added descriptions of what each method does
+3. **Pros and Cons** - Helps users choose the best method
+4. **Better comments** - Clearer and more informative
+5. **Visual feedback** - Added success/error prints in the download method
+6. **Visual organization** - Horizontal separator between methods
+7. **Appropriate emojis** - 🚀 for quick, 💾 for persistent
+8. **Manager initialization** - Included the missing setup in the second method
+```
 
-1. Window Creation
-
-Configure global settings and create the primary UI window.
-
+### 1. Creating a Window
 ```lua
--- Global library configuration
+-- Global library settings
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
 Library.NotifySide = 'Left'
 
--- Create main window
+-- Creating the main window
 local Window = Library:CreateWindow({
     Title = 'LinoriaLib',
     Center = true,
@@ -115,10 +106,7 @@ local Window = Library:CreateWindow({
 })
 ```
 
-2. Tab Organization
-
-Structure content using tabs.
-
+### 2. Creating Tabs
 ```lua
 local Tabs = {
     Main = Window:AddTab('Main'),
@@ -126,260 +114,403 @@ local Tabs = {
 }
 ```
 
-📦 Containers
+## Available Components
 
-Groupboxes
-
-Organize content into sections. Available positions: Left, Center, Right.
-
+### Groupboxes
 ```lua
-local LeftGroup = Tabs.Main:AddLeftGroupbox('Left Panel')  -- Optional name parameter
-local RightGroup = Tabs.Main:AddRightGroupbox('Right Panel')
+local Left  = Tabs.Main:AddLeftGroupbox('Left') -- Optional name, side position can be {Left, Center, Right}
+local Right = Tabs.Main:AddRightGroupbox('Right')
 ```
 
-Tabboxes
-
-Create sub-tabs for additional organization within primary tabs.
-
+### 🎨 Tabboxes
 ```lua
 local SubTabs = Tabs.Main:AddRightTabbox()
-local PrimaryTab = SubTabs:AddTab('Primary')
-local SecondaryTab = SubTabs:AddTab('Secondary')
+local Tab1 = SubTabs:AddTab('Sub tab1')
+local Tab2 = SubTabs:AddTab('Sub tab2')
 ```
 
-🔤 Interface Elements
+## Interface Elements
 
-All interface components are added to Groupboxes or DependencyBoxes. Each element returns an object for programmatic control.
-
-Toggle
-
-Binary switch for enabling/disabling features.
-
+### Toggle
 ```lua
-Groupbox:AddToggle('FeatureToggle', {
+Groupbox:AddToggle('BasicToggle', {
     Text = 'Enable Feature',
     Default = false,
-    Tooltip = 'Activates or deactivates the feature',
+    Tooltip = 'Toggles the feature on or off',
     Risky = false,
     Disabled = false,
     DisabledTooltip = false,
     Callback = function(Value)
-        print('Toggle State:', Value)
+        print('Toggle:', Value)
     end
 })
 ```
 
-Methods
-
+#### Toggle Controls
 ```lua
-Toggles.FeatureToggle:SetText('Updated Label')  -- string
-Toggles.FeatureToggle:SetValue(true)            -- boolean
-Toggles.FeatureToggle:SetVisible(false)         -- boolean
-Toggles.FeatureToggle:OnChanged(function(value)
-    print('State Changed:', value)
+Toggles.BasicToggle:SetText('example') -- string 
+Toggles.BasicToggle:SetValue(not Toggles.BasicToggle.Value) -- boolean 
+Toggles.BasicToggle:SetVisible(not Toggles.BasicToggle.Visible) -- boolean 
+Toggles.BasicToggle:OnChanged(function(value) -- Callback 
+    print('New value changed callback:', value)
 end)
 ```
 
-Addon Integration
-
+#### Toggle with KeyPicker and ColorPicker
 ```lua
-Groupbox:AddToggle('AdvancedToggle', { ... }):AddKeyPicker('ToggleKeybind', {
+Groupbox:AddToggle('ExampleToggle', {
+    Text = 'Enable Feature',
+    Default = false,
+    Callback = function(Value)
+        print('Feature:', Value and 'Enabled' or 'Disabled')
+    end
+}):AddKeyPicker('FeatureKeyPicker', {
     Default = 'E',
     Mode = 'Toggle',
-    Text = 'Feature Activation',
+    Text = 'Feature',
     SyncToggleState = true,
     Callback = function(Toggled)
-        print('Keybind State:', Toggled)
+        print('Feature KeyPicker Toggle:', Toggled)
     end
 }):AddColorPicker('FeatureColor', {
     Title = 'Feature Color',
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.1,
     Callback = function(Color, Alpha)
-        print(string.format('Color: (%d, %d, %d) Alpha: %.2f', 
-            math.floor(Color.R * 255), 
-            math.floor(Color.G * 255), 
-            math.floor(Color.B * 255), 
-            Alpha))
+        local r = math.floor(Color.R * 255)
+        local g = math.floor(Color.G * 255)
+        local b = math.floor(Color.B * 255)
+        print(string.format('Color: (%d, %d, %d)  Alpha: %.2f', r, g, b, Alpha))
     end
 })
 ```
 
-Slider
+#### Toggle Properties
 
-Numerical value selector within a defined range.
+| Property      | Type     | Default              | Description |
+|---------------|----------|----------------------|-------------|
+| Text         | string   | Required             | Label displayed next to the toggle. |
+| Value        | boolean  | false                | Current state of the toggle (on/off). |
+| Visible      | boolean  | true                 | Whether the toggle is visible. |
+| Disabled     | boolean  | false                | If true, the toggle cannot be interacted with. |
+| Risky        | boolean  | false                | Marks the toggle as “risky” (red text). |
+| Callback     | function | function(Value) end  | Function called whenever the toggle changes. |
+| Addons       | table    | {}                   | List of attached UI elements that depend on the toggle (e.g., key pickers). |
+| OriginalText | string   | —                    | Stores the initial label text. |
+| Tooltip      | string   | nil                  | Tooltip text shown on hover. |
+| DisabledTooltip | string | nil                | Tooltip text shown when disabled. |
 
+### Slider
 ```lua
-Groupbox:AddSlider('BrightnessControl', {
-    Text = 'Screen Brightness',
+Groupbox:AddSlider('ScreenBrightness', {
+    Text = 'Screen Brightness', -- Optional Text
     Default = 50,
     Min = 0,
     Max = 100,
     Rounding = 0,
     Suffix = '%',
     Disabled = false,
-    Tooltip = 'Adjusts display brightness from 0% to 100%',
+    Tooltip = 'Adjusts screen brightness from 0% to 100%.',
     Callback = function(Value)
-        print('Brightness Level:', Value)
+        print('Brightness:', Value)
+    end
+})
+
+Groupbox:AddSlider('GeneralVolume', {
+    Text = 'Volume',
+    Default = 0.5,
+    Min = 0,
+    Max = 1,
+    Rounding = 2,
+    Compact = true,
+    Prefix = '::',
+    Suffix = '::',
+    Tooltip = 'Adjusts general volume (0 to 1).',
+    Callback = function(Value)
+        print('Volume:', Value)
     end
 })
 ```
 
-Methods
-
+#### Slider Controls
 ```lua
-Options.BrightnessControl:SetText('New Label')    -- string
-Options.BrightnessControl:SetMin(0.1)             -- number
-Options.BrightnessControl:SetMax(2.0)             -- number
-Options.BrightnessControl:SetValue(1.2)           -- number
-Options.BrightnessControl:SetPrefix('::')         -- string
-Options.BrightnessControl:SetSuffix('::')         -- string
-Options.BrightnessControl:SetDisabled(true)       -- boolean
-Options.BrightnessControl:SetVisible(false)       -- boolean
-Options.BrightnessControl:OnChanged(function(value)
-    print('Value Changed:', value)
+Options.ScreenBrightness:SetText('example') -- string 
+Options.ScreenBrightness:SetMin(0.1) -- number 
+Options.ScreenBrightness:SetMax(2.0) -- number 
+Options.ScreenBrightness:SetValue(1.2) -- number 
+Options.ScreenBrightness:SetPrefix('to left') -- string 
+Options.ScreenBrightness:SetSuffix('to right') -- string 
+Options.ScreenBrightness:SetDisabled(false) -- boolean 
+Options.ScreenBrightness:SetVisible(true) -- boolean 
+Options.ScreenBrightness:OnChanged(function(value) -- Callback 
+    print('New value changed callback:', value)
 end)
 ```
 
-Dropdown
+#### Slider Properties
 
-Selection interface for multiple options.
+| Property         | Type    | Default              | Description |
+|------------------|---------|----------------------|-------------|
+| Text             | string  | ""                   | The text displayed next to the slider. |
+| Value            | number  | Required (Default)   | Current value of the slider. |
+| Min              | number  | Required             | Minimum value of the slider. |
+| Max              | number  | Required             | Maximum value of the slider. |
+| Rounding         | number  | Required             | Number of decimal places to round the value. |
+| Visible          | boolean | true                 | Whether the slider is visible. |
+| Disabled         | boolean | false                | Whether the slider is disabled. |
+| Prefix           | string  | ""                   | Text displayed before the value. |
+| Suffix           | string  | ""                   | Text displayed after the value. |
+| ValueText        | Table   | {}                   | Custom text displayed when the slider is at the value set in table |
+| Callback         | function| function() end       | Function called when the slider value changes. |
+| Compact          | boolean | false                | If true, displays text and value in a compact format. |
+| HideMax          | boolean | false                | If true, hides the maximum value display. |
+| Tooltip          | string  | nil                  | Text displayed on hover. |
+| DisabledTooltip  | string  | nil                  | Tooltip displayed when slider is disabled. |
 
+### Dropdown
 ```lua
-Groupbox:AddDropdown('DifficultySelection', {
-    Text = 'Select Difficulty',
+Groupbox:AddDropdown('GameMode', {
+    Text = 'Select Game Mode',
     Values = {'Easy', 'Medium', 'Hard'},
     Default = 'Medium',
     Multi = false,
     AllowNull = false,
-    Tooltip = 'Choose the challenge level',
+    Tooltip = 'Choose the difficulty level.',
     Callback = function(Value)
-        print('Selected Difficulty:', Value)
+        print('Selected mode:', Value)
     end
 })
-```
 
-Specialized Dropdown Types
-
-```lua
-Groupbox:AddDropdown('PlayerSelection', {
+Groupbox:AddDropdown('PlayerSelect', {
     Text = 'Select Player',
     SpecialType = 'Player',
     ExcludeLocalPlayer = true,
     Multi = true,
-    Tooltip = 'Select one or multiple players (excluding local player)',
+    Tooltip = 'Select one or more players (excludes self).',
     Callback = function(Values)
-        print('Selected Players:', table.concat(Values, ', '))
+        print('Selected players:', table.concat(Values, ', '))
     end
 })
 ```
 
-Methods
-
+#### Dropdown Controls
 ```lua
-Options.DifficultySelection:SetText('New Label')           -- string
-Options.DifficultySelection:AddValues({'Option1', 'Option2'}) -- table
-Options.DifficultySelection:SetValue('Medium')             -- string/table
-Options.DifficultySelection:SetDisabledValues({'Easy'})    -- table
-Options.DifficultySelection:AddDisabledValues({'Hard'})    -- table
-Options.DifficultySelection:SetVisible(true)               -- boolean
-Options.DifficultySelection:SetDisabled(false)             -- boolean
-Options.DifficultySelection:OnChanged(function(value)
-    print('Selection Changed:', value)
+Options.GameMode:SetText('Example') -- string 
+Options.GameMode:AddValues({'New Option 1', 'New Option 2'}) -- table
+Options.GameMode:SetValue({}) -- table
+Options.GameMode:SetDisabledValues({'Easy'}) -- table
+Options.GameMode:AddDisabledValues({'Hard'}) -- table
+Options.GameMode:SetVisible(true) -- boolean 
+Options.GameMode:SetDisabled(false) -- boolean 
+Options.GameMode:OnChanged(function(value) -- Callback 
+    print('New value changed callback:', value)
 end)
+
 ```
 
-Input
+#### Dropdown Properties
 
-Text input field for user data entry.
+| Property              | Type    | Default              | Description |
+|-----------------------|---------|----------------------|-------------|
+| Text                  | string  | ""                   | The text displayed on the dropdown. |
+| Values                | table   | nil                  | List of options for the dropdown. Ignored if SpecialType is 'Player' or 'Team'. |
+| Default               | string/number/table | nil            | Initial selected value. For multi-select, use a table or dictionary {Value = true}. |
+| Multi                 | boolean | false                | Allows multiple selections if true. |
+| DictMulti             | boolean | false                | Allows using a dictionary with boolean values for multi-select (new format). |
+| SpecialType           | string  | nil                  | 'Player' or 'Team' to automatically populate options. |
+| ExcludeLocalPlayer    | boolean | false                | Used with SpecialType = 'Player' to exclude the local player. |
+| ReturnInstanceInstead | boolean | false                | Returns the Instance of the player or team instead of the name. |
+| Searchable            | boolean | false                | Allows searching within the dropdown. |
+| Disabled              | boolean | false                | Disables the dropdown. |
+| AllowNull             | boolean | false                | Allows no option to be selected. |
+| DisabledValues        | table   | {}                   | List of values that cannot be selected. |
+| Tooltip               | string  | nil                  | Tooltip text shown when hovering over the dropdown. |
+| DisabledTooltip       | string  | nil                  | Tooltip text shown when the dropdown is disabled. |
+| MaxVisibleDropdownItems | number | 8                  | Maximum number of items visible when the dropdown is open. |
+| Visible               | boolean | true                 | Whether the dropdown is visible. |
+| Callback              | function| function(Value) end  | Function called when selection changes. |
 
+### ⌨️ Input
+#### Basic Input
 ```lua
-Groupbox:AddInput('PlayerName', {
+Groupbox:AddInput('UsernameInput', {
     Text = 'Player Name',
     Default = 'Player123',
     Placeholder = 'Enter your username...',
     Callback = function(value)
-        print('Username Updated:', value)
+        print('Name updated to:', value)
     end
 })
 ```
 
-Input Variants
-
-· On Enter Submission: Configure with Finished = true for callback on enter key or focus loss
-· Character Limitation: Implement with MaxLength = 6
-· Read-Only Mode: Set Disabled = true
-
-Methods
-
+#### Input on Enter
 ```lua
-Options.PlayerName:SetValue('NewUsername')  -- string
-Options.PlayerName:SetDisabled(true)        -- boolean
-Options.PlayerName:SetVisible(false)        -- boolean
-Options.PlayerName:OnChanged(function(value)
-    print('Input Changed:', value)
+Groupbox:AddInput('CommandInput', {
+    Text = 'Execute Command',
+    Placeholder = 'Enter a command...',
+    Finished = true,
+    Callback = function(cmd)
+        print('Executing command:', cmd)
+    end
+})
+```
+
+#### Input with Character Limit
+```lua
+Groupbox:AddInput('CodeInput', {
+    Text = 'Code',
+    Placeholder = 'ABC123',
+    MaxLength = 6,
+    AllowEmpty = false,
+    EmptyReset = 'ABC123',
+    Callback = function(value)
+        print('New code:', value)
+    end
+})
+```
+
+#### Disabled Input (Read-Only)
+```lua
+Groupbox:AddInput('LockedInput', {
+    Text = 'Read-Only',
+    Default = 'Locked',
+    Disabled = true,
+    Tooltip = 'This field cannot be edited',
+})
+```
+
+#### Input Controls
+```lua
+Options.UsernameInput:SetValue('Example') -- string 
+Options.UsernameInput:SetDisabled(true) -- boolean 
+Options.UsernameInput:SetVisible(false) -- boolean 
+Options.UsernameInput:SetDisabled(false) -- boolean 
+Options.UsernameInput:SetVisible(false) -- boolean 
+Options.UsernameInput:SetValue('not') -- string 
+Options.UsernameInput:OnChanged(function(v) -- Callback 
+    print('Value changed:', v)
 end)
 ```
 
-ColorPicker
+#### Input Properties
 
-Color selection interface with transparency support.
+| Property         | Type    | Default              | Description |
+|------------------|---------|----------------------|-------------|
+| Text             | string  | Required             | Label text displayed above the input box. |
+| Value            | string  | "" or Default        | Current value of the input box. |
+| Numeric          | boolean | false                | If true, only allows numeric input. |
+| Finished         | boolean | false                | If true, triggers callback only after focus is lost or enter is pressed. |
+| Visible          | boolean | true                 | Whether the input box is visible. |
+| Disabled         | boolean | false                | Whether the input box is disabled. |
+| AllowEmpty       | boolean | true                 | If false, empty input resets to EmptyReset. |
+| EmptyReset       | string  | '---'                | Value used when input is empty and AllowEmpty is false. |
+| Placeholder      | string  | ""                   | Placeholder text shown when input is empty. |
+| ClearTextOnFocus | boolean | true                 | Clears the input text when focused (if not disabled). |
+| MaxLength        | number  | nil                  | Maximum number of characters allowed. |
+| Tooltip          | string  | nil                  | Tooltip text shown on hover. |
+| DisabledTooltip  | string  | nil                  | Tooltip text shown when input is disabled. |
+| Callback         | function| function(Value) end  | Function called when input value changes. |
 
+### 🎨 ColorPicker
 ```lua
-Toggle:AddColorPicker('HighlightColor', {
+Toggle:AddColorPicker('ColorPicker', {
     Title = 'Highlight Color',
     Default = Color3.fromRGB(255, 0, 0),
     Transparency = 0.1,
     Callback = function(Color, Alpha)
-        print(string.format('Selected Color: (%d, %d, %d) Alpha: %.2f', 
-            math.floor(Color.R * 255), 
-            math.floor(Color.G * 255), 
-            math.floor(Color.B * 255), 
-            Alpha))
+        local r = math.floor(Color.R * 255)
+        local g = math.floor(Color.G * 255)
+        local b = math.floor(Color.B * 255)
+        print(string.format('Color: (%d, %d, %d)  Alpha: %.2f', r, g, b, Alpha))
     end
 })
 ```
 
-Methods
+#### ColorPicker Controls 
 
 ```lua
-ColorPicker:SetValueRGB(Color3.fromRGB(255, 0, 0), 0.5)  -- Color3, number
-ColorPicker:OnChanged(function(color, alpha)
-    print('Color Changed:', color, alpha)
+ColorPicker:SetValueRGB(Color3.fromRGB(255, 0, 0), 0.5) -- Color3 and number 
+ColorPicker:OnChanged(function(v, i) -- Callback 
+    print("Cor:", v, "Alpha:", i)
 end)
+
 ```
 
-KeyPicker
+#### ColorPicker Properties
 
-Keyboard key binding interface.
+| Property     | Type     | Default                     | Description |
+|--------------|----------|-----------------------------|-------------|
+| Title        | string   | Required                    | The title of the color picker. |
+| Value        | Color3   | Required (Default)          | Current color value. |
+| Transparency | number   | nil                         | Initial transparency value (0-1). |
+| Visible      | boolean  | true                        | Whether the color picker is visible. |
+| Disabled     | boolean  | false                       | Whether the color picker is disabled. |
+| Tooltip      | string   | nil                         | Tooltip text shown on hover. |
+| DisabledTooltip | string | nil                       | Tooltip text shown when disabled. |
+| Callback     | function | function(Color, Transparency) end | Called when color or transparency changes. |
 
+###  KeyPicker
 ```lua
-Toggle:AddKeyPicker('ActivationKey', {
+Toggle:AddKeyPicker('KeyPicker', {
     Default = 'E',
     Mode = 'Toggle',
-    Text = 'Activation',
+    Text = 'Enable',
     Callback = function(isActive)
-        print('Key State:', isActive)
+        
+    end
+})
+
+Toggle:AddKeyPicker('FeatureKey', {
+    Default = 'E',
+    Mode = 'Toggle',
+    Text = 'Primary Feature',
+    SyncToggleState = true,
+    Callback = function(Toggled)
+        print('KeyPicker Toggle:', Toggled)
+    end
+})
+
+Label:AddKeyPicker('KeyFeatureKEY', {
+    Default = 'N',
+    Mode = 'Toggle',
+    Text = 'M',
+    SyncToggleState = true,
+    Callback = function(Toggled)
+        print('KEYKeyPicker Toggle:', Toggled)
     end
 })
 ```
 
-Methods
+#### KeyPicker Controls
 
 ```lua
-KeyPicker:SetValue({'E', 'Hold'})             -- table
-KeyPicker:SetModePickerVisibility(true)      -- boolean
-KeyPicker:OnChanged(function(newKey)
-    print('Key Binding Changed:', newKey)
+KeyPicker:SetValue({"E", "Hold"}) -- table 
+KeyPicker:SetModePickerVisibility(true) -- boolean 
+KeyPicker:OnChanged(function(newKey) -- Callback 
+    print("New tecla:", newKey)
 end)
+
 ```
 
-Image
+#### KeyPicker Properties
 
-Image display component.
+| Property             | Type                | Default             | Description |
+|----------------------|---------------------|---------------------|-----------|
+| Default            | string or nil   | **Required**        | Default key (e.g. "E", "MB1", "None"). Use nil or "None" for unbound. |
+| Text               | string            | ""                | Text shown in the keybind list (e.g. "Fly"). |
+| Mode               | string            | "Toggle"          | Initial mode. Possible values: "Always", "Toggle", "Hold", **"Press"**. |
+| Modes              | table             | {"Always","Toggle","Hold","Press"} | List of modes that appear in the selector (you can remove any you don’t want). |
+| Callback           | function(toggled) | nil               | Called every time the state changes (toggle/press/hold). Receives true when active, false when inactive. |
+| ChangedCallback    | function(newKey)  | nil               | Called when the bound key is changed (bind/unbind). Receives the new Enum.UserInputType or nil. |
+| SyncToggleState    | boolean           | false             | If true, the keybind directly controls its parent toggle’s state (commonly used for toggles with a keybind). Forces "Toggle" mode. |
+| NoUI               | boolean           | false             | If true, no visual elements are created (useful for completely hidden keybinds). |
+| **InMenu**           | boolean           | true              | **New** – If false, the keybind **will not appear** in the on-screen keybind list (perfect for secret or internal binds). |
 
+
+### Image
+#### Roblox Asset Image
 ```lua
-Groupbox:AddImage('ApplicationLogo', {
+Groupbox:AddImage('MainLogo', {
     Image = 'rbxassetid://1234567890',
     Height = 150,
     Color = Color3.fromRGB(255, 255, 255),
@@ -388,35 +519,69 @@ Groupbox:AddImage('ApplicationLogo', {
     ScaleType = Enum.ScaleType.Fit,
     Transparency = 0,
     Visible = true,
-    Tooltip = 'Application logo'
+    Tooltip = 'Main system logo.'
 })
 ```
 
-Image Variants
-
-· Lucide Icons: Utilize icon names like 'alert-triangle'
-· External URLs: Support for web-hosted images
-
-Methods
-
+#### Lucide Icon
 ```lua
-Options.ApplicationLogo:SetVisible(true)                   -- boolean
-Options.ApplicationLogo:SetTransparency(0.5)               -- number
-Options.ApplicationLogo:SetScaleType(Enum.ScaleType.Fit)   -- Enum
-Options.ApplicationLogo:SetRectSize(Vector2.new(100, 50))  -- Vector2
-Options.ApplicationLogo:SetRectOffset(Vector2.new(0, 0))   -- Vector2
-Options.ApplicationLogo:SetColor(Color3.fromRGB(255, 0, 0))-- Color3
-Options.ApplicationLogo:SetImage('new-image-url')          -- string
-Options.ApplicationLogo:SetHeight(200)                     -- number
+Groupbox:AddImage('WarningIcon', {
+    Image = 'alert-triangle',
+    Color = Color3.fromRGB(255, 200, 0),
+    Height = 60,
+    ScaleType = Enum.ScaleType.Fit,
+    Transparency = 0,
+    Visible = true,
+    Tooltip = 'Yellow warning icon.'
+})
 ```
 
-Video
+#### External Image (URL)
+```lua
+Groupbox:AddImage('PromoBanner', {
+    Image = 'https://i.imgur.com/Example.png',
+    Height = 180,
+    Color = Color3.fromRGB(255, 255, 255),
+    ScaleType = Enum.ScaleType.Crop,
+    Transparency = 0.1,
+    Visible = true,
+    Tooltip = 'Example promotional banner.'
+})
+```
 
-Video playback component.
+#### Image Controls 
 
 ```lua
-Groupbox:AddVideo('TutorialVideo', {
-    Video = 'rbxassetid://1234567890',
+Options.WarningIcon:SetVisible(true) -- boolean
+Options.WarningIcon:SetTransparency(0.5) -- number
+Options.WarningIcon:SetScaleType(Enum.ScaleType.Stretch) -- ScaleType
+Options.WarningIcon:SetRectSize(Vector2.new(100, 50)) -- Vector2
+Options.WarningIcon:SetRectOffset(Vector2.new(0, 0)) -- Vector2
+Options.WarningIcon:SetColor(Color3.fromRGB(255, 255, 255)) -- Color3
+Options.WarningIcon:SetImage("rbxassetid://1234567890") -- string
+Options.WarningIcon:SetHeight(50) -- number
+
+```
+
+#### Image Properties
+
+| Property     | Type             | Default              | Description |
+|--------------|------------------|----------------------|-------------|
+| Image        | string           | Required             | Image asset ID, Lucide icon name, or URL. |
+| Height       | number           | nil                  | Height of the image (width auto-adjusts). |
+| Color        | Color3           | Color3.fromRGB(255, 255, 255) | Tint color applied to the image. |
+| RectOffset   | Vector2          | Vector2.new(0, 0)    | Offset for slicing the image. |
+| RectSize     | Vector2          | Vector2.new(0, 0)    | Size for slicing the image (0 uses full size). |
+| ScaleType    | Enum.ScaleType   | Enum.ScaleType.Stretch | How the image scales: Stretch, Fit, Crop, etc. |
+| Transparency | number           | 0                    | Transparency level (0-1). |
+| Visible      | boolean          | true                 | Whether the image is visible. |
+| Tooltip      | string           | nil                  | Tooltip text shown on hover. |
+
+
+### Video
+```lua
+Groupbox:AddVideo('MyVideo', {
+    Video = 'rbxassetid://Your Image ID',
     Height = 200,
     Looped = true,
     Playing = true,
@@ -425,83 +590,159 @@ Groupbox:AddVideo('TutorialVideo', {
 })
 ```
 
-Methods
+#### Video Controls 
 
 ```lua
-Options.TutorialVideo:SetVideo('new-video-id')  -- string
-Options.TutorialVideo:SetVisible(true)          -- boolean
-Options.TutorialVideo:SetPlaying(true)          -- boolean
-Options.TutorialVideo:SetLooped(true)           -- boolean
-Options.TutorialVideo:SetVolume(0.8)            -- number
-Options.TutorialVideo:SetHeight(300)            -- number
+Options.MyVideo:SetVideo('ID') -- string
+Options.MyVideo:SetVisible(true) -- boolean
+Options.MyVideo:SetPlaying(true) -- boolean
+Options.MyVideo:SetLooped(true) -- boolean
+Options.MyVideo:SetVolume(5) -- number
+Options.MyVideo:SetHeight(250) -- number
 ```
 
-DependencyBox
+### Video Properties
+| Property    | Type      | Description                                                                 |
+|-------------|-----------|-----------------------------------------------------------------------------|
+| Video   | string  | Sets the video asset ID in Roblox, in the format rbxassetid://<ID>. Example: 'rbxassetid://123456789'. |
+| Height  | number  | Sets the height of the video in the interface, in pixels. Example: 200.   |
+| Looped  | boolean | Determines whether the video will loop. Example: true to repeat continuously. |
+| Playing | boolean | Sets whether the video starts playing automatically. Example: true to start immediately. |
+| Volume  | number  | Controls the video's audio volume (from 0 to 1). Example: 0.5 for half the maximum volume. |
+| Visible | boolean | Sets whether the video is visible in the interface. Example: true to display the video. |
 
-Conditional visibility container.
 
+###  DependencyBox
 ```lua
-local ConditionalBox = Groupbox:AddDependencyBox()
-ConditionalBox:SetupDependencies({ { Toggles.FeatureToggle, true } })
+Groupbox:AddToggle('BasicToggle', {
+    Text = 'Toggle Example',
+    Default = false,
+    Tooltip = 'Enables the feature.',
+    Callback = function(Value)
+        print('Toggled:', Value)
+    end
+})
 
-ConditionalBox:AddSlider('DependentSlider', { ... })
-ConditionalBox:AddDropdown('DependentDropdown', { ... })
-```
+local FeatureDepBox = Groupbox:AddDependencyBox()
+FeatureDepBox:SetupDependencies({ { Toggles.BasicToggle, true } })
 
-Methods
+FeatureDepBox:AddSlider('Example', {
+    Text = 'Example',
+    Default = 0.5,
+    Min = 0,
+    Max = 1,
+    Rounding = 2,
+    Tooltip = 'Adjusts feature opacity.',
+    Callback = function(Value)
+        print('Ex:', Value)
+    end
+})
 
-```lua
-ConditionalBox:SetupDependencies({ { Toggles.FeatureToggle, false } })
-```
-
-Button
-
-Action execution component.
-
-```lua
-Groupbox:AddButton({
-    Text = 'Execute Action',
-    Tooltip = 'Click to perform action',
-    Func = function()
-        print('Action executed!')
+FeatureDepBox:AddDropdown('Example', {
+    Text = 'Example',
+    Values = { 'A', 'B', 'C' },
+    Default = 'A',
+    Tooltip = 'ABC',
+    Callback = function(Value)
+        print('Selected:', Value)
     end
 })
 ```
-
-Button Variants
-
-· Double-Click Requirement: Configure with DoubleClick = true
-· Disabled State: Set Disabled = true
-
-Methods
+#### DependencyBox Control 
 
 ```lua
-Button:SetVisible(true)        -- boolean
-Button:SetText('New Label')    -- string
-Button:SetDisabled(true)       -- boolean
+FeatureDepBox:SetupDependencies({
+    {Toggles.BasicToggle, not Toggles.BasicToggle},
+})
 ```
 
-Labels and Dividers
+#### DependencyBox Properties
 
-Text display and visual separation components.
+| Property      | Type     | Default              | Description |
+|---------------|----------|----------------------|-------------|
+| Dependencies | table    | {}                   | Table of dependencies, e.g., { { Toggle, true } }. Visibility depends on these. |
+| Visible       | boolean  | true                 | Whether the dependency box and its children are visible (overridden by dependencies). |
+
+###  Button
+```lua
+local Button1
+Button1 = Groupbox:AddButton({
+    Text = 'Execute Action',
+    Tooltip = 'Click to execute',
+    Func = function()
+        print('Button pressed!')
+        Library:Notify('Action executed successfully!')
+    end
+})
+
+Groupbox:AddButton({
+    Text = 'Special Action',
+    DoubleClick = true,
+    Func = function()
+        Library:Notify('Special action executed!', 3)
+    end
+})
+
+Groupbox:AddButton({
+    Text = 'Unavailable',
+    Disabled = true,
+    DisabledTooltip = 'This function is unavailable',
+    Func = function() end
+})
+```
+
+#### Button controls
 
 ```lua
-local StatusLabel = Groupbox:AddLabel('Status: Connected')
-Groupbox:AddLabel('Multi-line Information:\nSystem operational!', true)
+Button1:SetVisible(true) -- boolean 
+Button1:SetText('Example') -- string 
+Button1:SetDisabled(true) -- boolean 
+
+```
+
+#### Button Properties
+
+| Property        | Type     | Default              | Description |
+|-----------------|----------|----------------------|-------------|
+| Text            | string   | Required             | Button text. |
+| Tooltip         | string   | nil                  | Tooltip text shown on hover. |
+| Func            | function | Required             | Function called when the button is clicked. |
+| DoubleClick     | boolean  | false                | If true, requires double-click to activate. |
+| Disabled        | boolean  | false                | If true, the button cannot be clicked. |
+| DisabledTooltip | string   | nil                  | Tooltip shown when the button is disabled. |
+| Visible         | boolean  | true                 | Whether the button is visible. |
+
+
+###  Labels and Dividers
+```lua
+local Label = Groupbox:AddLabel('Status: Connected')
+Groupbox:AddLabel('Multi-line:\nEverything working!', true)
 Groupbox:AddDivider()
-Groupbox:AddDivider('Section Divider')
+Groupbox:AddDivider('Divider with label')
 ```
 
-Label Methods
+#### Label Properties
 
+| Property   | Type    | Default  | Description |
+|------------|---------|----------|-------------|
+| Text       | string  | Required | Label text (supports \n for new lines). |
+| Multiline  | boolean | false    | If true, allows multi-line text wrapping. |
+| Visible    | boolean | true     | Whether the label is visible. |
+| Tooltip    | string  | nil      | Tooltip text shown on hover. |
+
+#### Label Control
 ```lua
-StatusLabel:SetText('Status: Disconnected')
+Label:SetText(Text)    
 ```
 
-💾 Save System & Themes
+#### Divider Properties
 
-Persistent configuration storage and theme management.
+| Property | Type   | Default  | Description |
+|----------|--------|----------|-------------|
+| Text     | string | nil      | Optional text displayed on the divider. |
+| Visible  | boolean| true     | Whether the divider is visible. |
 
+##  Save System and Themes
 ```lua
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
@@ -509,8 +750,8 @@ SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({'MenuKeybind'})
 
-ThemeManager:SetFolder('MyApplication')
-SaveManager:SetFolder('MyApplication/Configurations')
+ThemeManager:SetFolder('MyScript')
+SaveManager:SetFolder('MyScript/Configs')
 
 SaveManager:BuildConfigSection(Tabs.Settings)
 ThemeManager:ApplyToTab(Tabs.Settings)
@@ -518,12 +759,9 @@ ThemeManager:ApplyToTab(Tabs.Settings)
 SaveManager:LoadAutoloadConfig()
 ```
 
-✨ Special Features
+##  Special Features
 
-Watermark
-
-Dynamic information display with real-time updates.
-
+### Watermark
 ```lua
 Library:SetWatermarkVisibility(true)
 
@@ -537,95 +775,96 @@ end
 updateWatermark()
 ```
 
-Notifications
-
-User notification system.
-
+### Notifications
 ```lua
-Library:Notify('Operation completed successfully!')
+Library:Notify('Success message!')
 
-Library:Notify('Error encountered!', 10, 4590657391)  -- Duration, SoundID
+Library:Notify('Error detected!', 10, 4590657391)
 
 Library:Notify({
-    Title = 'System Notification',
-    Description = 'Detailed notification message',
+    Title = 'ExampleLib',
+    Description = 'Example of Description',
     Time = 7,
     SoundId = 6534947243
 })
 
--- Persistent notification tied to object lifetime
+local EXAMPLE = Library:Notify({
+    Title = 'ExampleLib',
+    Description = 'Example of Description',
+    Time = 10
+})
+
 local signal = Instance.new('Attachment')
+
 Library:Notify({
-    Title = 'System Monitor',
-    Description = 'Notification persists until object destruction',
+    Title = 'Monitor',
+    Description = 'To last as long as the object exists.',
     Time = signal
 })
+
 ```
 
-🔍 Value Access
-
-Programmatic value retrieval and modification.
-
+##  Accessing Values
 ```lua
-print(Toggles.FeatureToggle.Value)
-print(Options.BrightnessControl.Value)
-print(Options.DifficultySelection.Value)
+print(Toggles.BasicToggle.Value)
+print(Options.Speed.Value)
+print(Options.GameMode.Value)
 
-Toggles.FeatureToggle:SetValue(true)
-Options.BrightnessControl:SetValue(50)
-Options.DifficultySelection:SetValue('Hard')
+Toggles.BasicToggle:SetValue(true)
+Options.Speed:SetValue(50)
+Options.GameMode:SetValue('Fast')
 ```
 
-⚙️ Menu Controls
-
-Interface management components.
-
+##  Menu Controls
 ```lua
-local MenuSection = Tabs.Settings:AddLeftGroupbox('Menu Controls')
+local MenuControls = Tabs.Settings:AddLeftGroupbox('Menu Controls')
 
-MenuSection:AddToggle('KeybindDisplay', {
-    Text = 'Display Keybinds Menu',
+MenuControls:AddToggle('ShowKeybinds', {
+    Text = 'Show Keybinds Menu',
     Default = true,
     Callback = function(value)
         Library.KeybindFrame.Visible = value
     end
 })
 
-MenuSection:AddButton({
-    Text = 'Unload Interface',
+MenuControls:AddButton({
+    Text = 'Unload Menu',
     Func = function()
-        Library:Unload()
+        Library:LinoriaUnload()
+    end
+})
+
+MenuControls:AddButton({
+    Text = 'Reset UI',
+    Func = function()
+        Library:ResetUI()
     end
 })
 ```
+## Complete Example  
+[Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
 
-📘 Complete Example
+## UI library Code 
+[UI Library](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Library.lua)
 
-Comprehensive implementation example: Example.lua
+## Original design 
+[go to original project](https://github.com/mstudio45/LinoriaLib)
 
-🔗 Resources
+### Playbook Tips
+- Organize features in groupboxes for readability.
+- Use tooltips to explain each control.
+- Implement callbacks for all functionalities.
+- Set up the save system to persist configurations.
+- Add keybinds for quick access.
+- Test on mobile devices for compatibility.
+- Use dependency boxes for advanced options.
+- Leverage ColorPickers and KeyPickers for customization.
 
-· UI Library Source
-· Original Project Repository
+### Performance
+LinoriaLib is optimized for maximum performance:
+- Efficient Rendering
+- Clean Code
+- Mobile Optimized
+- Fast Loading
 
-💡 Implementation Guidelines
-
-· Organize features logically using groupboxes and tabs for optimal user experience
-· Implement tooltips for all interface elements to enhance usability
-· Utilize callbacks for immediate response to user interactions
-· Configure automatic saving to preserve user preferences
-· Implement key bindings for rapid feature access
-· Conduct mobile device testing to ensure responsive design
-· Employ DependencyBoxes for conditional option display
-· Enhance customization through ColorPickers and KeyPickers
-
-📈 Performance
-
-LinoriaLib is engineered for optimal performance:
-
-· Minimal rendering overhead
-· Modular, clean codebase
-· Mobile device optimization
-· Rapid loading capabilities
-
-Developed with dedication for the Roblox development community
+*Developed with ❤️ for the Roblox community*
