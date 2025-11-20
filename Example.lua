@@ -58,7 +58,8 @@ local Toggles = Library.Toggles
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
 Library.NotifySide = 'Right'
-Library.CursorSize = 15
+Library.CursorSize = 15 -- Default '20'
+Library.CursorImage = '15985408996' --Default '12230889708'
 
 -- Create main window
 local Window = Library:CreateWindow({
@@ -854,7 +855,7 @@ ActionGroup:AddButton({
     Tooltip = 'Double-click to reset all settings',
     Func = function()
         Library:Notify('Configuration reset', 2)
-        print('[System] Config reset')
+        Library:ResetUI()
     end
 })
 
@@ -867,7 +868,7 @@ ActionGroup:AddButton({
     Func = function()
         Library:Notify('Unloading system...', 2)
         task.wait(0.5)
-        Library:Unload()
+        Library:LinoriaUnload()
     end
 })
 
@@ -909,6 +910,27 @@ UIGroup:AddToggle('CustomCursor', {
     Tooltip = 'Use custom cursor design',
     Callback = function(value)
         Library.ShowCustomCursor = value
+    end
+})
+
+UIGroup:AddSlider('CursorSize', {
+    Text = 'Custom Cursor Size',
+    Default = 0,
+    Min = 0,
+    Max = 50,
+    Rounding = 1,
+    Compact = true,
+    Callback = function(value)
+        Library.CursorSize = value
+    end
+})
+
+UIGroup:AddInput('CursorImage', {
+    Text = 'Custom Cursor Image ID',
+    Default = Library.CursorImage,
+    Placeholder = 'Enter ID here...',
+    Callback = function(value)
+        Library.CursorImage = value
     end
 })
 
