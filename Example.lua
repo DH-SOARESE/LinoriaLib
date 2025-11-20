@@ -840,16 +840,6 @@ NotifGroup:AddButton({
 local ActionGroup = Tabs.System:AddRightGroupbox('System Actions')
 
 ActionGroup:AddButton({
-    Text = 'Reload Interface',
-    Func = function()
-        Library:Notify('Reloading interface...', 2)
-        task.wait(0.5)
-        SaveManager:LoadAutoloadConfig()
-        Library:Notify('Interface reloaded', 2)
-    end
-})
-
-ActionGroup:AddButton({
     Text = 'Reset Configuration',
     DoubleClick = true,
     Tooltip = 'Double-click to reset all settings',
@@ -858,8 +848,6 @@ ActionGroup:AddButton({
         Library:ResetUI()
     end
 })
-
-ActionGroup:AddDivider()
 
 ActionGroup:AddButton({
     Text = 'Unload Interface',
@@ -915,7 +903,7 @@ UIGroup:AddToggle('CustomCursor', {
 
 UIGroup:AddSlider('CursorSize', {
     Text = 'Custom Cursor Size',
-    Default = 0,
+    Default = 15,
     Min = 0,
     Max = 50,
     Rounding = 1,
@@ -967,7 +955,24 @@ ThemeManager:ApplyToTab(Tabs.Settings)
 
 -- Watermark setup
 Library:SetWatermarkVisibility(true)
-Library:SetWatermark('LinoriaLib')
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
+local fps = 0
+local fpsCount = 0
+
+RunService.RenderStepped:Connect(function(dt)
+    fpsCount += 1
+end)
+
+task.spawn(function()
+    while true do
+        fps = fpsCount
+        fpsCount = 0
+        local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+        Library:SetWatermark("LinoriaLib | FPS: " .. fps .. " | Ping: " .. ping .. "ms")
+        task.wait(1)
+    end
+end)
 
 -- Unload callback
 Library:OnUnload(function()
