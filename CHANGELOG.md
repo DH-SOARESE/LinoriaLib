@@ -19,7 +19,7 @@
 ```
 
 ###02.11.2025
-```difd
+```diff
 + Tooltip is now optional
 + Fixed watermarkText error that always made it visible after disabling
 + Divider now supports text in the middle, leaving space for label
