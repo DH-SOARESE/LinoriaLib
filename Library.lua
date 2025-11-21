@@ -183,7 +183,7 @@ local Library = {
     
     -- Cursor --
     CursorSize = 20;
-    CursorImage = "12230889708";
+    CursorImage = 12230889708;
 
     -- for better usage --
     Toggles = Toggles;
@@ -203,7 +203,7 @@ local CursorImage = Instance.new("ImageLabel")
 CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
 CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
 CursorImage.BackgroundTransparency = 1
-CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+CursorImage.Image = "rbxassetid://" .. tostring(Library.CursorImage)
 CursorImage.ZIndex = 0
 CursorImage.Parent = LinoriaCursor
 
@@ -5638,6 +5638,8 @@ do
         Visible = false;
         Parent = ScreenGui;
     });
+    
+    Library:MakeDraggableUsingParent(WatermarkOuter, WatermarkOuter)
 
     local WatermarkInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
