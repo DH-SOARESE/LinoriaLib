@@ -203,7 +203,7 @@ local CursorImage = Instance.new("ImageLabel")
 CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
 CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
 CursorImage.BackgroundTransparency = 1
-CursorImage.Image = "rbxassetid://" .. tostring(Library.CursorImage)
+CursorImage.Image = "rbxassetid://" .. Library.CursorImage
 CursorImage.ZIndex = 0
 CursorImage.Parent = LinoriaCursor
 
@@ -900,15 +900,14 @@ function Library:LinoriaUnload() -- The name was changed to avoid conflicts with
 end
 
 function Library:ResetUI()
-    for _, Toggle in ipairs(Toggles) do
+    for k in pairs(Toggles) do
         local success, err = pcall(function()
-            Toggle:SetValue(Toggle.OriginalValue)
-            Toggle:SetText(Toggle.OriginalText)
+            Toggles[k]:SetValue(Toggles[k].OriginalValue)
         end)
         if not success then
             warn(
-                "[Toggle]",
-                "Feature: " .. (Toggle.OriginalText or "Unknown") .. "\n",
+                "[Toggle] ",
+                "Feature: " .. k .. "\n",
                 "This feature encountered an error; please check the reason.\n",
                 "Reason for the error:"
             )
@@ -916,21 +915,20 @@ function Library:ResetUI()
         end
     end
 
-    for _, Option in ipairs(Options) do
+    for k in pairs(Options) do
         local success, err = pcall(function()
-            if Option.Type == "Slider" or Option.Type == "Dropdown" or Option.Type == "Input" then
-                Option:SetValue(Option.OriginalValue)
-                Option:SetText(Option.OriginalText or "Unknown")
-            elseif Option.Type == "ColorPicker" then
-                Option:SetValueRGB(Option.OriginalValue, Option.OriginalValueTransparency)
+            if Options[k].Type == "Slider" or Options[k].Type == "Dropdown" or Options[k].Type == "Input" then
+                Options[k]:SetValue(Options[k].OriginalValue)
+            elseif Options[k].Type == "ColorPicker" then
+                Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
             end
         end)
         if not success then
             warn(
-                "[" .. Option.Type .. "]",
-                "Feature: " .. (Option.OriginalText or "Unknown") .. "\n",
+                "[" .. Options[k].Type .. "] ",
+                "Feature: " .. k .. "\n",
                 "This feature encountered an error; please check the reason.\n",
-                "Reason for the error:"
+                "Reason for the error: "
             )
             print(err)
         end
@@ -2288,6 +2286,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
             Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
             OriginalValue = Info.Default;
+            UID = "Dropdown";
             Callback = Info.Callback or function(Value) end;
 
             OriginalText = Info.Text; Text = Info.Text;
