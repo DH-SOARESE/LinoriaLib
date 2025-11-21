@@ -1,4 +1,4 @@
---[[ Example by download 
+--[[ Example by download ]
 local LinoriaLib = 'https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/'
 local folderName = 'Linoria Library'
 local basePath = folderName
@@ -50,6 +50,9 @@ local Library = loadLibrary('Library.lua')
 local ThemeManager = loadLibrary('addons/ThemeManager.lua')
 local SaveManager = loadLibrary('addons/SaveManager.lua')
 
+local Players = game:GetService('Players')
+local LocalPlayer = Players.LocalPlayer
+
 -- Shortcuts for options and toggles
 local Options = Library.Options
 local Toggles = Library.Toggles
@@ -59,8 +62,8 @@ Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
 
 Library.NotifySide = 'Right' -- Default 'Left'
-Library.MobileButtonsSide = "Right" -- Default 'Left'
-Library.CursorImage = '15985408996' --Default '12230889708'
+Library.MobileButtonsSide = 'Right' -- Default 'Left'
+Library.CursorImage = 15985408996 --Default '12230889708'
 Library.CursorSize = 15 -- Default '20'
 
 -- Create main window
@@ -70,17 +73,17 @@ local Window = Library:CreateWindow({
     AutoShow = true,
     Resizable = true,
     ShowCustomCursor = true,
-    TabPadding = 2,
+    TabPadding = 0,
     MenuFadeTime = 0.2
 })
 
 -- Define tabs
 local Tabs = {
-    Controls = Window:AddTab('Controls', '80485236798991'),
-    Display = Window:AddTab('Display', '134567380715608'),
-    Advanced = Window:AddTab('Advanced', '114673753213917'),
-    System = Window:AddTab('System', '9692125126'),
-    Settings = Window:AddTab('Settings', '119015428034090')
+    Controls = Window:AddTab('Controls', 80485236798991),
+    Display = Window:AddTab('Display', 134567380715608),
+    Advanced = Window:AddTab('Advanced', 114673753213917),
+    System = Window:AddTab('System', 9692125126),
+    Settings = Window:AddTab('Settings', 119015428034090)
 }
 
 -- ==================== CONTROLS TAB ====================
@@ -118,22 +121,20 @@ ToggleGroup:AddToggle('RiskyToggle', {
     end
 })
 
-local KeyToggle = ToggleGroup:AddToggle('KeybindToggle', {
+ToggleGroup:AddToggle('KeybindToggle', {
     Text = 'Keybind Toggle',
     Default = false,
     Tooltip = 'Can be toggled via keyboard',
     Callback = function(value)
         print('[Toggle] Keybind state:', value)
     end
-})
-
-KeyToggle:AddKeyPicker('KeybindPicker', {
+}):AddKeyPicker('KeybindPicker', {
     Mode = 'Toggle',
     Default = 'E',
     Text = 'Hotkey',
     SyncToggleState = true,
     Callback = function(value)
-        print('[Key] Assigned:', value)
+        print('State of Toggle:' .. value)
     end
 })
 
@@ -142,15 +143,18 @@ local ColorToggle = ToggleGroup:AddToggle('ColorToggle', {
     Default = true,
     Tooltip = 'Toggle with color customization',
     Callback = function(value)
-        print('[Toggle] Color enabled:', value)
+        print('[Toggle] Color enabled:' .. value)
     end
 })
 
 ColorToggle:AddColorPicker('PrimaryColor', {
     Title = 'Primary',
     Default = Color3.fromRGB(0, 170, 255),
-    Callback = function(color, alpha)
-        print('[Color] Primary updated:', color, alpha)
+    Callback = function(color) -- not transparency
+        print(
+            'Color = (' .. color .. ') \n',
+            'Player:' .. LocalPlayer.Name
+        )
     end
 })
 
@@ -159,7 +163,11 @@ ColorToggle:AddColorPicker('SecondaryColor', {
     Default = Color3.fromRGB(255, 170, 0),
     Transparency = 0.3,
     Callback = function(color, alpha)
-        print('[Color] Secondary updated:', color, alpha)
+        print(
+            'Color = (' .. color .. ') \n',
+            'Alpha = [' .. alpha .. ']',
+            'Player:' .. LocalPlayer.Name
+        )
     end
 })
 
@@ -168,7 +176,7 @@ local ButtonGroup = Tabs.Controls:AddLeftGroupbox('Button Actions')
 ButtonGroup:AddButton({
     Text = 'Quick Action',
     Tooltip = 'Single click execution',
-    Func = function()
+    Func = function() 
         Library:Notify('Action executed', 2)
         print('[Button] Quick action triggered')
     end
@@ -957,8 +965,8 @@ ThemeManager:ApplyToTab(Tabs.Settings)
 
 -- Watermark setup
 Library:SetWatermarkVisibility(true)
-local RunService = game:GetService("RunService")
-local Stats = game:GetService("Stats")
+local RunService = game:GetService('RunService')
+local Stats = game:GetService('Stats')
 local fps = 0
 local fpsCount = 0
 
@@ -970,8 +978,8 @@ task.spawn(function()
     while true do
         fps = fpsCount
         fpsCount = 0
-        local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-        Library:SetWatermark("LinoriaLib | FPS: " .. fps .. " | Ping: " .. ping .. "ms")
+        local ping = math.floor(Stats.Network.ServerStatsItem['Data Ping']:GetValue())
+        Library:SetWatermark('LinoriaLib | FPS: ' .. fps .. ' | Ping: ' .. ping .. 'ms')
         task.wait(1)
     end
 end)
