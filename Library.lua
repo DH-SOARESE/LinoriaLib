@@ -203,7 +203,7 @@ local CursorImage = Instance.new("ImageLabel")
 CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
 CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
 CursorImage.BackgroundTransparency = 1
-CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+CursorImage.Image = "rbxassetid://" .. tostring(Library.CursorImage
 CursorImage.ZIndex = 0
 CursorImage.Parent = LinoriaCursor
 
@@ -900,14 +900,15 @@ function Library:LinoriaUnload() -- The name was changed to avoid conflicts with
 end
 
 function Library:ResetUI()
-    for k in pairs(Toggles) do
+    for _, Toggle in ipairs(Toggles) do
         local success, err = pcall(function()
-            Toggles[k]:SetValue(Toggles[k].OriginalValue)
+            Toggle:SetValue(Toggle.OriginalValue)
+            Toggle:SetText(Toggle.OriginalText)
         end)
         if not success then
             warn(
-                "[Toggle] ",
-                "Feature: " .. k .. "\n",
+                "[Toggle]",
+                "Feature: " .. (Toggle.OriginalText or "Unknown") .. "\n",
                 "This feature encountered an error; please check the reason.\n",
                 "Reason for the error:"
             )
@@ -915,20 +916,21 @@ function Library:ResetUI()
         end
     end
 
-    for k in pairs(Options) do
+    for _, Option in ipairs(Options) do
         local success, err = pcall(function()
-            if Options[k].UID == "Slider" or Options[k].UID == "Dropdown" or Options[k].UID == "Textbox" then
-                Options[k]:SetValue(Options[k].OriginalValue)
-            elseif Options[k].UID == "ColorPicker" then
-                Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
+            if Option.Type == "Slider" or Option.Type == "Dropdown" or Option.Type == "Input" then
+                Option:SetValue(Option.OriginalValue)
+                Option:SetText(Option.OriginalText or "Unknown")
+            elseif Option.Type == "ColorPicker" then
+                Option:SetValueRGB(Option.OriginalValue, Option.OriginalValueTransparency)
             end
         end)
         if not success then
             warn(
-                "[" .. Options[k].UID .. "] ",
-                "Feature: " .. k .. "\n",
+                "[" .. Option.Type .. "]",
+                "Feature: " .. (Option.OriginalText or "Unknown") .. "\n",
                 "This feature encountered an error; please check the reason.\n",
-                "Reason for the error: "
+                "Reason for the error:"
             )
             print(err)
         end
@@ -969,7 +971,6 @@ do
         Callback = Info.Callback or function(Color) end;
         OriginalValue = Info.Default;
         OriginalValueTransparency = Info.Transparency or 0;
-        UID = "ColorPicker";
     };
 
     function ColorPicker:SetHSVFromRGB(Color)
@@ -2287,7 +2288,6 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
             Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
             OriginalValue = Info.Default;
-            UID = "Dropdown";
             Callback = Info.Callback or function(Value) end;
 
             OriginalText = Info.Text; Text = Info.Text;
@@ -3377,7 +3377,6 @@ end
         AllowEmpty = if typeof(Info.AllowEmpty) == "boolean" then Info.AllowEmpty else true;
         EmptyReset = if typeof(Info.EmptyReset) == "string" then Info.EmptyReset else "---";
         OriginalValue = Info.Default;
-        UID = "Textbox";
         Type = 'Input';
 
         Callback = Info.Callback or function(Value) end;
@@ -3961,8 +3960,7 @@ end;
         Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
         OriginalText = Info.Text or ""; Text = Info.Text or "";
         OriginalValue = math.clamp(Info.Default, Info.Min, Info.Max);
-        UID = "Slider";
-
+     
         Prefix = typeof(Info.Prefix) == "string" and Info.Prefix or "";    
         Suffix = typeof(Info.Suffix) == "string" and Info.Suffix or "";    
         ValueText = typeof(Info.ValueText) == "table" and Info.ValueText or {}; 
@@ -4361,7 +4359,6 @@ end;
         Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;  
         Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;  
         OriginalValue = Info.Default;
-        UID = "Dropdown";
         Callback = Info.Callback or function(Value) end;  
 
         OriginalText = Info.Text; Text = Info.Text;  
