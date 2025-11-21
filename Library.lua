@@ -203,7 +203,7 @@ local CursorImage = Instance.new("ImageLabel")
 CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
 CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
 CursorImage.BackgroundTransparency = 1
-CursorImage.Image = "rbxassetid://" .. tostring(Library.CursorImage
+CursorImage.Image = "rbxassetid://" .. tostring(Library.CursorImage)
 CursorImage.ZIndex = 0
 CursorImage.Parent = LinoriaCursor
 
