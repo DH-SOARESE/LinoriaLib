@@ -1020,26 +1020,6 @@ do
     });
     Blocked(PickerFrameOuter)
 
-    -- Drag functionality for PickerFrameOuter
-    local UserInputService = game:GetService("UserInputService")
-    local dragging = false
-    local dragStart = nil
-    local startPos = nil
-
-    local function updateDrag(input)
-        local delta = input.Position - dragStart
-        local newX = startPos.X.Offset + delta.X
-        local newY = startPos.Y.Offset + delta.Y
-
-        PickerFrameOuter.Position = UDim2.fromOffset(newX, newY)
-    end
-
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            updateDrag(input)
-        end
-    end)
-
     local PickerFrameInner = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
         BorderColor3 = Library.OutlineColor;
@@ -1056,20 +1036,7 @@ do
         ZIndex = 17;
         Parent = PickerFrameInner;
     });
-
-    TitleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = PickerFrameOuter.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
+    
     local Highlight = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor;
         BorderSizePixel = 0;
@@ -1255,6 +1222,7 @@ do
         ZIndex = 16;
         Parent = PickerFrameInner;
     });
+    Library:MakeDraggableUsingParent(DisplayLabel, PickerFrameOuter)
 
     local ContextMenu = {}
     do
