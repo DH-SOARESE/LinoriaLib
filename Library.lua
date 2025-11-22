@@ -3160,121 +3160,141 @@ end;
     InitEvents(Button)
 
     function Button:AddButton(...)
-        local SubButton = typeof(select(1, ...)) == "table" and select(1, ...) or {
-            Text = select(1, ...),
-            Func = select(2, ...)
-        }
+    local SubButton = typeof(select(1, ...)) == "table" and select(1, ...) or {
+        Text = select(1, ...),
+        Func = select(2, ...)
+    }
 
-        assert(typeof(SubButton.Func) == 'function', 'AddButton: `Func` callback is missing.');
+    assert(typeof(SubButton.Func) == 'function', 'AddButton: `Func` callback is missing.');
 
-        self.Outer.Size = UDim2.new(0.5, -2, 0, 20)
+    self.Outer.Size = UDim2.new(0.5, -2, 0, 20)
 
-        SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
+    SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
 
-        SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
-        SubButton.Outer.Size = UDim2.new(1, -3, 0, self.Outer.AbsoluteSize.Y)
-        SubButton.Outer.Parent = self.Outer
+    SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
+    SubButton.Outer.Size = UDim2.new(1, -3, 0, self.Outer.AbsoluteSize.Y)
+    SubButton.Outer.Parent = self.Outer
 
-        function SubButton:UpdateColors()
-            SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.FontColor;
-        end;
+    function SubButton:UpdateColors()
+        SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.FontColor;
+    end;
 
-        function SubButton:AddToolTip(tooltip, disabledTooltip)
-            if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
-                if SubButton.TooltipTable then
-                    SubButton.TooltipTable:Destroy()
-                end
-            
-                SubButton.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
-                SubButton.TooltipTable.Disabled = SubButton.Disabled;
-            end
-
-            return SubButton
-        end
-
-        function SubButton:SetDisabled(Disabled)
-            SubButton.Disabled = Disabled;
-
+    function SubButton:AddToolTip(tooltip, disabledTooltip)
+        if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
             if SubButton.TooltipTable then
-                SubButton.TooltipTable.Disabled = Disabled;
+                SubButton.TooltipTable:Destroy()
             end
-
-            SubButton:UpdateColors();
-        end;
-
-        function SubButton:SetText(Text)
-            if typeof(Text) == "string" then
-                SubButton.Text = Text;
-                SubButton.Label.Text = SubButton.Text;
-                TruncateText(SubButton.Label);
-            end
-        end;
-
-        if typeof(SubButton.Tooltip) == "string" or typeof(SubButton.DisabledTooltip) == "string" then
-            SubButton.TooltipTable = SubButton:AddToolTip(SubButton.Tooltip, SubButton.DisabledTooltip, SubButton.Outer)
+        
+            SubButton.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
             SubButton.TooltipTable.Disabled = SubButton.Disabled;
         end
-
-        task.delay(0.1, SubButton.UpdateColors, SubButton);
-        InitEvents(SubButton)
 
         return SubButton
     end
 
-    function Button:UpdateColors()
-        Button.Label.TextColor3 = Button.Disabled and Library.DisabledAccentColor or Library.FontColor;
-    end;
+    function SubButton:SetDisabled(Disabled)
+        SubButton.Disabled = Disabled;
 
-    function Button:AddToolTip(tooltip, disabledTooltip)
-        if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
-            if Button.TooltipTable then
-                Button.TooltipTable:Destroy()
-            end
-
-            Button.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
-            Button.TooltipTable.Disabled = Button.Disabled;
+        if SubButton.TooltipTable then
+            SubButton.TooltipTable.Disabled = Disabled;
         end
 
-        return Button
+        SubButton:UpdateColors();
     end;
 
-    if typeof(Button.Tooltip) == "string" or typeof(Button.DisabledTooltip) == "string" then
-        Button.TooltipTable = Button:AddToolTip(Button.Tooltip, Button.DisabledTooltip, Button.Outer)
+    function SubButton:SetText(Text)
+        if typeof(Text) == "string" then
+            SubButton.Text = Text;
+            SubButton.Label.Text = SubButton.Text;
+            TruncateText(SubButton.Label);
+        end
+    end;
+
+    if typeof(SubButton.Tooltip) == "string" or typeof(SubButton.DisabledTooltip) == "string" then
+        SubButton.TooltipTable = SubButton:AddToolTip(SubButton.Tooltip, SubButton.DisabledTooltip, SubButton.Outer)
+        SubButton.TooltipTable.Disabled = SubButton.Disabled;
+    end
+
+    local RunService = game:GetService("RunService")
+    SubButton.Connection = RunService.Heartbeat:Connect(function()
+        SubButton:UpdateColors()
+    end)
+    SubButton.Outer.Destroying:Connect(function()
+        if SubButton.Connection then
+            SubButton.Connection:Disconnect()
+            SubButton.Connection = nil
+        end
+    end)
+
+    InitEvents(SubButton)
+
+    return SubButton
+end
+
+function Button:UpdateColors()
+    Button.Label.TextColor3 = Button.Disabled and Library.DisabledAccentColor or Library.FontColor;
+end;
+
+function Button:AddToolTip(tooltip, disabledTooltip)
+    if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
+        if Button.TooltipTable then
+            Button.TooltipTable:Destroy()
+        end
+
+        Button.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
         Button.TooltipTable.Disabled = Button.Disabled;
     end
 
-    function Button:SetVisible(Visibility)
-        IsVisible = Visibility;
+    return Button
+end;
 
-        Button.Outer.Visible = IsVisible;
-        if Blank then Blank.Visible = IsVisible end;
+if typeof(Button.Tooltip) == "string" or typeof(Button.DisabledTooltip) == "string" then
+    Button.TooltipTable = Button:AddToolTip(Button.Tooltip, Button.DisabledTooltip, Button.Outer)
+    Button.TooltipTable.Disabled = Button.Disabled;
+end
 
-        Groupbox:Resize();
-    end;
+function Button:SetVisible(Visibility)
+    IsVisible = Visibility;
 
-    function Button:SetText(Text)
-        if typeof(Text) == "string" then
-            Button.Text = Text;
-            Button.Label.Text = Button.Text;
-            TruncateText(Button.Label);
-        end
-    end;
+    Button.Outer.Visible = IsVisible;
+    if Blank then Blank.Visible = IsVisible end;
 
-    function Button:SetDisabled(Disabled)
-        Button.Disabled = Disabled;
-
-        if Button.TooltipTable then
-            Button.TooltipTable.Disabled = Disabled;
-        end
-
-        Button:UpdateColors();
-    end;
-
-    task.delay(0.1, Button.UpdateColors, Button);
-    Blank = Groupbox:AddBlank(5, IsVisible);
     Groupbox:Resize();
+end;
 
-    return Button;
+function Button:SetText(Text)
+    if typeof(Text) == "string" then
+        Button.Text = Text;
+        Button.Label.Text = Button.Text;
+        TruncateText(Button.Label);
+    end
+end;
+
+function Button:SetDisabled(Disabled)
+    Button.Disabled = Disabled;
+
+    if Button.TooltipTable then
+        Button.TooltipTable.Disabled = Disabled;
+    end
+
+    Button:UpdateColors();
+end;
+
+local RunService = game:GetService("RunService")
+Button.Connection = RunService.Heartbeat:Connect(function()
+    Button:UpdateColors()
+end)
+Button.Outer.Destroying:Connect(function()
+    if Button.Connection then
+        Button.Connection:Disconnect()
+        Button.Connection = nil
+    end
+end)
+
+Blank = Groupbox:AddBlank(5, IsVisible);
+Groupbox:Resize();
+
+return Button;
 end;
     function BaseGroupboxFuncs:AddDivider(LabelText)
     local Groupbox = self
@@ -6015,7 +6035,6 @@ function Library:CreateWindow(...)
         Text = Config.Title or '';
         TextXAlignment = Enum.TextXAlignment.Left;
         ZIndex = 1;
-        Name = "Window_label";
         Parent = Inner;
 });
 Library:MakeDraggableUsingParent(WindowLabel, Outer, 25, true);
@@ -6988,6 +7007,7 @@ end
         ZIndex = 203;
         Parent = ToggleUIInnerFrame;
     });
+    
     
     Library:AddToRegistry(ToggleUIButton, {
         TextColor3 = 'FontColor';
