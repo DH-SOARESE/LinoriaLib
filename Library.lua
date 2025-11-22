@@ -3176,7 +3176,9 @@ end;
     SubButton.Outer.Parent = self.Outer
 
     function SubButton:UpdateColors()
-        SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.FontColor;
+        SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledTextColor or Library.FontColor;
+        SubButton.Inner.BackgroundColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.AccentColor;
+        SubButton.Outer.BorderColor3 = SubButton.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
     end;
 
     function SubButton:AddToolTip(tooltip, disabledTooltip)
@@ -3232,7 +3234,9 @@ end;
 end
 
 function Button:UpdateColors()
-    Button.Label.TextColor3 = Button.Disabled and Library.DisabledAccentColor or Library.FontColor;
+    Button.Label.TextColor3 = Button.Disabled and Library.DisabledTextColor or Library.FontColor;
+    Button.Inner.BackgroundColor3 = Button.Disabled and Library.DisabledAccentColor or Library.AccentColor;
+    Button.Outer.BorderColor3 = Button.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
 end;
 
 function Button:AddToolTip(tooltip, disabledTooltip)
