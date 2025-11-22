@@ -467,83 +467,62 @@ function Protect(instance)
 end
 
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
-	Instance.Active = true;
-	
+	Instance.Active = true
+
+	local TargetPos
+
 	if not Library.IsMobile then
 		Instance.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				if (IsMainWindow and Library.CantDragForced) or (not (Instance and Instance.Visible)) or (not (Parent and Parent.Visible)) then
-					return;
-				end;
+			if Input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+			if (IsMainWindow and Library.CantDragForced) or not (Instance and Instance.Visible) or not (Parent and Parent.Visible) then return end
 
-				local ObjPos = Vector2.new(
-					Mouse.X - Parent.AbsolutePosition.X,
-					Mouse.Y - Parent.AbsolutePosition.Y
-				);
+			local ObjPos = Vector2.new(Mouse.X - Parent.AbsolutePosition.X, Mouse.Y - Parent.AbsolutePosition.Y)
+			if ObjPos.Y > (Cutoff or 40) then return end
 
-				if ObjPos.Y > (Cutoff or 40) then
-					return;
-				end;
-
-				while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-					Parent.Position = UDim2.new(
-						0,
-						Mouse.X - ObjPos.X + (Parent.Size.X.Offset * Parent.AnchorPoint.X),
-						0,
-						Mouse.Y - ObjPos.Y + (Parent.Size.Y.Offset * Parent.AnchorPoint.Y)
-					);
-
-					RenderStepped:Wait();
-				end;
-			end;
-		end);
+			TargetPos = Parent.Position
+			while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+				TargetPos = UDim2.new(
+					0,
+					Mouse.X - ObjPos.X + (Parent.Size.X.Offset * Parent.AnchorPoint.X),
+					0,
+					Mouse.Y - ObjPos.Y + (Parent.Size.Y.Offset * Parent.AnchorPoint.Y)
+				)
+				Parent.Position = Parent.Position:Lerp(TargetPos, 0.25)
+				RenderStepped:Wait()
+			end
+		end)
 	else
-		local Dragging, DraggingInput, DraggingStart, StartPosition;
+		local Dragging, DraggingInput, DraggingStart, StartPosition
 
 		InputService.TouchStarted:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or (not (Instance and Instance.Visible)) or (not (Parent and Parent.Visible)) then
-				Dragging = false
-				return;
+			if (IsMainWindow and Library.CantDragForced) or not (Instance and Instance.Visible) or not (Parent and Parent.Visible) then Dragging = false return end
+
+			if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow and (Library.CanDrag and Library.Window.Holder.Visible) or true) then
+				DraggingInput = Input
+				DraggingStart = Input.Position
+				StartPosition = Parent.Position
+				if (Input.Position - DraggingStart).Y > (Cutoff or 40) then Dragging = false return end
+				Dragging = true
 			end
+		end)
 
-			if not Dragging and Library:MouseIsOverFrame(Instance, Input) and (IsMainWindow  and (Library.CanDrag  and Library.Window.Holder.Visible ) or true) then
-				DraggingInput = Input;
-				DraggingStart = Input.Position;
-				StartPosition = Parent.Position;
-
-				local OffsetPos = Input.Position - DraggingStart;
-				if OffsetPos.Y > (Cutoff or 40) then
-					Dragging = false;
-					return;
-				end;
-
-				Dragging = true;
-			end;
-		end);
 		InputService.TouchMoved:Connect(function(Input)
-			if (IsMainWindow and Library.CantDragForced) or (not (Instance and Instance.Visible)) or (not (Parent and Parent.Visible)) then
-				Dragging = false;
-				return;
-			end
+			if Input ~= DraggingInput or not Dragging then return end
+			local OffsetPos = Input.Position - DraggingStart
+			TargetPos = UDim2.new(
+				StartPosition.X.Scale,
+				StartPosition.X.Offset + OffsetPos.X,
+				StartPosition.Y.Scale,
+				StartPosition.Y.Offset + OffsetPos.Y
+			)
+			Parent.Position = Parent.Position:Lerp(TargetPos, 0.25)
+		end)
 
-			if Input == DraggingInput and Dragging and (IsMainWindow  and (Library.CanDrag  and Library.Window.Holder.Visible ) or true) then
-				local OffsetPos = Input.Position - DraggingStart;
-
-				Parent.Position = UDim2.new(
-					StartPosition.X.Scale,
-					StartPosition.X.Offset + OffsetPos.X,
-					StartPosition.Y.Scale,
-					StartPosition.Y.Offset + OffsetPos.Y
-				);
-			end;
-		end);
 		InputService.TouchEnded:Connect(function(Input)
-			if Input == DraggingInput then 
-				Dragging = false;
-			end;
-		end);
-	end;
-end;
+			if Input == DraggingInput then Dragging = false end
+		end)
+	end
+end
 
 function Library:MakeResizable(Instance, MinSize)
     if Library.IsMobile then
@@ -3159,9 +3138,10 @@ end;
             if SubButton.TooltipTable then
                 SubButton.TooltipTable:Destroy()
             end
-        
+        if not Button.Disabled then
             SubButton.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
             SubButton.TooltipTable.Disabled = SubButton.Disabled;
+            end
         end
 
         return SubButton
@@ -3223,9 +3203,10 @@ function Button:AddToolTip(tooltip, disabledTooltip)
         if Button.TooltipTable then
             Button.TooltipTable:Destroy()
         end
-
+    if not Button.Disabled then
         Button.TooltipTable = Library:AddToolTip(tooltip, disabledTooltip, self.Outer)
         Button.TooltipTable.Disabled = Button.Disabled;
+        end
     end
 
     return Button
@@ -6795,11 +6776,26 @@ end
                     BoxOuter.Size = UDim2.new(1, 0, 0, (20 * DPIScale + Size) + 2 + 2);
                 end;
 
-                Button.InputBegan:Connect(function(Input)
-                    if (Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame()) or Input.UserInputType == Enum.UserInputType.Touch then
-                        Tab:Show();
-                        Tab:Resize();
+                Library.AnyPressing = false
+
+                InputService.InputBegan:Connect(function(Input)
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                        Library.AnyPressing = true
                     end
+                end)
+
+                InputService.InputEnded:Connect(function(Input)
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                        Library.AnyPressing = false
+                    end
+                end)
+
+                Button.InputBegan:Connect(function(Input)
+                    if Library.AnyPressing then return end
+                        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                            Tab:Show()
+                            Tab:Resize()
+                        end
                 end)
 
                 Tab.Container = Container;
