@@ -3070,6 +3070,7 @@ end;
         });
 
         Outer.MouseEnter:Connect(function()
+            if Button.Disabled then return end
             if Groupbox.HighlightedButton and Groupbox.HighlightedButton ~= Outer then
                 Groupbox.HighlightedButton.BorderColor3 = Color3.new(0, 0, 0)
             end
@@ -3078,7 +3079,7 @@ end;
         end)
 
         Outer.MouseLeave:Connect(function()
-            Outer.BorderColor3 = Color3.new(0, 0, 0)
+            Outer.BorderColor3 = Button.Disabled and Library.OutlineColor or Color3.new(0, 0, 0)
             if Groupbox.HighlightedButton == Outer then
                 Groupbox.HighlightedButton = nil
             end
@@ -3155,6 +3156,7 @@ end;
     end
 
     Button.Outer, Button.Inner, Button.Label = CreateBaseButton(Button)
+    Button.Groupbox = Groupbox
     Button.Outer.Parent = Container
 
     InitEvents(Button)
@@ -3170,6 +3172,7 @@ end;
     self.Outer.Size = UDim2.new(0.5, -2, 0, 20)
 
     SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
+    SubButton.Groupbox = Groupbox
 
     SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
     SubButton.Outer.Size = UDim2.new(1, -3, 0, self.Outer.AbsoluteSize.Y)
@@ -3177,9 +3180,10 @@ end;
 
     function SubButton:UpdateColors()
         SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledTextColor or Library.FontColor;
-        SubButton.Inner.BackgroundColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.MainColor;
-        SubButton.Inner.BorderColor3  = SubButton.Disabled and Library.DisabledOutlineColor or Library.MainColor;
-        SubButton.Outer.BorderColor3 = SubButton.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
+        SubButton.Inner.BackgroundColor3 = SubButton.Disabled and Library.MainColor or Library.MainColor;
+        SubButton.Inner.BorderColor3 = SubButton.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
+        local defaultBorder = SubButton.Disabled and Library.OutlineColor or Color3.new(0, 0, 0)
+        SubButton.Outer.BorderColor3 = (not SubButton.Disabled and SubButton.Groupbox.HighlightedButton == SubButton.Outer) and Library.AccentColor or defaultBorder;
     end;
 
     function SubButton:AddToolTip(tooltip, disabledTooltip)
@@ -3200,6 +3204,10 @@ end;
 
         if SubButton.TooltipTable then
             SubButton.TooltipTable.Disabled = Disabled;
+        end
+
+        if Disabled and Groupbox.HighlightedButton == SubButton.Outer then
+            Groupbox.HighlightedButton = nil
         end
 
         SubButton:UpdateColors();
@@ -3236,9 +3244,10 @@ end
 
 function Button:UpdateColors()
     Button.Label.TextColor3 = Button.Disabled and Library.DisabledTextColor or Library.FontColor;
-    Button.Inner.BackgroundColor3 = Button.Disabled and Library.DisabledAccentColor or Library.AccentColor;
-    Button.Inner.BorderColor3 = Button.Disabled and Library.DisabledOutlineColor or Library.AccentColor;
-    Button.Outer.BorderColor3 = Button.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
+    Button.Inner.BackgroundColor3 = Button.Disabled and Library.MainColor or Library.MainColor;
+    Button.Inner.BorderColor3 = Button.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
+    local defaultBorder = Button.Disabled and Library.OutlineColor or Color3.new(0, 0, 0)
+    Button.Outer.BorderColor3 = (not Button.Disabled and Button.Groupbox.HighlightedButton == Button.Outer) and Library.AccentColor or defaultBorder;
 end;
 
 function Button:AddToolTip(tooltip, disabledTooltip)
@@ -3252,6 +3261,20 @@ function Button:AddToolTip(tooltip, disabledTooltip)
     end
 
     return Button
+end;
+
+function Button:SetDisabled(Disabled)
+    Button.Disabled = Disabled;
+
+    if Button.TooltipTable then
+        Button.TooltipTable.Disabled = Disabled;
+    end
+
+    if Disabled and Button.Groupbox.HighlightedButton == Button.Outer then
+        Button.Groupbox.HighlightedButton = nil
+    end
+
+    Button:UpdateColors();
 end;
 
 if typeof(Button.Tooltip) == "string" or typeof(Button.DisabledTooltip) == "string" then
