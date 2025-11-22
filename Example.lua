@@ -229,6 +229,18 @@ SliderGroup:AddSlider('IntegerSlider', {
     end
 })
 
+SliderGroup:AddSlider('SliderDisable', {
+    Text = 'Example',
+    Default = 30,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Disabled = true,
+    Callback = function(value)
+        PlaybackVideo:SetVolume(value / 100)
+    end
+})
+
 SliderGroup:AddSlider('DecimalSlider', {
     Text = 'Decimal Value',
     Default = 0.5,
@@ -458,7 +470,8 @@ DisplayGroup:AddLabel('Content after named divider')
 
 local MediaGroup = Tabs.Display:AddRightGroupbox('Media Display')
 
-MediaGroup:AddImage('DisplayImage', {
+local bn 
+bn = MediaGroup:AddImage('DisplayImage', {
     Image = 'rbxassetid://10511855986',
     Height = 180,
     Color = Color3.fromRGB(255, 255, 255),
@@ -471,9 +484,7 @@ MediaGroup:AddImage('DisplayImage', {
 MediaGroup:AddButton({
     Text = 'Toggle Image',
     Func = function()
-        local img = Options.DisplayImage
-        img.Visible = not img.Visible
-        print('[Media] Image visible:', img.Visible)
+        bn:SetVisible(not bn.Visible)
     end
 })
 
