@@ -25,7 +25,7 @@ local Mouse = LocalPlayer:GetMouse();
 
 local assert = function(condition, errorMessage) 
     if (not condition) then
-        error(if errorMessage then errorMessage else "assert failed", 3);
+        error(if errorMessage then errorMessage else 'assert failed', 3);
     end;
 end;
 
@@ -36,7 +36,7 @@ local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instanc
         end
 
         local DestinationParent
-        if typeof(Parent) == "function" then
+        if typeof(Parent) == 'function' then
             DestinationParent = Parent()
         else
             DestinationParent = Parent
@@ -46,7 +46,7 @@ local function SafeParentUI(Instance: Instance, Parent: Instance | () -> Instanc
     end)
 
     if not (success and Instance.Parent) then
-        Instance.Parent = LocalPlayer:WaitForChild("PlayerGui", math.huge)
+        Instance.Parent = LocalPlayer:WaitForChild('PlayerGui', math.huge)
     end
 end
 
@@ -69,7 +69,7 @@ function ParentUI(UI: Instance, Layer, SkipHiddenUI)
     end
 
     if not UI.Parent then
-        UI.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 1)
+        UI.Parent = game:GetService('Players').LocalPlayer:WaitForChild('PlayerGui', 1)
     end
 
     UI.DisplayOrder = Layer
@@ -80,19 +80,19 @@ function ParentUI(UI: Instance, Layer, SkipHiddenUI)
     end)
 end
 
-local ScreenGui = Instance.new("ScreenGui")
+local ScreenGui = Instance.new('ScreenGui')
 ScreenGui.ResetOnSpawn = false
 ParentUI(ScreenGui, 1e308)
 
-local ModalScreenGui = Instance.new("ScreenGui")
+local ModalScreenGui = Instance.new('ScreenGui')
 ModalScreenGui.ResetOnSpawn = false
 ParentUI(ModalScreenGui, 1e308)
 
-local ModalElement = Instance.new("TextButton");
+local ModalElement = Instance.new('TextButton');
 ModalElement.BackgroundTransparency = 1
 ModalElement.Modal = false
 ModalElement.Size = UDim2.fromScale(0, 0)
-ModalElement.Text = ""
+ModalElement.Text = ''
 ModalElement.ZIndex = -999
 ModalElement.Parent = ModalScreenGui
 
@@ -155,7 +155,7 @@ local Library = {
     Window = { Holder = nil; Tabs = {}; };
 
     -- variables --
-    VideoLink = "";
+    VideoLink = '';
     
     Toggled = false;
     ToggleKeybind = nil;
@@ -168,12 +168,12 @@ local Library = {
 
     -- notification --
     Notify = nil;
-    NotifySide = "Left";
+    NotifySide = 'Left';
     ShowCustomCursor = true;
     ShowToggleFrameInKeybinds = true;
     NotifyOnError = false; -- true = Library:Notify for SafeCallback (still warns in the developer console)
     
-    MobileButtonsSide = "Left";
+    MobileButtonsSide = 'Left';
     
     ShowTooltip = true;
 
@@ -192,32 +192,32 @@ local Library = {
     Buttons = Buttons;
 };
 
-local LinoriaCursor = Instance.new("ScreenGui")
-LinoriaCursor.Name = "LinoriaCursor"
+local LinoriaCursor = Instance.new('ScreenGui')
+LinoriaCursor.Name = 'LinoriaCursor'
 LinoriaCursor.IgnoreGuiInset = true
 LinoriaCursor.ResetOnSpawn = false
 LinoriaCursor.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ParentUI(LinoriaCursor, math.huge)
 
-local CursorImage = Instance.new("ImageLabel")
+local CursorImage = Instance.new('ImageLabel')
 CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
 CursorImage.AnchorPoint = Vector2.new(0.5, 0.5)
 CursorImage.BackgroundTransparency = 1
-CursorImage.Image = "rbxassetid://" .. tostring(Library.CursorImage)
+CursorImage.Image = 'rbxassetid://' .. tostring(Library.CursorImage)
 CursorImage.ZIndex = 0
 CursorImage.Parent = LinoriaCursor
 
 InputService.MouseIconEnabled = not Library.ShowCustomCursor
 
-RunService:BindToRenderStep("LinoriaCursor", Enum.RenderPriority.Input.Value, function()
+RunService:BindToRenderStep('LinoriaCursor', Enum.RenderPriority.Input.Value, function()
     local mousePos = InputService:GetMouseLocation()
     CursorImage.Position = UDim2.fromOffset(mousePos.X, mousePos.Y)
     CursorImage.ImageColor3 = Library.AccentColor
     CursorImage.Size = UDim2.fromOffset(Library.CursorSize, Library.CursorSize)
     CursorImage.Visible = Library.ShowCustomCursor and Library.Toggled
 
-    if CursorImage.Image ~= "rbxassetid://" .. Library.CursorImage then
-        CursorImage.Image = "rbxassetid://" .. Library.CursorImage
+    if CursorImage.Image ~= 'rbxassetid://' .. Library.CursorImage then
+        CursorImage.Image = 'rbxassetid://' .. Library.CursorImage
     end
 end)
 
@@ -306,7 +306,7 @@ local function GetTeams(ReturnInstances)
 end;
 
 function Library:SetDPIScale(value: number) 
-    assert(type(value) == "number", "Expected type number for DPI scale but got " .. typeof(value))
+    assert(type(value) == 'number', 'Expected type number for DPI scale but got ' .. typeof(value))
     
     DPIScale = value / 100;
     Library.MinSize = (if Library.IsMobile then Vector2.new(550, 150) else Vector2.new(550, 300)) * DPIScale;
@@ -314,7 +314,7 @@ end;
 
 function Library:SafeCallback(Func, ...)
     -- https://github.com/deividcomsono/Obsidian/blob/main/Library.lua#L1100
-    if not (Func and typeof(Func) == "function") then
+    if not (Func and typeof(Func) == 'function') then
         return;
     end;
 
@@ -342,14 +342,14 @@ end;
 function Library:Create(Class, Properties)
     local _Instance = Class;
 
-    if typeof(Class) == "string" then
+    if typeof(Class) == 'string' then
         _Instance = Instance.new(Class);
     end;
 
     for Property, Value in next, Properties do
-        if (Property == "Size" or Property == "Position") then
+        if (Property == 'Size' or Property == 'Position') then
             Value = ApplyDPIScale(Value);
-        elseif Property == "TextSize" then
+        elseif Property == 'TextSize' then
             Value = ApplyTextScale(Value);
         end;
 
@@ -402,7 +402,7 @@ function TruncateText(GuiObject)
         local textSize = GuiObject.TextSize
 
         local left, right = 1, #Text
-        local truncated = ""
+        local truncated = ''
 
         while left <= right do
             local mid = math.floor((left + right) / 2)
@@ -420,25 +420,25 @@ function TruncateText(GuiObject)
         GuiObject.Text = truncated
     end
 
-    GuiObject:GetPropertyChangedSignal("Text"):Connect(Update)
-    GuiObject:GetPropertyChangedSignal("AbsoluteSize"):Connect(Update)
+    GuiObject:GetPropertyChangedSignal('Text'):Connect(Update)
+    GuiObject:GetPropertyChangedSignal('AbsoluteSize'):Connect(Update)
 end
 
 function Blocked(frame)
-	if not frame or not frame:IsA("Frame") then return end
+	if not frame or not frame:IsA('Frame') then return end
 
-	if frame:FindFirstChild("BlockButton") then
+	if frame:FindFirstChild('BlockButton') then
 		return frame.BlockButton
 	end
 
-	local button = Instance.new("TextButton")
-	button.Name = "BlockButton"
+	local button = Instance.new('TextButton')
+	button.Name = 'BlockButton'
 	button.BackgroundTransparency = 1
 	button.Size = UDim2.new(1, 0, 1, 0)
 	button.Position = UDim2.new(0, 0, 0, 0)
 	button.ZIndex = frame.ZIndex - 1 
 	button.AutoButtonColor = false
-	button.Text = ""
+	button.Text = ''
 	button.Selectable = false
 	button.Parent = frame
 	return button
@@ -447,23 +447,23 @@ end
 local connections = {}
 
 function Protect(instance)
-    if not instance or not instance:IsA("Instance") then return end
+    if not instance or not instance:IsA('Instance') then return end
     if connections[instance] then return end
 
     local function checkParent()
         local parent = instance.Parent
-        if parent == LocalPlayer:FindFirstChild("PlayerGui") or (parent == CoreGui and instance ~= GetHUI()) then
+        if parent == LocalPlayer:FindFirstChild('PlayerGui') or (parent == CoreGui and instance ~= GetHUI()) then
             if connections[instance] then
                 connections[instance]:Disconnect()
                 connections[instance] = nil
             end
             instance:Destroy()
-            LocalPlayer:Kick("[Linoria] Attempted unauthorized modification detected!")
+            LocalPlayer:Kick('[Linoria] Attempted unauthorized modification detected!')
         end
     end
 
     checkParent()
-    connections[instance] = instance:GetPropertyChangedSignal("Parent"):Connect(checkParent)
+    connections[instance] = instance:GetPropertyChangedSignal('Parent'):Connect(checkParent)
 end
 
 function Library:MakeDraggableUsingParent(Instance, Parent, Cutoff, IsMainWindow)
@@ -614,10 +614,10 @@ function Library:MakeResizable(Instance, MinSize)
 end;
 
 function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
-    InfoStr = typeof(InfoStr) == "string" and InfoStr or nil
-    DisabledInfoStr = typeof(DisabledInfoStr) == "string" and DisabledInfoStr or nil
+    InfoStr = typeof(InfoStr) == 'string' and InfoStr or nil
+    DisabledInfoStr = typeof(DisabledInfoStr) == 'string' and DisabledInfoStr or nil
 
-    local Tooltip = Library:Create("Frame", {
+    local Tooltip = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor,
         BorderColor3 = Library.OutlineColor,
         ZIndex = 100,
@@ -636,12 +636,12 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     })
 
     Library:AddToRegistry(Tooltip, {
-        BackgroundColor3 = "MainColor",
-        BorderColor3 = "OutlineColor"
+        BackgroundColor3 = 'MainColor',
+        BorderColor3 = 'OutlineColor'
     })
 
     Library:AddToRegistry(Label, {
-        TextColor3 = "FontColor"
+        TextColor3 = 'FontColor'
     })
 
     local TooltipTable = {
@@ -669,10 +669,10 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
         end
 
         if TooltipTable.Disabled then
-            if not DisabledInfoStr or DisabledInfoStr == "" then return end
+            if not DisabledInfoStr or DisabledInfoStr == '' then return end
             UpdateText(DisabledInfoStr)
         else
-            if not InfoStr or InfoStr == "" then return end
+            if not InfoStr or InfoStr == '' then return end
             UpdateText(InfoStr)
         end
 
@@ -695,7 +695,7 @@ function Library:AddToolTip(InfoStr, DisabledInfoStr, HoverInstance)
     end))
 
     if LibraryMainOuterFrame then
-        table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+        table.insert(TooltipTable.Signals, LibraryMainOuterFrame:GetPropertyChangedSignal('Visible'):Connect(function()
             if not LibraryMainOuterFrame.Visible then
                 IsHovering = false
                 Tooltip.Visible = false
@@ -793,7 +793,7 @@ end;
 
 function Library:GetTextBounds(Text, Font, Size, Resolution)
     -- Ignores rich text formatting --
-    local Bounds = TextService:GetTextSize(Text:gsub("<%/?[%w:]+[^>]*>", ""), Size, Font, Resolution or Vector2.new(1920, 1080))
+    local Bounds = TextService:GetTextSize(Text:gsub('<%/?[%w:]+[^>]*>', ''), Size, Font, Resolution or Vector2.new(1920, 1080))
     return Bounds.X, Bounds.Y
 end;
 
@@ -842,7 +842,7 @@ end;
 function Library:UpdateColorsUsingRegistry()
     for Idx, Object in next, Library.Registry do
         for Property, ColorIdx in next, Object.Properties do
-            if typeof(ColorIdx) == "string" then
+            if typeof(ColorIdx) == 'string' then
                 Object.Instance[Property] = Library[ColorIdx];
             elseif typeof(ColorIdx) == 'function' then
                 Object.Instance[Property] = ColorIdx()
@@ -885,10 +885,10 @@ function Library:ResetUI()
         end)
         if not success then
             warn(
-                "[Toggle] ",
-                "Feature: " .. k .. "\n",
-                "This feature encountered an error; please check the reason.\n",
-                "Reason for the error:"
+                '[Toggle] ',
+                'Feature: ' .. k .. '\n',
+                'This feature encountered an error; please check the reason.\n',
+                'Reason for the error:'
             )
             print(err)
         end
@@ -896,18 +896,18 @@ function Library:ResetUI()
 
     for k in pairs(Options) do
         local success, err = pcall(function()
-            if Options[k].Type == "Slider" or Options[k].Type == "Dropdown" or Options[k].Type == "Input" then
+            if Options[k].Type == 'Slider' or Options[k].Type == 'Dropdown' or Options[k].Type == 'Input' then
                 Options[k]:SetValue(Options[k].OriginalValue)
-            elseif Options[k].Type == "ColorPicker" then
+            elseif Options[k].Type == 'ColorPicker' then
                 Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
             end
         end)
         if not success then
             warn(
-                "[" .. Options[k].Type .. "] ",
-                "Feature: " .. k .. "\n",
-                "This feature encountered an error; please check the reason.\n",
-                "Reason for the error: "
+                '[' .. Options[k].Type .. '] ',
+                'Feature: ' .. k .. '\n',
+                'This feature encountered an error; please check the reason.\n',
+                'Reason for the error: '
             )
             print(err)
         end
@@ -925,7 +925,7 @@ Library:GiveSignal(ScreenGui.DescendantRemoving:Connect(function(Instance)
 end))
 
 local function Trim(Text: string)
-    return Text:match("^%s*(.-)%s*$")
+    return Text:match('^%s*(.-)%s*$')
 end
 
 local BaseAddons = {};
@@ -944,7 +944,7 @@ do
         Value = Info.Default;
         Transparency = Info.Transparency or 0;
         Type = 'ColorPicker';
-        Title = typeof(Info.Title) == "string" and Info.Title or 'Color picker';
+        Title = typeof(Info.Title) == 'string' and Info.Title or 'Color picker';
         Callback = Info.Callback or function(Color) end;
         OriginalValue = Info.Default;
         OriginalValueTransparency = Info.Transparency or 0;
@@ -1652,15 +1652,15 @@ end;
         };
 
         local SpecialKeys = {
-            ["MB1"] = Enum.UserInputType.MouseButton1,
-            ["MB2"] = Enum.UserInputType.MouseButton2,
-            ["MB3"] = Enum.UserInputType.MouseButton3
+            ['MB1'] = Enum.UserInputType.MouseButton1,
+            ['MB2'] = Enum.UserInputType.MouseButton2,
+            ['MB3'] = Enum.UserInputType.MouseButton3
         }
 
         local SpecialKeysInput = {
-            [Enum.UserInputType.MouseButton1] = "MB1",
-            [Enum.UserInputType.MouseButton2] = "MB2",
-            [Enum.UserInputType.MouseButton3] = "MB3"
+            [Enum.UserInputType.MouseButton1] = 'MB1',
+            [Enum.UserInputType.MouseButton2] = 'MB2',
+            [Enum.UserInputType.MouseButton3] = 'MB3'
         }
 
         if KeyPicker.SyncToggleState then
@@ -1743,7 +1743,7 @@ end;
                 Size = UDim2.new(0, 216, 1, 0);
                 Position = UDim2.new(1, 6, 0, -1);
                 TextSize = 14;
-                Text = "";
+                Text = '';
                 TextXAlignment = Enum.TextXAlignment.Left;
                 ZIndex = Library.IsMobile and 0 or 111;
                 Parent = KeybindsToggleInner;
@@ -1924,7 +1924,7 @@ end;
                 Active = false;
                 Size = UDim2.new(1, 0, 0, 15);
                 TextSize = 13;
-                Text = "Unbind Key";
+                Text = 'Unbind Key';
                 ZIndex = 16;
                 Parent = UnbindInner;
             });
@@ -1967,7 +1967,7 @@ end;
             for _, Frame in next, Library.KeybindContainer:GetChildren() do
                 if Frame:IsA('Frame') and Frame.Visible then
                     YSize = YSize + 18;
-                    local Label = Frame:FindFirstChild("TextLabel", true)
+                    local Label = Frame:FindFirstChild('TextLabel', true)
                     if not Label then continue end
                     
                     local LabelSize = Label.TextBounds.X + 20
@@ -2016,16 +2016,16 @@ end;
             end);
 
             if Key == nil then
-                DisplayLabel.Text = "None";
-                KeyPicker.Value = "None";
+                DisplayLabel.Text = 'None';
+                KeyPicker.Value = 'None';
 
             elseif IsKeyValid  then
                 DisplayLabel.Text = Key;
                 KeyPicker.Value = Key;
 
             else
-                DisplayLabel.Text = "Unknown";
-                KeyPicker.Value = "Unknown";
+                DisplayLabel.Text = 'Unknown';
+                KeyPicker.Value = 'Unknown';
             end
 
             if Mode and ModeButtons[Mode] then 
@@ -2105,7 +2105,7 @@ end;
                         Key = SpecialKeysInput[Input.UserInputType];
                         
                     elseif Input.UserInputType == Enum.UserInputType.Keyboard then
-                        Key = Input.KeyCode == Enum.KeyCode.Escape and "None" or Input.KeyCode.Name
+                        Key = Input.KeyCode == Enum.KeyCode.Escape and 'None' or Input.KeyCode.Name
                     end
 
                     Break = true;
@@ -2119,7 +2119,7 @@ end;
                 
                 if not visible then
                     for _, option in next, Options do
-                        if option.Type == "KeyPicker" then
+                        if option.Type == 'KeyPicker' then
                             option:SetModePickerVisibility(false)
                         end
                     end
@@ -2130,7 +2130,7 @@ end;
         end)
 
         Library:GiveSignal(InputService.InputBegan:Connect(function(Input)
-            if KeyPicker.Value == "Unknown" then return end
+            if KeyPicker.Value == 'Unknown' then return end
         
             if (not Picking) and (not InputService:GetFocusedTextBox()) then
                 local Key = KeyPicker.Value;
@@ -2170,7 +2170,7 @@ end;
 
         Library:GiveSignal(InputService.InputEnded:Connect(function(Input)
             if (not Picking) then
-                if KeyPicker.Value == "Unknown" then return end
+                if KeyPicker.Value == 'Unknown' then return end
 
                 local Key = KeyPicker.Value;
                 local is_match = false;
@@ -2202,10 +2202,10 @@ end;
         return self;
     end;
 function BaseAddonsFuncs:AddDropdown(Idx, Info)
-        Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == "boolean" then Info.ReturnInstanceInstead else false;
+        Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == 'boolean' then Info.ReturnInstanceInstead else false;
 
         if Info.SpecialType == 'Player' then
-            Info.ExcludeLocalPlayer = if typeof(Info.ExcludeLocalPlayer) == "boolean" then Info.ExcludeLocalPlayer else false;
+            Info.ExcludeLocalPlayer = if typeof(Info.ExcludeLocalPlayer) == 'boolean' then Info.ExcludeLocalPlayer else false;
 
             Info.Values = GetPlayers(Info.ExcludeLocalPlayer, Info.ReturnInstanceInstead);
             Info.AllowNull = true;
@@ -2220,8 +2220,8 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             warn(string.format('AddDropdown (IDX: %s): Missing default value, selected the first index instead. Pass `AllowNull` as true if this was intentional.', tostring(Idx)))
         end
 
-        Info.Searchable = if typeof(Info.Searchable) == "boolean" then Info.Searchable else false;
-        Info.FormatDisplayValue = if typeof(Info.FormatDisplayValue) == "function" then Info.FormatDisplayValue else nil;
+        Info.Searchable = if typeof(Info.Searchable) == 'boolean' then Info.Searchable else false;
+        Info.FormatDisplayValue = if typeof(Info.FormatDisplayValue) == 'function' then Info.FormatDisplayValue else nil;
 
         local Dropdown = {
             Values = Info.Values;
@@ -2230,10 +2230,10 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             Multi = Info.Multi;
             Type = 'Dropdown';
             SpecialType = Info.SpecialType; -- can be either 'Player' or 'Team'
-            Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
-            Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
+            Visible = if typeof(Info.Visible) == 'boolean' then Info.Visible else true;
+            Disabled = if typeof(Info.Disabled) == 'boolean' then Info.Disabled else false;
             OriginalValue = Info.Default;
-            UID = "Dropdown";
+            UID = 'Dropdown';
             Callback = Info.Callback or function(Value) end;
 
             OriginalText = Info.Text; Text = Info.Text;
@@ -2355,12 +2355,12 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             end
         );
 
-        if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then
+        if typeof(Info.Tooltip) == 'string' or typeof(Info.DisabledTooltip) == 'string' then
             Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, DropdownOuter)
             Tooltip.Disabled = Dropdown.Disabled;
         end
 
-        local MAX_DROPDOWN_ITEMS = if typeof(Info.MaxVisibleDropdownItems) == "number" then math.clamp(Info.MaxVisibleDropdownItems, 4, 16) else 8;
+        local MAX_DROPDOWN_ITEMS = if typeof(Info.MaxVisibleDropdownItems) == 'number' then math.clamp(Info.MaxVisibleDropdownItems, 4, 16) else 8;
 
         local ListOuter = Library:Create('Frame', {
             BackgroundColor3 = Color3.new(0, 0, 0);
@@ -2446,9 +2446,9 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         function Dropdown:GenerateDisplayText(SelectedValue)
             local Str = '';
 
-            if Info.Multi and typeof(SelectedValue) == "table" then
+            if Info.Multi and typeof(SelectedValue) == 'table' then
                 for Idx, Value in next, Dropdown.Values do
-                    local StringValue = if typeof(Value) == "Instance" then Value.Name else Value;
+                    local StringValue = if typeof(Value) == 'Instance' then Value.Name else Value;
 
                     if SelectedValue[Value] then
                         Str = Str .. (Info.FormatDisplayValue and tostring(Info.FormatDisplayValue(StringValue)) or StringValue) .. ', ';
@@ -2462,7 +2462,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
                     return '--';
                 end;
 
-                local StringValue = if typeof(SelectedValue) == "Instance" then SelectedValue.Name else tostring(SelectedValue);
+                local StringValue = if typeof(SelectedValue) == 'Instance' then SelectedValue.Name else tostring(SelectedValue);
                 Str = Info.FormatDisplayValue and tostring(Info.FormatDisplayValue(StringValue)) or StringValue;
             end;
 
@@ -2504,7 +2504,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             OpenedXSizeForList = DropdownOuter.AbsoluteSize.X + 0.5
 
             for Idx, Value in next, Values do
-                local StringValue = if typeof(Value) == "Instance" then Value.Name else Value;
+                local StringValue = if typeof(Value) == 'Instance' then Value.Name else Value;
                 if Info.Searchable and not string.lower(StringValue):match(string.lower(DropdownInnerSearch.Text)) then
                     continue;
                 end
@@ -2635,11 +2635,11 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         end;
 
         function Dropdown:AddValues(NewValues)
-            if typeof(NewValues) == "table" then
+            if typeof(NewValues) == 'table' then
                 for _, val in pairs(NewValues) do
                     table.insert(Dropdown.Values, val);
                 end
-            elseif typeof(NewValues) == "string" then
+            elseif typeof(NewValues) == 'string' then
                 table.insert(Dropdown.Values, NewValues);
             else
                 return;
@@ -2657,11 +2657,11 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         end
 
         function Dropdown:AddDisabledValues(DisabledValues)
-            if typeof(DisabledValues) == "table" then
+            if typeof(DisabledValues) == 'table' then
                 for _, val in pairs(DisabledValues) do
                     table.insert(Dropdown.DisabledValues, val)
                 end
-            elseif typeof(DisabledValues) == "string" then
+            elseif typeof(DisabledValues) == 'string' then
                 table.insert(Dropdown.DisabledValues, DisabledValues)
             else
                 return
@@ -2703,7 +2703,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
 
             if Info.Searchable then
                 ItemList.Visible = false;
-                DropdownInnerSearch.Text = "";
+                DropdownInnerSearch.Text = '';
                 DropdownInnerSearch.Visible = true;
             end
             
@@ -2721,7 +2721,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
             end;
 
             if Info.Searchable then
-                DropdownInnerSearch.Text = "";
+                DropdownInnerSearch.Text = '';
                 DropdownInnerSearch.Visible = false;
                 ItemList.Visible = true;
             end
@@ -2790,7 +2790,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
         end);
 
         if Info.Searchable then
-            DropdownInnerSearch:GetPropertyChangedSignal("Text"):Connect(function()
+            DropdownInnerSearch:GetPropertyChangedSignal('Text'):Connect(function()
                 Dropdown:BuildDropdownList()
             end);
         end;
@@ -2816,7 +2816,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
 
         local Defaults = {}
 
-        if typeof(Info.Default) == "string" then
+        if typeof(Info.Default) == 'string' then
             local Idx = table.find(Dropdown.Values, Info.Default)
             if Idx then
                 table.insert(Defaults, Idx)
@@ -2878,24 +2878,24 @@ do
         return Library:Create('Frame', {
             BackgroundTransparency = 1;
             Size = UDim2.new(1, 0, 0, Size);
-            Visible = if typeof(Visible) == "boolean" then Visible else true;
+            Visible = if typeof(Visible) == 'boolean' then Visible else true;
             ZIndex = 1;
             Parent = Container;
         });
     end;
 function BaseGroupboxFuncs:AddLabel(...)
     local Data = {}
-    if select(2, ...) and typeof(select(2, ...)) == "table" then    
+    if select(2, ...) and typeof(select(2, ...)) == 'table' then    
         if select(1, ...) then    
-            assert(typeof(select(1, ...)) == "string", "Expected string for Idx, got " .. typeof(select(1, ...)))    
+            assert(typeof(select(1, ...)) == 'string', 'Expected string for Idx, got ' .. typeof(select(1, ...)))    
         end    
 
         local Params = select(2, ...)    
-        Data.Text = Params.Text or ""    
+        Data.Text = Params.Text or ''    
         Data.DoesWrap = Params.DoesWrap or false    
         Data.Idx = select(1, ...)    
     else    
-        Data.Text = select(1, ...) or ""    
+        Data.Text = select(1, ...) or ''    
         Data.DoesWrap = select(2, ...) or false    
         Data.Idx = select(3, ...) or nil    
     end    
@@ -2954,7 +2954,7 @@ function BaseGroupboxFuncs:AddLabel(...)
 end;
     
     function BaseGroupboxFuncs:AddButton(...)
-    local Button = typeof(select(1, ...)) == "table" and select(1, ...) or {
+    local Button = typeof(select(1, ...)) == 'table' and select(1, ...) or {
         Text = select(1, ...),
         Func = select(2, ...)
     }
@@ -2965,7 +2965,7 @@ end;
     local Blank = nil;
     local Groupbox = self;
     local Container = Groupbox.Container;
-    local IsVisible = if typeof(Button.Visible) == "boolean" then Button.Visible else true;
+    local IsVisible = if typeof(Button.Visible) == 'boolean' then Button.Visible else true;
 
     local function CreateBaseButton(Button)
         local Outer = Library:Create('Frame', {
@@ -3109,7 +3109,7 @@ end;
     InitEvents(Button)
 
     function Button:AddButton(...)
-    local SubButton = typeof(select(1, ...)) == "table" and select(1, ...) or {
+    local SubButton = typeof(select(1, ...)) == 'table' and select(1, ...) or {
         Text = select(1, ...),
         Func = select(2, ...)
     }
@@ -3134,7 +3134,7 @@ end;
     end;
 
     function SubButton:AddToolTip(tooltip, disabledTooltip)
-        if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
+        if typeof(tooltip) == 'string' or typeof(disabledTooltip) == 'string' then
             if SubButton.TooltipTable then
                 SubButton.TooltipTable:Destroy()
             end
@@ -3162,19 +3162,19 @@ end;
     end;
 
     function SubButton:SetText(Text)
-        if typeof(Text) == "string" then
+        if typeof(Text) == 'string' then
             SubButton.Text = Text;
             SubButton.Label.Text = SubButton.Text;
             TruncateText(SubButton.Label);
         end
     end;
 
-    if typeof(SubButton.Tooltip) == "string" or typeof(SubButton.DisabledTooltip) == "string" then
+    if typeof(SubButton.Tooltip) == 'string' or typeof(SubButton.DisabledTooltip) == 'string' then
         SubButton.TooltipTable = SubButton:AddToolTip(SubButton.Tooltip, SubButton.DisabledTooltip, SubButton.Outer)
         SubButton.TooltipTable.Disabled = SubButton.Disabled;
     end
 
-    local RunService = game:GetService("RunService")
+    local RunService = game:GetService('RunService')
     SubButton.Connection = RunService.Heartbeat:Connect(function()
         SubButton:UpdateColors()
     end)
@@ -3199,7 +3199,7 @@ function Button:UpdateColors()
 end;
 
 function Button:AddToolTip(tooltip, disabledTooltip)
-    if typeof(tooltip) == "string" or typeof(disabledTooltip) == "string" then
+    if typeof(tooltip) == 'string' or typeof(disabledTooltip) == 'string' then
         if Button.TooltipTable then
             Button.TooltipTable:Destroy()
         end
@@ -3226,7 +3226,7 @@ function Button:SetDisabled(Disabled)
     Button:UpdateColors();
 end;
 
-if typeof(Button.Tooltip) == "string" or typeof(Button.DisabledTooltip) == "string" then
+if typeof(Button.Tooltip) == 'string' or typeof(Button.DisabledTooltip) == 'string' then
     Button.TooltipTable = Button:AddToolTip(Button.Tooltip, Button.DisabledTooltip, Button.Outer)
     Button.TooltipTable.Disabled = Button.Disabled;
 end
@@ -3241,7 +3241,7 @@ function Button:SetVisible(Visibility)
 end;
 
 function Button:SetText(Text)
-    if typeof(Text) == "string" then
+    if typeof(Text) == 'string' then
         Button.Text = Text;
         Button.Label.Text = Button.Text;
         TruncateText(Button.Label);
@@ -3290,7 +3290,7 @@ end;
         Parent = Container;
     })
 
-    if not LabelText or LabelText == "" then
+    if not LabelText or LabelText == '' then
         local DividerLine = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
             BorderColor3 = Library.OutlineColor;
@@ -3362,16 +3362,16 @@ end
     function BaseGroupboxFuncs:AddInput(Idx, Info)
     assert(Info.Text, string.format('AddInput (IDX: %s): Missing `Text` string.', tostring(Idx)));
 
-    Info.ClearTextOnFocus = if typeof(Info.ClearTextOnFocus) == "boolean" then Info.ClearTextOnFocus else true;
+    Info.ClearTextOnFocus = if typeof(Info.ClearTextOnFocus) == 'boolean' then Info.ClearTextOnFocus else true;
 
     local Textbox = {
         Value = Info.Default or '';
         Numeric = Info.Numeric or false;
         Finished = Info.Finished or false;
-        Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
-        Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
-        AllowEmpty = if typeof(Info.AllowEmpty) == "boolean" then Info.AllowEmpty else true;
-        EmptyReset = if typeof(Info.EmptyReset) == "string" then Info.EmptyReset else "---";
+        Visible = if typeof(Info.Visible) == 'boolean' then Info.Visible else true;
+        Disabled = if typeof(Info.Disabled) == 'boolean' then Info.Disabled else false;
+        AllowEmpty = if typeof(Info.AllowEmpty) == 'boolean' then Info.AllowEmpty else true;
+        EmptyReset = if typeof(Info.EmptyReset) == 'string' then Info.EmptyReset else '---';
         OriginalValue = Info.Default;
         Type = 'Input';
 
@@ -3421,7 +3421,7 @@ end
     );
 
     local TooltipTable;
-    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then
+    if typeof(Info.Tooltip) == 'string' or typeof(Info.DisabledTooltip) == 'string' then
         TooltipTable = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, TextBoxOuter)
         TooltipTable.Disabled = Textbox.Disabled;
     end
@@ -3456,7 +3456,7 @@ end
         PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
         PlaceholderText = '';  -- Vazio, vamos usar um Label customizado
 
-        Text = Info.Default or (if not Textbox.AllowEmpty then Textbox.EmptyReset else "---");
+        Text = Info.Default or (if not Textbox.AllowEmpty then Textbox.EmptyReset else '---');
         TextColor3 = Library.FontColor;
         TextSize = 14;
         TextStrokeTransparency = 0;
@@ -3488,7 +3488,7 @@ end
         TextStrokeTransparency = 0;
         TextXAlignment = Enum.TextXAlignment.Left;
         
-        Visible = (Box.Text == "" or Box.Text == "---");
+        Visible = (Box.Text == '' or Box.Text == '---');
         ZIndex = 6;
         Parent = Container;
     });
@@ -3497,7 +3497,7 @@ end
     
     -- Atualiza visibilidade do placeholder
     local function UpdatePlaceholder()
-        PlaceholderLabel.Visible = (Box.Text == "" or Box.Text == "---");
+        PlaceholderLabel.Visible = (Box.Text == '' or Box.Text == '---');
     end
     
     Box:GetPropertyChangedSignal('Text'):Connect(UpdatePlaceholder);
@@ -3527,7 +3527,7 @@ end
     end;
 
     function Textbox:SetValue(Text)
-        if not Textbox.AllowEmpty and Trim(Text) == "" then
+        if not Textbox.AllowEmpty and Trim(Text) == '' then
             Text = Textbox.EmptyReset;
         end
 
@@ -3662,9 +3662,9 @@ end;
     local Toggle = {  
         Value = Info.Default or false;  
         Type = 'Toggle';  
-        Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;  
-        Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;  
-        Risky = if typeof(Info.Risky) == "boolean" then Info.Risky else false;  
+        Visible = if typeof(Info.Visible) == 'boolean' then Info.Visible else true;  
+        Disabled = if typeof(Info.Disabled) == 'boolean' then Info.Disabled else false;  
+        Risky = if typeof(Info.Risky) == 'boolean' then Info.Risky else false;  
         OriginalText = Info.Text; Text = Info.Text;  
         OriginalValue = Info.Default;
 
@@ -3733,7 +3733,7 @@ end;
         Parent = ToggleLabel;  
     });  
 
-    local TextService = game:GetService("TextService")
+    local TextService = game:GetService('TextService')
     local textBounds = TextService:GetTextSize(ToggleLabel.Text, ToggleLabel.TextSize, ToggleLabel.Font, Vector2.new(math.huge, math.huge)).X
     local gap = 6
 
@@ -3767,7 +3767,7 @@ end;
         Toggle:Display();  
     end;  
 
-    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
+    if typeof(Info.Tooltip) == 'string' or typeof(Info.DisabledTooltip) == 'string' then  
         Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, ToggleRegion)
         Tooltip.Disabled = Toggle.Disabled
     end
@@ -3852,7 +3852,7 @@ end;
     end;  
 
     function Toggle:SetText(Text)  
-        if typeof(Text) == "string" then  
+        if typeof(Text) == 'string' then  
             Toggle.Text = Text;  
             ToggleLabel.Text = Toggle.Text;  
         end  
@@ -3952,14 +3952,14 @@ end;
         Rounding = Info.Rounding;
         MaxSize = 232;
         Type = 'Slider';
-        Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;
-        Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;
-        OriginalText = Info.Text or ""; Text = Info.Text or "";
+        Visible = if typeof(Info.Visible) == 'boolean' then Info.Visible else true;
+        Disabled = if typeof(Info.Disabled) == 'boolean' then Info.Disabled else false;
+        OriginalText = Info.Text or ''; Text = Info.Text or '';
         OriginalValue = math.clamp(Info.Default, Info.Min, Info.Max);
      
-        Prefix = typeof(Info.Prefix) == "string" and Info.Prefix or "";    
-        Suffix = typeof(Info.Suffix) == "string" and Info.Suffix or "";    
-        ValueText = typeof(Info.ValueText) == "table" and Info.ValueText or {}; 
+        Prefix = typeof(Info.Prefix) == 'string' and Info.Prefix or '';    
+        Suffix = typeof(Info.Suffix) == 'string' and Info.Suffix or '';    
+        ValueText = typeof(Info.ValueText) == 'table' and Info.ValueText or {}; 
 
         Callback = Info.Callback or function(Value) end;    
     };    
@@ -4061,7 +4061,7 @@ end;
         end    
     );    
 
-    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then    
+    if typeof(Info.Tooltip) == 'string' or typeof(Info.DisabledTooltip) == 'string' then    
         Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, SliderOuter)    
         Tooltip.Disabled = Slider.Disabled;    
     end    
@@ -4099,30 +4099,30 @@ end;
         end
 
         if not foundText then
-            FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and "0" or tostring(Slider.Value)
+            FormattedValue = (Slider.Value == 0 or Slider.Value == -0) and '0' or tostring(Slider.Value)
         end
 
         if Info.Compact then    
-            DisplayLabel.Text = string.format("%s%s%s%s%s",
+            DisplayLabel.Text = string.format('%s%s%s%s%s',
                 Slider.Text,
-                Slider.Text ~= "" and ": " or "",
+                Slider.Text ~= '' and ': ' or '',
                 Slider.Prefix,
                 FormattedValue,
-                (IsFixedText and "" or Slider.Suffix)
+                (IsFixedText and '' or Slider.Suffix)
             )
 
         elseif Info.HideMax then    
-            DisplayLabel.Text = string.format("%s%s%s",
+            DisplayLabel.Text = string.format('%s%s%s',
                 Slider.Prefix,
                 FormattedValue,
-                (IsFixedText and "" or Slider.Suffix)
+                (IsFixedText and '' or Slider.Suffix)
             )
 
         else
             if IsFixedText then
-                DisplayLabel.Text = string.format("%s%s", Slider.Prefix, FormattedValue)
+                DisplayLabel.Text = string.format('%s%s', Slider.Prefix, FormattedValue)
             else
-                DisplayLabel.Text = string.format("%s%s%s/%s%s%s",     
+                DisplayLabel.Text = string.format('%s%s%s/%s%s%s',     
                     Slider.Prefix, FormattedValue, Slider.Suffix,    
                     Slider.Prefix, tostring(Slider.Max), Slider.Suffix
                 )
@@ -4219,7 +4219,7 @@ end;
     end;    
 
     function Slider:SetText(Text)    
-        if typeof(Text) == "string" then    
+        if typeof(Text) == 'string' then    
             Slider.Text = Text;    
 
             if SliderText then SliderText.Text = Slider.Text end;    
@@ -4228,14 +4228,14 @@ end;
     end;    
 
     function Slider:SetPrefix(Prefix)    
-        if typeof(Prefix) == "string" then    
+        if typeof(Prefix) == 'string' then    
             Slider.Prefix = Prefix;    
             Slider:Display();    
         end    
     end;    
 
     function Slider:SetSuffix(Suffix)    
-        if typeof(Suffix) == "string" then    
+        if typeof(Suffix) == 'string' then    
             Slider.Suffix = Suffix;    
             Slider:Display();    
         end    
@@ -4262,8 +4262,8 @@ end;
             end    
 
             for _, Side in pairs(Sides) do    
-                if typeof(Side) == "Instance" then    
-                    if Side:IsA("ScrollingFrame") then    
+                if typeof(Side) == 'Instance' then    
+                    if Side:IsA('ScrollingFrame') then    
                         Side.ScrollingEnabled = false;    
                     end    
                 end;    
@@ -4298,8 +4298,8 @@ end;
             end;    
                 
             for _, Side in pairs(Sides) do    
-                if typeof(Side) == "Instance" then    
-                    if Side:IsA("ScrollingFrame") then    
+                if typeof(Side) == 'Instance' then    
+                    if Side:IsA('ScrollingFrame') then    
                         Side.ScrollingEnabled = true;    
                     end    
                 end;    
@@ -4319,11 +4319,11 @@ end;
     return Slider;    
 end;
     function BaseGroupboxFuncs:AddDropdown(Idx, Info)
-    Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == "boolean" then Info.ReturnInstanceInstead else false;
-    Info.DictMulti = if typeof(Info.DictMulti) == "boolean" then Info.DictMulti else false; -- New parameter for dictionary-based multi-select
+    Info.ReturnInstanceInstead = if typeof(Info.ReturnInstanceInstead) == 'boolean' then Info.ReturnInstanceInstead else false;
+    Info.DictMulti = if typeof(Info.DictMulti) == 'boolean' then Info.DictMulti else false; -- New parameter for dictionary-based multi-select
 
     if Info.SpecialType == 'Player' then  
-        Info.ExcludeLocalPlayer = if typeof(Info.ExcludeLocalPlayer) == "boolean" then Info.ExcludeLocalPlayer else false;  
+        Info.ExcludeLocalPlayer = if typeof(Info.ExcludeLocalPlayer) == 'boolean' then Info.ExcludeLocalPlayer else false;  
         Info.Values = GetPlayers(Info.ExcludeLocalPlayer, Info.ReturnInstanceInstead);  
         Info.AllowNull = true;  
     elseif Info.SpecialType == 'Team' then  
@@ -4337,8 +4337,8 @@ end;
         warn(string.format('AddDropdown (IDX: %s): Missing default value, selected the first index instead. Pass `AllowNull` as true if this was intentional.', tostring(Idx)))  
     end  
       
-    Info.Searchable = if typeof(Info.Searchable) == "boolean" then Info.Searchable else false;  
-    Info.FormatDisplayValue = if typeof(Info.FormatDisplayValue) == "function" then Info.FormatDisplayValue else nil;  
+    Info.Searchable = if typeof(Info.Searchable) == 'boolean' then Info.Searchable else false;  
+    Info.FormatDisplayValue = if typeof(Info.FormatDisplayValue) == 'function' then Info.FormatDisplayValue else nil;  
 
     if (not Info.Text) then  
         Info.Compact = true;  
@@ -4352,8 +4352,8 @@ end;
         DictMulti = Info.DictMulti; -- Store DictMulti flag
         Type = 'Dropdown';  
         SpecialType = Info.SpecialType;  
-        Visible = if typeof(Info.Visible) == "boolean" then Info.Visible else true;  
-        Disabled = if typeof(Info.Disabled) == "boolean" then Info.Disabled else false;  
+        Visible = if typeof(Info.Visible) == 'boolean' then Info.Visible else true;  
+        Disabled = if typeof(Info.Disabled) == 'boolean' then Info.Disabled else false;  
         OriginalValue = Info.Default;
         Callback = Info.Callback or function(Value) end;  
 
@@ -4487,12 +4487,12 @@ end;
         end  
     );  
 
-    if typeof(Info.Tooltip) == "string" or typeof(Info.DisabledTooltip) == "string" then  
+    if typeof(Info.Tooltip) == 'string' or typeof(Info.DisabledTooltip) == 'string' then  
         Tooltip = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, DropdownOuter)  
         Tooltip.Disabled = Dropdown.Disabled;  
     end  
 
-    local MAX_DROPDOWN_ITEMS = if typeof(Info.MaxVisibleDropdownItems) == "number" then math.clamp(Info.MaxVisibleDropdownItems, 4, 16) else 8;  
+    local MAX_DROPDOWN_ITEMS = if typeof(Info.MaxVisibleDropdownItems) == 'number' then math.clamp(Info.MaxVisibleDropdownItems, 4, 16) else 8;  
 
     local ListOuter = Library:Create('Frame', {  
         BackgroundColor3 = Color3.new(0, 0, 0);  
@@ -4553,7 +4553,7 @@ end;
         end;  
         ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledTextColor or Library.FontColor; 
         DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledTextColor or Library.FontColor;
-        DropdownInner.BackgroundColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.MainColor;
+        DropdownInner.BackgroundColor3 = Dropdown.Disabled and Library.MainColor or Library.MainColor;
         DropdownInner.BorderColor3 = Dropdown.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
         if DropdownInnerSearch then
             DropdownInnerSearch.TextColor3 = Dropdown.Disabled and Library.DisabledTextColor or Library.FontColor;
@@ -4566,7 +4566,7 @@ end;
 
         if Info.Multi or Info.DictMulti then  
             for Idx, Value in next, Values do  
-                local StringValue = if typeof(Value) == "Instance" then Value.Name else Value;  
+                local StringValue = if typeof(Value) == 'Instance' then Value.Name else Value;  
                 if (Info.Multi and Dropdown.Value[Value]) or (Info.DictMulti and Dropdown.Value[StringValue]) then  
                     Str = Str .. (Info.FormatDisplayValue and tostring(Info.FormatDisplayValue(StringValue)) or StringValue) .. ', ';  
                 end;  
@@ -4578,7 +4578,7 @@ end;
                 ItemList.Text = '--';  
                 return;  
             end;  
-            local StringValue = if typeof(Dropdown.Value) == "Instance" then Dropdown.Value.Name else Dropdown.Value;  
+            local StringValue = if typeof(Dropdown.Value) == 'Instance' then Dropdown.Value.Name else Dropdown.Value;  
             ItemList.Text = Info.FormatDisplayValue and tostring(Info.FormatDisplayValue(StringValue)) or StringValue;  
         end;  
     end;  
@@ -4601,7 +4601,7 @@ end;
         if Info.Multi or Info.DictMulti then  
             local selected = {}  
             for _, Value in ipairs(Dropdown.Values) do  
-                local StringValue = if typeof(Value) == "Instance" then Value.Name else tostring(Value)  
+                local StringValue = if typeof(Value) == 'Instance' then Value.Name else tostring(Value)  
                 local key = Info.DictMulti and StringValue or Value  
                 if Dropdown.Value[key] then  
                     table.insert(selected, StringValue)  
@@ -4610,7 +4610,7 @@ end;
             return selected  
         else  
             if Dropdown.Value then  
-                return if typeof(Dropdown.Value) == "Instance" then Dropdown.Value.Name else Dropdown.Value  
+                return if typeof(Dropdown.Value) == 'Instance' then Dropdown.Value.Name else Dropdown.Value  
             else  
                 return nil  
             end  
@@ -4630,7 +4630,7 @@ end;
 
         local Count = 0;  
         for Idx, Value in next, Values do  
-            local StringValue = if typeof(Value) == "Instance" then Value.Name else Value;  
+            local StringValue = if typeof(Value) == 'Instance' then Value.Name else Value;  
             if Info.Searchable and not string.lower(StringValue):match(string.lower(DropdownInnerSearch.Text)) then  
                 continue;  
             end  
@@ -4748,11 +4748,11 @@ end;
     end;  
 
     function Dropdown:AddValues(NewValues)  
-        if typeof(NewValues) == "table" then  
+        if typeof(NewValues) == 'table' then  
             for _, val in pairs(NewValues) do  
                 table.insert(Dropdown.Values, val);  
             end  
-        elseif typeof(NewValues) == "string" then  
+        elseif typeof(NewValues) == 'string' then  
             table.insert(Dropdown.Values, NewValues);  
         end  
         Dropdown:BuildDropdownList();  
@@ -4766,11 +4766,11 @@ end;
     end  
 
     function Dropdown:AddDisabledValues(DisabledValues)  
-        if typeof(DisabledValues) == "table" then  
+        if typeof(DisabledValues) == 'table' then  
             for _, val in pairs(DisabledValues) do  
                 table.insert(Dropdown.DisabledValues, val)  
             end  
-        elseif typeof(DisabledValues) == "string" then  
+        elseif typeof(DisabledValues) == 'string' then  
             table.insert(Dropdown.DisabledValues, DisabledValues)  
         end  
         Dropdown:BuildDropdownList()  
@@ -4805,7 +4805,7 @@ end;
         end;  
         if Info.Searchable then  
             ItemList.Visible = false;  
-            DropdownInnerSearch.Text = "";  
+            DropdownInnerSearch.Text = '';  
             DropdownInnerSearch.Visible = true;  
         end  
         ListOuter.Visible = true;  
@@ -4820,7 +4820,7 @@ end;
             Library.CanDrag = true;  
         end;  
         if Info.Searchable then  
-            DropdownInnerSearch.Text = "";  
+            DropdownInnerSearch.Text = '';  
             DropdownInnerSearch.Visible = false;  
             ItemList.Visible = true;  
         end  
@@ -4841,7 +4841,7 @@ end;
     function Dropdown:SetValue(Val)  
         if Info.Multi or Info.DictMulti then  
             local nTable = {};  
-            if typeof(Val) == "table" then  
+            if typeof(Val) == 'table' then  
                 for Value, Bool in next, Val do  
                     if table.find(Dropdown.Values, Value) then  
                         nTable[Value] = Bool ; -- Ensure boolean value
@@ -4865,7 +4865,7 @@ end;
     end;  
 
     function Dropdown:SetText(Text)  
-        if typeof(Text) == "string" then  
+        if typeof(Text) == 'string' then  
             if Info.Compact then Info.Compact = false end;  
             Dropdown.Text = Text;  
             if DropdownLabel then DropdownLabel.Text = Dropdown.Text end;  
@@ -4887,7 +4887,7 @@ end;
     end);  
 
     if Info.Searchable then  
-        DropdownInnerSearch:GetPropertyChangedSignal("Text"):Connect(function()  
+        DropdownInnerSearch:GetPropertyChangedSignal('Text'):Connect(function()  
             Dropdown:BuildDropdownList()  
         end);  
     end;  
@@ -4909,7 +4909,7 @@ end;
     Dropdown:Display();  
 
     local Defaults = {}  
-    if typeof(Info.Default) == "string" then  
+    if typeof(Info.Default) == 'string' then  
         local Idx = table.find(Dropdown.Values, Info.Default)  
         if Idx then  
             table.insert(Defaults, Idx)  
@@ -4970,26 +4970,26 @@ end;
 
         local Viewport = {
             Object = if Info.Clone then Info.Object:Clone() else Info.Object,
-            Camera = if not Info.Camera then Instance.new("Camera") else Info.Camera,
+            Camera = if not Info.Camera then Instance.new('Camera') else Info.Camera,
             Interactive = Info.Interactive,
             AutoFocus = Info.AutoFocus,
-            Height = if typeof(Info.Height) == "number" and Info.Height > 0 then Info.Height else 200,
+            Height = if typeof(Info.Height) == 'number' and Info.Height > 0 then Info.Height else 200,
             Visible = Info.Visible,
-            Type = "Viewport",
+            Type = 'Viewport',
         }
 
         assert(
-            typeof(Viewport.Object) == "Instance" and (Viewport.Object:IsA("BasePart") or Viewport.Object:IsA("Model")),
-            "Instance must be a BasePart or Model."
+            typeof(Viewport.Object) == 'Instance' and (Viewport.Object:IsA('BasePart') or Viewport.Object:IsA('Model')),
+            'Instance must be a BasePart or Model.'
         )
 
         assert(
-            typeof(Viewport.Camera) == "Instance" and Viewport.Camera:IsA("Camera"),
-            "Camera must be a valid Camera instance."
+            typeof(Viewport.Camera) == 'Instance' and Viewport.Camera:IsA('Camera'),
+            'Camera must be a valid Camera instance.'
         )
 
         local function GetModelSize(model)
-            if model:IsA("BasePart") then
+            if model:IsA('BasePart') then
                 return model.Size
             end
 
@@ -5010,14 +5010,14 @@ end;
         local Groupbox = self
         local Container = Groupbox.Container
 
-        local Holder = Library:Create("Frame", {
+        local Holder = Library:Create('Frame', {
             BackgroundTransparency = 1,
             Size = UDim2.new(1, -4, 0, Info.Height),
             Visible = Viewport.Visible,
             Parent = Container,
         })
 
-        local Box = Library:Create("Frame", {
+        local Box = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor,
             BorderColor3 = Library.OutlineColor,
             BorderSizePixel = 1,
@@ -5032,7 +5032,7 @@ end;
             BorderColor3 = 'OutlineColor';
         });
 
-        Library:Create("UIPadding", {
+        Library:Create('UIPadding', {
             PaddingBottom = UDim.new(0, 3),
             PaddingLeft = UDim.new(0, 8),
             PaddingRight = UDim.new(0, 8),
@@ -5040,7 +5040,7 @@ end;
             Parent = Box,
         });
 
-        local ViewportFrame = Library:Create("ViewportFrame", {
+        local ViewportFrame = Library:Create('ViewportFrame', {
             BackgroundTransparency = 1,
             Size = UDim2.fromScale(1, 1),
             Parent = Box,
@@ -5055,8 +5055,8 @@ end;
             end
             
             for _, Side in pairs(Library.Window.Tabs[Library.ActiveTab]:GetSides()) do
-                if typeof(Side) == "Instance" then
-                    if Side:IsA("ScrollingFrame") then
+                if typeof(Side) == 'Instance' then
+                    if Side:IsA('ScrollingFrame') then
                         Side.ScrollingEnabled = false;
                     end
                 end;
@@ -5069,8 +5069,8 @@ end;
             end
 
             for _, Side in pairs(Library.Window.Tabs[Library.ActiveTab]:GetSides()) do
-                if typeof(Side) == "Instance" then
-                    if Side:IsA("ScrollingFrame") then
+                if typeof(Side) == 'Instance' then
+                    if Side:IsA('ScrollingFrame') then
                         Side.ScrollingEnabled = true;
                     end
                 end;
@@ -5166,7 +5166,7 @@ end;
         end
 
         function Viewport:SetObject(Object: Instance, Clone: boolean?)
-            assert(Object, "Object cannot be nil.")
+            assert(Object, 'Object cannot be nil.')
 
             if Clone then
                 Object = Object:Clone()
@@ -5183,7 +5183,7 @@ end;
         end
 
         function Viewport:SetHeight(Height: number)
-            assert(Height > 0, "Height must be greater than 0.")
+            assert(Height > 0, 'Height must be greater than 0.')
             Viewport.Height = Height
 
             Holder.Size = UDim2.new(1, -4, 0, Viewport.Height)
@@ -5200,8 +5200,8 @@ end;
 
         function Viewport:SetCamera(Camera: Instance)
             assert(
-                Camera and typeof(Camera) == "Instance" and Camera:IsA("Camera"),
-                "Camera must be a valid Camera instance."
+                Camera and typeof(Camera) == 'Instance' and Camera:IsA('Camera'),
+                'Camera must be a valid Camera instance.'
             )
 
             Viewport.Camera = Camera
@@ -5243,26 +5243,26 @@ end;
             Color = Info.Color,
             RectOffset = Info.RectOffset,
             RectSize = Info.RectSize,
-            Height = if typeof(Info.Height) == "number" and Info.Height > 0 then Info.Height else 200,
+            Height = if typeof(Info.Height) == 'number' and Info.Height > 0 then Info.Height else 200,
             ScaleType = Info.ScaleType,
             Transparency = Info.Transparency,
 
             Visible = Info.Visible,
-            Type = "Image",
+            Type = 'Image',
         }
 
         local Blank = nil;
         local Groupbox = self;
         local Container = Groupbox.Container;
 
-        local Holder = Library:Create("Frame", {
+        local Holder = Library:Create('Frame', {
             BackgroundTransparency = 1,
             Size = UDim2.new(1, -4, 0, Info.Height),
             Visible = Image.Visible,
             Parent = Container,
         })
 
-        local Box = Library:Create("Frame", {
+        local Box = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor,
             BorderColor3 = Library.OutlineColor,
             BorderSizePixel = 1,
@@ -5277,7 +5277,7 @@ end;
             BorderColor3 = 'OutlineColor';
         });
 
-        Library:Create("UIPadding", {
+        Library:Create('UIPadding', {
             PaddingBottom = UDim.new(0, 3),
             PaddingLeft = UDim.new(0, 8),
             PaddingRight = UDim.new(0, 8),
@@ -5300,23 +5300,23 @@ end;
 
         if
             not (
-                ImageProperties.Image:match("rbxasset")
-                or ImageProperties.Image:match("roblox%.com/asset/%?id=")
-                or ImageProperties.Image:match("rbxthumb://type=AvatarHeadShot")
+                ImageProperties.Image:match('rbxasset')
+                or ImageProperties.Image:match('roblox%.com/asset/%?id=')
+                or ImageProperties.Image:match('rbxthumb://type=AvatarHeadShot')
             )
         then
             local Icon = Library:GetIcon(ImageProperties.Image)
-            assert(Icon, "Image must be a valid Roblox asset or a valid URL or a valid lucide icon.")
+            assert(Icon, 'Image must be a valid Roblox asset or a valid URL or a valid lucide icon.')
 
             ImageProperties.Image = Icon.Url
             ImageProperties.ImageRectOffset = Icon.ImageRectOffset
             ImageProperties.ImageRectSize = Icon.ImageRectSize
         end
 
-        local ImageLabel = Library:Create("ImageLabel", ImageProperties)
+        local ImageLabel = Library:Create('ImageLabel', ImageProperties)
 
         function Image:SetHeight(Height: number)
-            assert(Height > 0, "Height must be greater than 0.")
+            assert(Height > 0, 'Height must be greater than 0.')
             Image.Height = Height;
 
             Holder.Size = UDim2.new(1, -4, 0, Image.Height);
@@ -5324,17 +5324,17 @@ end;
         end
 
         function Image:SetImage(NewImage: string)
-            assert(typeof(NewImage) == "string", "Image must be a string.")
+            assert(typeof(NewImage) == 'string', 'Image must be a string.')
 
             if
                 not (
-                    NewImage:match("rbxasset")
-                    or NewImage:match("roblox%.com/asset/%?id=")
-                    or NewImage:match("rbxthumb://type=AvatarHeadShot")
+                    NewImage:match('rbxasset')
+                    or NewImage:match('roblox%.com/asset/%?id=')
+                    or NewImage:match('rbxthumb://type=AvatarHeadShot')
                 )
             then
                 local Icon = Library:GetIcon(NewImage)
-                assert(Icon, "Image must be a valid Roblox asset or a valid URL or a valid lucide icon.")
+                assert(Icon, 'Image must be a valid Roblox asset or a valid URL or a valid lucide icon.')
 
                 NewImage = Icon.Url
                 Image.RectOffset = Icon.ImageRectOffset
@@ -5346,21 +5346,21 @@ end;
         end
 
         function Image:SetColor(Color: Color3)
-            assert(typeof(Color) == "Color3", "Color must be a Color3 value.")
+            assert(typeof(Color) == 'Color3', 'Color must be a Color3 value.')
 
             ImageLabel.ImageColor3 = Color
             Image.Color = Color
         end
 
         function Image:SetRectOffset(RectOffset: Vector2)
-            assert(typeof(RectOffset) == "Vector2", "RectOffset must be a Vector2 value.")
+            assert(typeof(RectOffset) == 'Vector2', 'RectOffset must be a Vector2 value.')
 
             ImageLabel.ImageRectOffset = RectOffset
             Image.RectOffset = RectOffset
         end
 
         function Image:SetRectSize(RectSize: Vector2)
-            assert(typeof(RectSize) == "Vector2", "RectSize must be a Vector2 value.")
+            assert(typeof(RectSize) == 'Vector2', 'RectSize must be a Vector2 value.')
 
             ImageLabel.ImageRectSize = RectSize
             Image.RectSize = RectSize
@@ -5368,8 +5368,8 @@ end;
 
         function Image:SetScaleType(ScaleType: Enum.ScaleType)
             assert(
-                typeof(ScaleType) == "EnumItem" and ScaleType:IsA("ScaleType"),
-                "ScaleType must be a valid Enum.ScaleType."
+                typeof(ScaleType) == 'EnumItem' and ScaleType:IsA('ScaleType'),
+                'ScaleType must be a valid Enum.ScaleType.'
             )
 
             ImageLabel.ScaleType = ScaleType
@@ -5377,8 +5377,8 @@ end;
         end
 
         function Image:SetTransparency(Transparency: number)
-            assert(typeof(Transparency) == "number", "Transparency must be a number between 0 and 1.")
-            assert(Transparency >= 0 and Transparency <= 1, "Transparency must be between 0 and 1.")
+            assert(typeof(Transparency) == 'number', 'Transparency must be a number between 0 and 1.')
+            assert(Transparency >= 0 and Transparency <= 1, 'Transparency must be between 0 and 1.')
 
             ImageLabel.ImageTransparency = Transparency
             Image.Transparency = Transparency
@@ -5411,26 +5411,26 @@ end;
     function BaseGroupboxFuncs:AddVideo(Idx, Info)
     local Video = {
         Video = Info.Video,
-        Looped = if typeof(Info.Looped) == "boolean" then Info.Looped else false,
-        Playing = if typeof(Info.Playing) == "boolean" then Info.Playing else true,
-        Volume = if typeof(Info.Volume) == "number" and Info.Volume >= 0 and Info.Volume <= 1 then Info.Volume else 1,
-        Height = if typeof(Info.Height) == "number" and Info.Height > 0 then Info.Height else 200,
+        Looped = if typeof(Info.Looped) == 'boolean' then Info.Looped else false,
+        Playing = if typeof(Info.Playing) == 'boolean' then Info.Playing else true,
+        Volume = if typeof(Info.Volume) == 'number' and Info.Volume >= 0 and Info.Volume <= 1 then Info.Volume else 1,
+        Height = if typeof(Info.Height) == 'number' and Info.Height > 0 then Info.Height else 200,
         Visible = Info.Visible,
-        Type = "Video",
+        Type = 'Video',
     }
 
     local Blank = nil;
     local Groupbox = self;
     local Container = Groupbox.Container;
 
-    local Holder = Library:Create("Frame", {
+    local Holder = Library:Create('Frame', {
         BackgroundTransparency = 1,
         Size = UDim2.new(1, -4, 0, Info.Height),
         Visible = Video.Visible,
         Parent = Container,
     })
 
-    local Box = Library:Create("Frame", {
+    local Box = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor,
         BorderColor3 = Library.OutlineColor,
         BorderSizePixel = 1,
@@ -5445,7 +5445,7 @@ end;
         BorderColor3 = 'OutlineColor';
     });
 
-    Library:Create("UIPadding", {
+    Library:Create('UIPadding', {
         PaddingBottom = UDim.new(0, 3),
         PaddingLeft = UDim.new(0, 8),
         PaddingRight = UDim.new(0, 8),
@@ -5463,11 +5463,11 @@ end;
         Parent = Box,
     }
 
-    local VideoFrame = Library:Create("VideoFrame", VideoProperties)
+    local VideoFrame = Library:Create('VideoFrame', VideoProperties)
     VideoFrame.Playing = Video.Playing
 
     function Video:SetHeight(Height: number)
-        assert(Height > 0, "Height must be greater than 0.")
+        assert(Height > 0, 'Height must be greater than 0.')
         Video.Height = Height;
 
         Holder.Size = UDim2.new(1, -4, 0, Video.Height);
@@ -5475,29 +5475,29 @@ end;
     end
 
     function Video:SetVideo(NewVideo: string)
-        assert(typeof(NewVideo) == "string", "Video must be a string.")
+        assert(typeof(NewVideo) == 'string', 'Video must be a string.')
 
         VideoFrame.Video = NewVideo
         Video.Video = NewVideo
     end
 
     function Video:SetLooped(Looped: boolean)
-        assert(typeof(Looped) == "boolean", "Looped must be a boolean value.")
+        assert(typeof(Looped) == 'boolean', 'Looped must be a boolean value.')
 
         VideoFrame.Looped = Looped
         Video.Looped = Looped
     end
 
     function Video:SetPlaying(Playing: boolean)
-        assert(typeof(Playing) == "boolean", "Playing must be a boolean value.")
+        assert(typeof(Playing) == 'boolean', 'Playing must be a boolean value.')
 
         VideoFrame.Playing = Playing
         Video.Playing = Playing
     end
 
     function Video:SetVolume(Volume: number)
-        assert(typeof(Volume) == "number", "Volume must be a number between 0 and 1.")
-        assert(Volume >= 0 and Volume <= 1, "Volume must be between 0 and 1.")
+        assert(typeof(Volume) == 'number', 'Volume must be a number between 0 and 1.')
+        assert(Volume >= 0 and Volume <= 1, 'Volume must be between 0 and 1.')
 
         VideoFrame.Volume = Volume
         Video.Volume = Volume
@@ -5797,13 +5797,13 @@ function Library:Notify(...)
     local Data = { Steps = 1 }
     local Info = select(1, ...)
 
-    if typeof(Info) == "table" then
-        Data.Title = Info.Title and tostring(Info.Title) or ""
+    if typeof(Info) == 'table' then
+        Data.Title = Info.Title and tostring(Info.Title) or ''
         Data.Description = tostring(Info.Description)
         Data.Time = Info.Time or 5
         Data.SoundId = Info.SoundId
     else
-        Data.Title = ""
+        Data.Title = ''
         Data.Description = tostring(Info)
         Data.Time = select(2, ...) or 5
         Data.SoundId = select(3, ...)
@@ -5818,7 +5818,7 @@ function Library:Notify(...)
         Size = UDim2.new(0, 0, 0, YSize);
         ClipsDescendants = true;
         ZIndex = 100;
-        Parent = if Side == "left" then Library.LeftNotificationArea else Library.RightNotificationArea;
+        Parent = if Side == 'left' then Library.LeftNotificationArea else Library.RightNotificationArea;
     });
 
     local NotifyInner = Library:Create('Frame', {
@@ -5863,11 +5863,11 @@ function Library:Notify(...)
     });
 
     local NotifyLabel = Library:CreateLabel({
-        AnchorPoint = if Side == "left" then Vector2.new(0, 0) else Vector2.new(1, 0);
-        Position = if Side == "left" then UDim2.new(0, 4, 0, 0) else UDim2.new(1, -4, 0, 0);
+        AnchorPoint = if Side == 'left' then Vector2.new(0, 0) else Vector2.new(1, 0);
+        Position = if Side == 'left' then UDim2.new(0, 4, 0, 0) else UDim2.new(1, -4, 0, 0);
         Size = UDim2.new(1, -4, 1, 0);
-        Text = (if Data.Title == "" then "" else "[" .. Data.Title .. "] ") .. tostring(Data.Description);
-        TextXAlignment = if Side == "left" then Enum.TextXAlignment.Left else Enum.TextXAlignment.Right;
+        Text = (if Data.Title == '' then '' else '[' .. Data.Title .. '] ') .. tostring(Data.Description);
+        TextXAlignment = if Side == 'left' then Enum.TextXAlignment.Left else Enum.TextXAlignment.Right;
         TextSize = 14;
         ZIndex = 103;
         RichText = true;
@@ -5875,8 +5875,8 @@ function Library:Notify(...)
     });
 
     local SideColor = Library:Create('Frame', {
-        AnchorPoint = if Side == "left" then Vector2.new(0, 0) else Vector2.new(1, 0);
-        Position = if Side == "left" then UDim2.new(0, -1, 0, -1) else UDim2.new(1, -1, 0, -1);
+        AnchorPoint = if Side == 'left' then Vector2.new(0, 0) else Vector2.new(1, 0);
+        Position = if Side == 'left' then UDim2.new(0, -1, 0, -1) else UDim2.new(1, -1, 0, -1);
         BackgroundColor3 = Library.AccentColor;
         BorderSizePixel = 0;
         Size = UDim2.new(0, 3, 1, 2);
@@ -5892,10 +5892,10 @@ function Library:Notify(...)
     end
 
     function Data:ChangeTitle(NewText)
-        NewText = if NewText == nil then "" else tostring(NewText);
+        NewText = if NewText == nil then '' else tostring(NewText);
 
         Data.Title = NewText;
-        NotifyLabel.Text = (if Data.Title == "" then "" else "[" .. Data.Title .. "] ") .. tostring(Data.Description);
+        NotifyLabel.Text = (if Data.Title == '' then '' else '[' .. Data.Title .. '] ') .. tostring(Data.Description);
 
         Data:Resize();
     end
@@ -5905,7 +5905,7 @@ function Library:Notify(...)
         NewText = tostring(NewText);
 
         Data.Description = NewText;
-        NotifyLabel.Text = (if Data.Title == "" then "" else "[" .. Data.Title .. "] ") .. tostring(Data.Description);
+        NotifyLabel.Text = (if Data.Title == '' then '' else '[' .. Data.Title .. '] ') .. tostring(Data.Description);
 
         Data:Resize();
     end
@@ -5922,17 +5922,17 @@ function Library:Notify(...)
 
     if Data.SoundId then
         Library:Create('Sound', {
-            SoundId = "rbxassetid://" .. tostring(Data.SoundId):gsub("rbxassetid://", "");
+            SoundId = 'rbxassetid://' .. tostring(Data.SoundId):gsub('rbxassetid://', '');
             Volume = 3;
             PlayOnRemove = true;
-            Parent = game:GetService("SoundService");
+            Parent = game:GetService('SoundService');
         }):Destroy();
     end
 
     pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize * DPIScale + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true);
 
     task.spawn(function()
-        if typeof(Data.Time) == "Instance" then
+        if typeof(Data.Time) == 'Instance' then
             Data.Time.Destroying:Wait();
         else
             task.wait(Data.Time or 5);
@@ -5957,10 +5957,10 @@ function Library:CreateWindow(...)
         Config.AutoShow = Arguments[2] or false;
     end
 
-    if typeof(Config.Title) ~= "string" then Config.Title = 'No title' end
+    if typeof(Config.Title) ~= 'string' then Config.Title = 'No title' end
     if typeof(Config.TabPadding) ~= 'number' then Config.TabPadding = 1 end
     if typeof(Config.MenuFadeTime) ~= 'number' then Config.MenuFadeTime = 0.2 end
-    if typeof(Config.NotifySide) ~= "string" then Library.NotifySide = 'Left' else Library.NotifySide = Config.NotifySide end
+    if typeof(Config.NotifySide) ~= 'string' then Library.NotifySide = 'Left' else Library.NotifySide = Config.NotifySide end
     if typeof(Config.ShowCustomCursor) ~= 'boolean' then Library.ShowCustomCursor = true else Library.ShowCustomCursor = Config.ShowCustomCursor end
 
     if typeof(Config.Position) ~= 'UDim2' then Config.Position = UDim2.fromOffset(175, 50) end
@@ -5998,7 +5998,7 @@ function Library:CreateWindow(...)
         Visible = false;
         ZIndex = 1;
         Parent = ScreenGui;
-        Name = "Window";
+        Name = 'Window';
     });
     LibraryMainOuterFrame = Outer;
     
@@ -6132,7 +6132,7 @@ TruncateText(WindowLabel);
     });
 
     function Window:SetWindowTitle(Title)
-        if typeof(Title) == "string" then
+        if typeof(Title) == 'string' then
             Window.Title = Title;
             WindowLabel.Text = Window.Title;
         end
@@ -6146,8 +6146,8 @@ function Window:AddTab(Name, Image)
                 IsNormal = false,
                 LockSize = false,
                 Visible = false,
-                Title = "WARNING",
-                Text = ""
+                Title = 'WARNING',
+                Text = ''
             };
             OriginalName = Name; 
             Name = Name;
@@ -6273,7 +6273,7 @@ function Window:AddTab(Name, Image)
                 Size = UDim2.new(1, 0, 0, 18);
                 Position = UDim2.new(0, 4, 0, 2);
                 TextSize = 14;
-                Text = "Text";
+                Text = 'Text';
                 TextXAlignment = Enum.TextXAlignment.Left;
                 TextColor3 = Color3.fromRGB(255, 55, 55);
                 ZIndex = 5;
@@ -6288,7 +6288,7 @@ function Window:AddTab(Name, Image)
                 Position = UDim2.new(0, 4, 0, 20);
                 Size = UDim2.new(1, 0, 0, 14);
                 TextSize = 14;
-                Text = "Text";
+                Text = 'Text';
                 TextWrapped = true,
                 TextXAlignment = Enum.TextXAlignment.Left;
                 TextYAlignment = Enum.TextYAlignment.Top;
@@ -6349,8 +6349,8 @@ function Window:AddTab(Name, Image)
 
         if Library.IsMobile then
             local SidesValues = {
-                ["Left"] = tick(),
-                ["Right"] = tick(),
+                ['Left'] = tick(),
+                ['Right'] = tick(),
             }
 
             LeftSide:GetPropertyChangedSignal('CanvasPosition'):Connect(function()
@@ -6425,12 +6425,12 @@ function Window:AddTab(Name, Image)
         end;
 
         function Tab:UpdateWarningBox(Info)
-            if typeof(Info.Bottom) == "boolean"     then Tab.WarningBox.Bottom      = Info.Bottom end
-            if typeof(Info.IsNormal) == "boolean"   then Tab.WarningBox.IsNormal      = Info.IsNormal end
-            if typeof(Info.LockSize) == "boolean"   then Tab.WarningBox.LockSize    = Info.LockSize end
-            if typeof(Info.Visible) == "boolean"    then Tab.WarningBox.Visible     = Info.Visible end
-            if typeof(Info.Title) == "string"       then Tab.WarningBox.Title       = Info.Title end
-            if typeof(Info.Text) == "string"        then Tab.WarningBox.Text        = Info.Text end
+            if typeof(Info.Bottom) == 'boolean'     then Tab.WarningBox.Bottom      = Info.Bottom end
+            if typeof(Info.IsNormal) == 'boolean'   then Tab.WarningBox.IsNormal      = Info.IsNormal end
+            if typeof(Info.LockSize) == 'boolean'   then Tab.WarningBox.LockSize    = Info.LockSize end
+            if typeof(Info.Visible) == 'boolean'    then Tab.WarningBox.Visible     = Info.Visible end
+            if typeof(Info.Title) == 'string'       then Tab.WarningBox.Title       = Info.Title end
+            if typeof(Info.Text) == 'string'        then Tab.WarningBox.Text        = Info.Text end
 
             TopBar.Visible = Tab.WarningBox.Visible;
             TopBarLabel.Text = Tab.WarningBox.Title;
@@ -6450,12 +6450,12 @@ function Window:AddTab(Name, Image)
             if not Library.RegistryMap[TopBarLabel] then Library:AddToRegistry(TopBarLabel, {}) end
             if not Library.RegistryMap[TopBarLabelStroke] then Library:AddToRegistry(TopBarLabelStroke, {}) end
 
-            Library.RegistryMap[TopBarInner].Properties.BorderColor3 = Tab.WarningBox.IsNormal  and "OutlineColor" or nil;
-            Library.RegistryMap[TopBarInner].Properties.BackgroundColor3 = Tab.WarningBox.IsNormal  and "BackgroundColor" or nil;
-            Library.RegistryMap[TopBarHighlight].Properties.BackgroundColor3 = Tab.WarningBox.IsNormal  and "AccentColor" or nil;
+            Library.RegistryMap[TopBarInner].Properties.BorderColor3 = Tab.WarningBox.IsNormal  and 'OutlineColor' or nil;
+            Library.RegistryMap[TopBarInner].Properties.BackgroundColor3 = Tab.WarningBox.IsNormal  and 'BackgroundColor' or nil;
+            Library.RegistryMap[TopBarHighlight].Properties.BackgroundColor3 = Tab.WarningBox.IsNormal  and 'AccentColor' or nil;
 
-            Library.RegistryMap[TopBarLabel].Properties.TextColor3 = Tab.WarningBox.IsNormal  and "FontColor" or nil;
-            Library.RegistryMap[TopBarLabelStroke].Properties.Color = Tab.WarningBox.IsNormal  and "Black" or nil;
+            Library.RegistryMap[TopBarLabel].Properties.TextColor3 = Tab.WarningBox.IsNormal  and 'FontColor' or nil;
+            Library.RegistryMap[TopBarLabelStroke].Properties.Color = Tab.WarningBox.IsNormal  and 'Black' or nil;
         end;
 
         function Tab:ShowTab()
@@ -6487,11 +6487,11 @@ function Window:AddTab(Name, Image)
         end;
 
         function Tab:GetSides()
-            return { ["Left"] = LeftSide, ["Right"] = RightSide };
+            return { ['Left'] = LeftSide, ['Right'] = RightSide };
         end;
 
         function Tab:SetName(Name)
-            if typeof(Name) == "string" then
+            if typeof(Name) == 'string' then
                 Tab.Name = Name;
 
                 local extraWidth = Tab.Image and 20 or 0
@@ -6545,15 +6545,15 @@ function Window:AddTab(Name, Image)
     })
 
     local LabelHeight = 0
-    if Info.Name and Info.Name ~= "" then
+    if Info.Name and Info.Name ~= '' then
         LabelHeight = 20
 
         local Alignment = Enum.TextXAlignment.Left
         if Info.LabelAlign then
             local align = string.lower(Info.LabelAlign)
-            if align == "center" then
+            if align == 'center' then
                 Alignment = Enum.TextXAlignment.Center
-            elseif align == "right" then
+            elseif align == 'right' then
                 Alignment = Enum.TextXAlignment.Right
             end
         end
@@ -6832,7 +6832,7 @@ end
             end;
         end);
 
-        TopBar:GetPropertyChangedSignal("Visible"):Connect(function()
+        TopBar:GetPropertyChangedSignal('Visible'):Connect(function()
             Tab:Resize();
         end);
 
@@ -6850,7 +6850,7 @@ end
     local Fading = false
 
 function Library:Toggle(Toggling)
-    if typeof(Toggling) == "boolean" and Toggling == Toggled then return end
+    if typeof(Toggling) == 'boolean' and Toggling == Toggled then return end
     if Fading then return end
 
     local FadeTime = Config.MenuFadeTime
@@ -6862,14 +6862,14 @@ function Library:Toggle(Toggling)
     if not Toggled then
         for _, Desc in ipairs(Outer:GetDescendants()) do
             local Props
-            if Desc:IsA("ImageLabel") then
-                Props = {"ImageTransparency", "BackgroundTransparency"}
-            elseif Desc:IsA("TextLabel") or Desc:IsA("TextBox") then
-                Props = {"TextTransparency"}
-            elseif Desc:IsA("Frame") or Desc:IsA("ScrollingFrame") then
-                Props = {"BackgroundTransparency"}
-            elseif Desc:IsA("UIStroke") then
-                Props = {"Transparency"}
+            if Desc:IsA('ImageLabel') then
+                Props = {'ImageTransparency', 'BackgroundTransparency'}
+            elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
+                Props = {'TextTransparency'}
+            elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
+                Props = {'BackgroundTransparency'}
+            elseif Desc:IsA('UIStroke') then
+                Props = {'Transparency'}
             end
 
             if Props then
@@ -6884,14 +6884,14 @@ function Library:Toggle(Toggling)
 
     for _, Desc in ipairs(Outer:GetDescendants()) do
         local Props
-        if Desc:IsA("ImageLabel") then
-            Props = {"ImageTransparency", "BackgroundTransparency"}
-        elseif Desc:IsA("TextLabel") or Desc:IsA("TextBox") then
-            Props = {"TextTransparency"}
-        elseif Desc:IsA("Frame") or Desc:IsA("ScrollingFrame") then
-            Props = {"BackgroundTransparency"}
-        elseif Desc:IsA("UIStroke") then
-            Props = {"Transparency"}
+        if Desc:IsA('ImageLabel') then
+            Props = {'ImageTransparency', 'BackgroundTransparency'}
+        elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
+            Props = {'TextTransparency'}
+        elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
+            Props = {'BackgroundTransparency'}
+        elseif Desc:IsA('UIStroke') then
+            Props = {'Transparency'}
         end
 
         if Props then
@@ -6916,11 +6916,11 @@ function Library:Toggle(Toggling)
     if not Toggled then
         for _, Option in ipairs(Options) do
             task.spawn(function()
-                if Option.Type == "Dropdown" then
+                if Option.Type == 'Dropdown' then
                     Option:CloseDropdown()
-                elseif Option.Type == "KeyPicker" then
+                elseif Option.Type == 'KeyPicker' then
                     Option:SetModePickerVisibility(false)
-                elseif Option.Type == "ColorPicker" then
+                elseif Option.Type == 'ColorPicker' then
                     Option.ContextMenu:Hide()
                     Option:Hide()
                 end
@@ -6933,7 +6933,7 @@ function Library:Toggle(Toggling)
 
     if Toggled then
         for _, Option in ipairs(Options) do
-            if Option.Type == "ColorPicker" then
+            if Option.Type == 'ColorPicker' then
                 Option:Display()
             end
         end
@@ -6948,7 +6948,7 @@ end
     local textAlign = Enum.TextXAlignment.Left
     local buttonPosOffset = 5
     local buttonSizeOffset = -4
-    if Library.MobileButtonsSide == "Right" then
+    if Library.MobileButtonsSide == 'Right' then
         xScale = 1 - 0.008
         xOffset = -77
         textAlign = Enum.TextXAlignment.Right
@@ -7009,7 +7009,7 @@ end
         Size = UDim2.new(1, buttonSizeOffset, 1, 0);
         BackgroundTransparency = 1;
         Font = Library.Font;
-        Text = "Toggle UI"; 
+        Text = 'Toggle UI'; 
         TextColor3 = Library.FontColor;
         TextSize = 14;
         TextXAlignment = textAlign;
@@ -7078,7 +7078,7 @@ end
         Size = UDim2.new(1, buttonSizeOffset, 1, 0);
         BackgroundTransparency = 1;
         Font = Library.Font;
-        Text = (Library.CantDragForced and "Unlock UI" or "Lock UI");
+        Text = (Library.CantDragForced and 'Unlock UI' or 'Lock UI');
         TextColor3 = Library.FontColor;
         TextSize = 14;
         TextXAlignment = textAlign;
@@ -7103,12 +7103,12 @@ LockUIButton.MouseButton1Click:Connect(function()
 end)
 
 function Library:ToggleLock(state)
-    if typeof(state) == "boolean" then
+    if typeof(state) == 'boolean' then
         self.CantDragForced = state
     else
         self.CantDragForced = not self.CantDragForced
     end
-    LockUIButton.Text = self.CantDragForced and "Unlock UI" or "Lock UI"
+    LockUIButton.Text = self.CantDragForced and 'Unlock UI' or 'Lock UI'
 end
 
 end;
