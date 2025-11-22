@@ -1,8 +1,6 @@
 # LinoriaLib - Complete Documentation
 *A modern, lightweight, and optimized UI library for Roblox*
 
-![Interface](https://github.com/DH-SOARESE/LinoriaLib/blob/main/assets/Interface.jpg)
-
 ### 🚀 Features
 - ✨ Lightweight and Optimized
 - 🎨 Modern Interface
@@ -856,6 +854,9 @@ MenuControls:AddButton({
 ```
 ## Complete Example  
 [Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
+```lua
+loadstring(game:HttpGet('https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/refs/heads/main/Example.lua'))()
+```
 
 ## UI library Code 
 [UI Library](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Library.lua)
