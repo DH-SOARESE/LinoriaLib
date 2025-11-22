@@ -1,7 +1,7 @@
 # LinoriaLib - Complete Documentation
 *A modern, lightweight, and optimized UI library for Roblox*
 
-![Interface](https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/assets.Interface.jpg)
+![Interface](https://github.com/DH-SOARESE/LinoriaLib/blob/main/assets/Interface.jpg)
 
 ### 🚀 Features
 - ✨ Lightweight and Optimized
