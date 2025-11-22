@@ -3284,7 +3284,6 @@ function Button:SetDisabled(Disabled)
     Button:UpdateColors();
 end;
 
-local RunService = game:GetService("RunService")
 Button.Connection = RunService.Heartbeat:Connect(function()
     Button:UpdateColors()
 end)
@@ -4576,10 +4575,15 @@ end;
 
     function Dropdown:UpdateColors()
         if DropdownLabel then  
-            DropdownLabel.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
+            DropdownLabel.TextColor3 = Dropdown.Disabled and Library.DisabledTextColor or Library.FontColor;
         end;  
-        ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor; 
-        DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.FontColor;
+        ItemList.TextColor3 = Dropdown.Disabled and Library.DisabledTextColor or Library.FontColor; 
+        DropdownArrow.ImageColor3 = Dropdown.Disabled and Library.DisabledTextColor or Library.FontColor;
+        DropdownInner.BackgroundColor3 = Dropdown.Disabled and Library.DisabledAccentColor or Library.MainColor;
+        DropdownInner.BorderColor3 = Dropdown.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
+        if DropdownInnerSearch then
+            DropdownInnerSearch.TextColor3 = Dropdown.Disabled and Library.DisabledTextColor or Library.FontColor;
+        end
     end;  
 
     function Dropdown:Display()  
@@ -4636,7 +4640,7 @@ end;
             else  
                 return nil  
             end  
-        end  
+        end;  
     end;  
 
     function Dropdown:BuildDropdownList()  
@@ -4690,8 +4694,12 @@ end;
                 Parent = Button;  
             });  
 
+            Library:AddToRegistry(ButtonLabel, {  
+                TextColor3 = 'FontColor';  
+            });  
+
             Library:OnHighlight(Button, Button,  
-                { BorderColor3 = IsDisabled and 'DisabledAccentColor' or 'AccentColor', ZIndex = 24 },  
+                { BorderColor3 = IsDisabled and 'DisabledOutlineColor' or 'AccentColor', ZIndex = 24 },  
                 { BorderColor3 = 'OutlineColor', ZIndex = 23 }  
             );  
 
@@ -4709,8 +4717,8 @@ end;
                 else  
                     Selected = Dropdown.Value == Value;  
                 end;  
-                ButtonLabel.TextColor3 = Selected and Library.AccentColor or (IsDisabled and Library.DisabledAccentColor or Library.FontColor);  
-                Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or (IsDisabled and 'DisabledAccentColor' or 'FontColor');  
+                ButtonLabel.TextColor3 = Selected and Library.AccentColor or (IsDisabled and Library.DisabledTextColor or Library.FontColor);  
+                Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or (IsDisabled and 'DisabledTextColor' or 'FontColor');  
             end;  
 
             if not IsDisabled then  
@@ -4966,7 +4974,16 @@ end;
     Dropdown:BuildDropdownList();  
     Dropdown:Display();  
 
-    task.delay(0.1, Dropdown.UpdateColors, Dropdown)  
+    Dropdown.Connection = RunService.Heartbeat:Connect(function()
+        Dropdown:UpdateColors()
+    end)
+    DropdownOuter.Destroying:Connect(function()
+        if Dropdown.Connection then
+            Dropdown.Connection:Disconnect()
+            Dropdown.Connection = nil
+        end
+    end)
+
     Blank = Groupbox:AddBlank(Info.BlankSize or 5, Dropdown.Visible);  
     Groupbox:Resize();  
 
