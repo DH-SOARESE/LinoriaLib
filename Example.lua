@@ -80,6 +80,7 @@ local Tabs = {
     Display = Window:AddTab('Display', 134567380715608),
     Advanced = Window:AddTab('Advanced', 114673753213917),
     System = Window:AddTab('System', 9692125126),
+    method = Window:AddTab('Example method', 130521044774541),
     Settings = Window:AddTab('Settings', 119015428034090)
 }
 
@@ -470,8 +471,9 @@ DisplayGroup:AddLabel('Content after named divider')
 
 local MediaGroup = Tabs.Display:AddRightGroupbox('Media Display')
 
-local bn 
-bn = MediaGroup:AddImage('DisplayImage', {
+local MediaGroup = Tabs.Display:AddRightGroupbox('Media Display')
+
+MediaGroup:AddImage('DisplayImage', {
     Image = 'rbxassetid://10511855986',
     Height = 180,
     Color = Color3.fromRGB(255, 255, 255),
@@ -484,7 +486,7 @@ bn = MediaGroup:AddImage('DisplayImage', {
 MediaGroup:AddButton({
     Text = 'Toggle Image',
     Func = function()
-        bn:SetVisible(not bn.Visible)
+        Options.DisplayImage:SetVisible(not Options.DisplayImage.Visible)
     end
 })
 
@@ -886,6 +888,113 @@ ActionGroup:AddButton({
         Library:Notify('Unloading system...', 2)
         task.wait(0.5)
         Library:LinoriaUnload()
+    end
+})
+
+local Example1 = Tabs.method:AddLeftGroupbox('Example One')
+
+local Label1 = Example1:AddLabel("State: False")
+
+Example1:AddToggle('Enabled', {
+    Text = 'Enable Feature',
+    Default = false,
+    Callback = function(Value)
+        Label1:SetText('State: ' .. (Value and 'True' or 'False'))
+    end
+})
+
+Example1:AddButton({
+    Text = 'Toggle (toggle)',
+    Func = function()
+        Toggles.Enabled:SetValue(not Toggles.Enabled.Value)
+    end
+})
+
+Example1:AddDivider()
+
+Example1:AddSlider('A', {
+    Text = 'a',
+    Default = math.random(-1000, 10000),
+    Min = math.random(-1000, 0),
+    Max = math.random(0, 10000),
+    Rounding = math.random(0, 5),
+    Callback = function(Value)
+        Options.B:SetValue(Value)
+    end
+})
+
+Example1:AddSlider('B', {
+    Text = 'b',
+    Default = math.random(-1000, 10000),
+    Min = math.random(-1000, 0),
+    Max = math.random(0, 10000),
+    Rounding = math.random(0, 5),
+    Callback = function(Value)
+        Options.A:SetValue(Value)
+    end
+})
+
+Example1:AddDivider()
+
+Example1:AddSlider('Gg', {
+    Text = 'Example 2',
+    Default = 0,
+    Min = -9999,
+    Max = 9999,
+    Rounding = 0
+})
+
+Example1:AddInput('Number', {
+    Text = 'Slider Control',
+    Placeholder = 'Enter',
+    Numeric = true,
+    Finished = true,
+    Callback = function(value)
+        Options.Gg:SetValue(value)
+    end
+})
+
+local Example2 = Tabs.method:AddRightGroupbox('Example Two')
+
+Example2:AddDropdown('EnableToggles', {
+    Text = 'Select toggles',
+    Values = {'Easy', 'Medium', 'Hard'},
+    Default = {'Medium'},
+    Multi = true,
+    AllowNull = false,
+    Tooltip = 'Choose the difficulty level.',
+    Callback = function(selected)
+        for _, key in pairs({'Easy', 'Medium', 'Hard'}) do
+            Toggles[key]:SetValue(false)
+        end
+        for _, key in pairs(selected) do
+            Toggles[key]:SetValue(true)
+        end
+    end
+})
+
+Example2:AddToggle('Easy', {
+    Text = 'Feature',
+    Default = false,
+})
+
+Example2:AddToggle('Medium', {
+    Text = 'Feature',
+    Default = false,
+})
+
+Example2:AddToggle('Hard', {
+    Text = 'Feature',
+    Default = false,
+})
+
+Example2:AddDivider()
+
+local Button53
+Button53 = Example2:AddButton({
+    Text = tostring(math.random(100, 200)),
+    Func = function()
+        Button53:SetText(tostring(math.random(0, 200)))
     end
 })
 
