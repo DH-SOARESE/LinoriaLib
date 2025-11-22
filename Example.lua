@@ -1,4 +1,4 @@
---[[ Example by download ]
+--[[ Load by file local
 local LinoriaLib = 'https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/'
 local folderName = 'Linoria Library'
 local basePath = folderName
@@ -9,10 +9,10 @@ if not isfolder(addonsPath) then makefolder(addonsPath) end
 
 local function ensureFile(filePath, url)
     if not isfile(filePath) then
-        local success, result = pcall(function()
+        local ok, result = pcall(function()
             return game:HttpGet(url)
         end)
-        if success and result then
+        if ok and result then
             writefile(filePath, result)
         else
             warn('Error ' .. filePath .. ': ' .. tostring(result))
@@ -35,14 +35,12 @@ ThemeManager:SetLibrary(Library)
 local LinoriaLib = 'https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/main/'
 
 local function loadLibrary(path)
-    local success, result = pcall(function()
+    local ok, result = pcall(function()
         return loadstring(game:HttpGet(LinoriaLib .. path))()
     end)
-    
-    if not success then
-        error('Failed to load ' .. path .. ': ' .. tostring(result))
+    if not ok then
+        error('Failed to load ' .. path .. ': ' .. result)
     end
-    
     return result
 end
 
@@ -50,8 +48,7 @@ local Library = loadLibrary('Library.lua')
 local ThemeManager = loadLibrary('addons/ThemeManager.lua')
 local SaveManager = loadLibrary('addons/SaveManager.lua')
 
-local Players = game:GetService('Players')
-local LocalPlayer = Players.LocalPlayer
+local LocalPlayer = game:GetService('Players').LocalPlayer
 
 -- Shortcuts for options and toggles
 local Options = Library.Options
@@ -61,9 +58,9 @@ local Toggles = Library.Toggles
 Library.ShowToggleFrameInKeybinds = true
 Library.ShowCustomCursor = true
 
-Library.NotifySide = 'Right' -- Default 'Left'
-Library.MobileButtonsSide = 'Right' -- Default 'Left'
-Library.CursorImage = 15985408996 --Default '12230889708'
+Library.NotifySide = 'Right'
+Library.MobileButtonsSide = 'Right'
+Library.CursorImage = 12230889708
 Library.CursorSize = 15 -- Default '20'
 
 -- Create main window
@@ -73,7 +70,7 @@ local Window = Library:CreateWindow({
     AutoShow = true,
     Resizable = true,
     ShowCustomCursor = true,
-    TabPadding = 0,
+    TabPadding = 3,
     MenuFadeTime = 0.2
 })
 
@@ -102,6 +99,7 @@ ToggleGroup:AddToggle('BasicToggle', {
 ToggleGroup:AddToggle('DisableToggle', {
     Text = 'Disable Toggle',
     Default = false,
+    Tooltip = "Toggle Disabled",    
     Disabled = true, 
     Callback = function(value)
         -- No Callback 
