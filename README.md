@@ -189,18 +189,20 @@ Groupbox:AddToggle('ExampleToggle', {
 
 #### Toggle Properties
 
-| Property      | Type     | Default              | Description |
-|---------------|----------|----------------------|-------------|
-| Text         | string   | Required             | Label displayed next to the toggle. |
-| Value        | boolean  | false                | Current state of the toggle (on/off). |
-| Visible      | boolean  | true                 | Whether the toggle is visible. |
-| Disabled     | boolean  | false                | If true, the toggle cannot be interacted with. |
-| Risky        | boolean  | false                | Marks the toggle as “risky” (red text). |
-| Callback     | function | function(Value) end  | Function called whenever the toggle changes. |
-| Addons       | table    | {}                   | List of attached UI elements that depend on the toggle (e.g., key pickers). |
-| OriginalText | string   | —                    | Stores the initial label text. |
-| Tooltip      | string   | nil                  | Tooltip text shown on hover. |
-| DisabledTooltip | string | nil                | Tooltip text shown when disabled. |
+| Property        | Type     | Default              | Description |
+|-----------------|----------|----------------------|-------------|
+| Text            | string   | Required             | Label displayed next to the toggle. |
+| Default         | boolean  | false                | Initial state of the toggle (on/off). |
+| Value           | boolean  | false                | Current state of the toggle (on/off). |
+| Visible         | boolean  | true                 | Whether the toggle is visible. |
+| Disabled        | boolean  | false                | If true, the toggle cannot be interacted with. |
+| Risky           | boolean  | false                | Marks the toggle as "risky" (red text). |
+| Callback        | function | function(Value) end  | Function called whenever the toggle changes. |
+| Addons          | table    | {}                   | List of attached UI elements that depend on the toggle (e.g., key pickers). |
+| Tooltip         | string   | nil                  | Tooltip text shown on hover. |
+| DisabledTooltip | string   | nil                  | Tooltip text shown when disabled. |
+| OriginalText    | string   | —                    | Stores the initial label text (internal). |
+| OriginalValue   | boolean  | —                    | Stores the initial toggle state (internal). |
 
 ### Slider
 ```lua
@@ -251,23 +253,27 @@ end)
 
 #### Slider Properties
 
-| Property         | Type    | Default              | Description |
-|------------------|---------|----------------------|-------------|
-| Text             | string  | ""                   | The text displayed next to the slider. |
-| Value            | number  | Required (Default)   | Current value of the slider. |
-| Min              | number  | Required             | Minimum value of the slider. |
-| Max              | number  | Required             | Maximum value of the slider. |
-| Rounding         | number  | Required             | Number of decimal places to round the value. |
-| Visible          | boolean | true                 | Whether the slider is visible. |
-| Disabled         | boolean | false                | Whether the slider is disabled. |
-| Prefix           | string  | ""                   | Text displayed before the value. |
-| Suffix           | string  | ""                   | Text displayed after the value. |
-| ValueText        | Table   | {}                   | Custom text displayed when the slider is at the value set in table |
-| Callback         | function| function() end       | Function called when the slider value changes. |
-| Compact          | boolean | false                | If true, displays text and value in a compact format. |
-| HideMax          | boolean | false                | If true, hides the maximum value display. |
-| Tooltip          | string  | nil                  | Text displayed on hover. |
-| DisabledTooltip  | string  | nil                  | Tooltip displayed when slider is disabled. |
+| Property         | Type     | Default              | Description |
+|------------------|----------|----------------------|-------------|
+| Text             | string   | ""                   | The text displayed next to the slider. |
+| Default          | number   | Required             | Initial value of the slider (clamped between Min and Max). |
+| Value            | number   | Required (Default)   | Current value of the slider. |
+| Min              | number   | Required             | Minimum value of the slider. |
+| Max              | number   | Required             | Maximum value of the slider. |
+| Rounding         | number   | Required             | Number of decimal places to round the value. |
+| Visible          | boolean  | true                 | Whether the slider is visible. |
+| Disabled         | boolean  | false                | Whether the slider is disabled. |
+| Prefix           | string   | ""                   | Text displayed before the value. |
+| Suffix           | string   | ""                   | Text displayed after the value. |
+| ValueText        | table    | {}                   | Custom text displayed when the slider is at the value set in table. |
+| Callback         | function | function(Value) end  | Function called when the slider value changes. |
+| Compact          | boolean  | false                | If true, displays text and value in a compact format. |
+| HideMax          | boolean  | false                | If true, hides the maximum value display. |
+| Tooltip          | string   | nil                  | Text displayed on hover. |
+| DisabledTooltip  | string   | nil                  | Tooltip displayed when slider is disabled. |
+| MaxSize          | number   | 232                  | Maximum width of the slider (internal). |
+| OriginalText     | string   | —                    | Stores the initial text (internal). |
+| OriginalValue    | number   | —                    | Stores the initial value (internal). |
 
 ### Dropdown
 ```lua
@@ -312,25 +318,28 @@ end)
 
 #### Dropdown Properties
 
-| Property              | Type    | Default              | Description |
-|-----------------------|---------|----------------------|-------------|
-| Text                  | string  | ""                   | The text displayed on the dropdown. |
-| Values                | table   | nil                  | List of options for the dropdown. Ignored if SpecialType is 'Player' or 'Team'. |
-| Default               | string/number/table | nil            | Initial selected value. For multi-select, use a table or dictionary {Value = true}. |
-| Multi                 | boolean | false                | Allows multiple selections if true. |
-| DictMulti             | boolean | false                | Allows using a dictionary with boolean values for multi-select (new format). |
-| SpecialType           | string  | nil                  | 'Player' or 'Team' to automatically populate options. |
-| ExcludeLocalPlayer    | boolean | false                | Used with SpecialType = 'Player' to exclude the local player. |
-| ReturnInstanceInstead | boolean | false                | Returns the Instance of the player or team instead of the name. |
-| Searchable            | boolean | false                | Allows searching within the dropdown. |
-| Disabled              | boolean | false                | Disables the dropdown. |
-| AllowNull             | boolean | false                | Allows no option to be selected. |
-| DisabledValues        | table   | {}                   | List of values that cannot be selected. |
-| Tooltip               | string  | nil                  | Tooltip text shown when hovering over the dropdown. |
-| DisabledTooltip       | string  | nil                  | Tooltip text shown when the dropdown is disabled. |
-| MaxVisibleDropdownItems | number | 8                  | Maximum number of items visible when the dropdown is open. |
-| Visible               | boolean | true                 | Whether the dropdown is visible. |
-| Callback              | function| function(Value) end  | Function called when selection changes. |
+| Property                | Type     | Default              | Description |
+|-------------------------|----------|----------------------|-------------|
+| Text                    | string   | ""                   | The text displayed on the dropdown. |
+| Values                  | table    | nil                  | List of options for the dropdown. Ignored if SpecialType is 'Player' or 'Team'. |
+| Default                 | string/number/table | nil | Initial selected value. For multi-select, use a table or dictionary {Value = true}. |
+| Value                   | any/table| nil                  | Current selected value(s). Empty table {} for Multi/DictMulti, nil otherwise. |
+| Multi                   | boolean  | false                | Allows multiple selections if true. |
+| DictMulti               | boolean  | false                | Allows using a dictionary with boolean values for multi-select (new format). |
+| SpecialType             | string   | nil                  | 'Player' or 'Team' to automatically populate options. |
+| ExcludeLocalPlayer      | boolean  | false                | Used with SpecialType = 'Player' to exclude the local player. |
+| ReturnInstanceInstead   | boolean  | false                | Returns the Instance of the player or team instead of the name. |
+| Searchable              | boolean  | false                | Allows searching within the dropdown. |
+| Disabled                | boolean  | false                | Disables the dropdown. |
+| Visible                 | boolean  | true                 | Whether the dropdown is visible. |
+| AllowNull               | boolean  | false                | Allows no option to be selected. |
+| DisabledValues          | table    | {}                   | List of values that cannot be selected. |
+| Tooltip                 | string   | nil                  | Tooltip text shown when hovering over the dropdown. |
+| DisabledTooltip         | string   | nil                  | Tooltip text shown when the dropdown is disabled. |
+| MaxVisibleDropdownItems | number   | 8                    | Maximum number of items visible when the dropdown is open. |
+| Callback                | function | function(Value) end  | Function called when selection changes. |
+| OriginalText            | string   | —                    | Stores the initial text (internal). |
+| OriginalValue           | any      | —                    | Stores the initial value (internal). |
 
 ### ⌨️ Input
 #### Basic Input
@@ -395,23 +404,25 @@ end)
 ```
 
 #### Input Properties
-
-| Property         | Type    | Default              | Description |
-|------------------|---------|----------------------|-------------|
-| Text             | string  | Required             | Label text displayed above the input box. |
-| Value            | string  | "" or Default        | Current value of the input box. |
-| Numeric          | boolean | false                | If true, only allows numeric input. |
-| Finished         | boolean | false                | If true, triggers callback only after focus is lost or enter is pressed. |
-| Visible          | boolean | true                 | Whether the input box is visible. |
-| Disabled         | boolean | false                | Whether the input box is disabled. |
-| AllowEmpty       | boolean | true                 | If false, empty input resets to EmptyReset. |
-| EmptyReset       | string  | '---'                | Value used when input is empty and AllowEmpty is false. |
-| Placeholder      | string  | ""                   | Placeholder text shown when input is empty. |
-| ClearTextOnFocus | boolean | true                 | Clears the input text when focused (if not disabled). |
-| MaxLength        | number  | nil                  | Maximum number of characters allowed. |
-| Tooltip          | string  | nil                  | Tooltip text shown on hover. |
-| DisabledTooltip  | string  | nil                  | Tooltip text shown when input is disabled. |
-| Callback         | function| function(Value) end  | Function called when input value changes. |
+| Property         | Type     | Default              | Description |
+|------------------|----------|----------------------|-------------|
+| Text             | string   | Required             | Label text displayed above the input box. |
+| Default          | string   | ""                   | Initial value of the input box. |
+| Value            | string   | "" or Default        | Current value of the input box. |
+| Numeric          | boolean  | false                | If true, only allows numeric input. |
+| Finished         | boolean  | false                | If true, triggers callback only after focus is lost or enter is pressed. |
+| Visible          | boolean  | true                 | Whether the input box is visible. |
+| Disabled         | boolean  | false                | Whether the input box is disabled. |
+| AllowEmpty       | boolean  | true                 | If false, empty input resets to EmptyReset. |
+| EmptyReset       | string   | "---"                | Value used when input is empty and AllowEmpty is false. |
+| Placeholder      | string   | ""                   | Placeholder text shown when input is empty. |
+| ClearTextOnFocus | boolean  | true                 | Clears the input text when focused (if not disabled). |
+| MaxLength        | number   | nil                  | Maximum number of characters allowed. |
+| Tooltip          | string   | nil                  | Tooltip text shown on hover. |
+| DisabledTooltip  | string   | nil                  | Tooltip text shown when input is disabled. |
+| Callback         | function | function(Value) end  | Function called when input value changes. |
+| Type             | string   | "Input"              | Component type identifier (internal). |
+| OriginalValue    | string   | —                    | Stores the initial value (internal). |
 
 ### 🎨 ColorPicker
 ```lua
@@ -845,9 +856,7 @@ MenuControls:AddButton({
 ```
 ## Complete Example  
 [Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
-```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/refs/heads/main/Example.lua"))()
-```
+
 ## UI library Code 
 [UI Library](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Library.lua)
 
