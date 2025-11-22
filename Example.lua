@@ -471,8 +471,6 @@ DisplayGroup:AddLabel('Content after named divider')
 
 local MediaGroup = Tabs.Display:AddRightGroupbox('Media Display')
 
-local MediaGroup = Tabs.Display:AddRightGroupbox('Media Display')
-
 MediaGroup:AddImage('DisplayImage', {
     Image = 'rbxassetid://10511855986',
     Height = 180,
@@ -907,6 +905,17 @@ Example1:AddButton({
     Text = 'Toggle (toggle)',
     Func = function()
         Toggles.Enabled:SetValue(not Toggles.Enabled.Value)
+    end
+})
+
+local ByButton
+local ByState = false
+
+ByButton = Example1:AddButton({
+    Text = 'State: ' .. (ByState and "True" or "False"),
+    Func = function()
+        ByState = not ByState
+        ByButton:SetText('State: ' .. (ByState and "True" or "False"))
     end
 })
 
