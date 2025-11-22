@@ -3178,6 +3178,7 @@ end;
     function SubButton:UpdateColors()
         SubButton.Label.TextColor3 = SubButton.Disabled and Library.DisabledTextColor or Library.FontColor;
         SubButton.Inner.BackgroundColor3 = SubButton.Disabled and Library.DisabledAccentColor or Library.MainColor;
+        SubButton.Inner.BorderColor3  = SubButton.Disabled and Library.DisabledOutlineColor or Library.MainColor;
         SubButton.Outer.BorderColor3 = SubButton.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
     end;
 
@@ -3236,6 +3237,7 @@ end
 function Button:UpdateColors()
     Button.Label.TextColor3 = Button.Disabled and Library.DisabledTextColor or Library.FontColor;
     Button.Inner.BackgroundColor3 = Button.Disabled and Library.DisabledAccentColor or Library.AccentColor;
+    Button.Inner.BorderColor3 = Button.Disabled and Library.DisabledOutlineColor or Library.AccentColor;
     Button.Outer.BorderColor3 = Button.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
 end;
 
