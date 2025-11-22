@@ -908,14 +908,13 @@ Example1:AddButton({
     end
 })
 
-local ByButton
 local ByState = false
-
-ByButton = Example1:AddButton({
-    Text = 'State: ' .. (ByState and "True" or "False"),
+local MyButton
+MyButton = Example1:AddButton({
+    Text = 'State: False',
     Func = function()
         ByState = not ByState
-        ByButton:SetText('State: ' .. (ByState and "True" or "False"))
+        MyButton:SetText('State: ' .. (ByState and 'True' or 'False'))
     end
 })
 
@@ -965,45 +964,72 @@ Example1:AddInput('Number', {
 
 local Example2 = Tabs.method:AddRightGroupbox('Example Two')
 
-Example2:AddDropdown('EnableToggles', {
+local pool = {'Easy', 'Medium', 'Hard'}
+
+Example2:AddDropdown('Examplep', {
     Text = 'Select toggles',
-    Values = {'Easy', 'Medium', 'Hard'},
-    Default = {'Medium'},
+    Values = pool,
+    Default = {},
     Multi = true,
     AllowNull = false,
     Tooltip = 'Choose the difficulty level.',
     Callback = function(selected)
-        for _, key in pairs({'Easy', 'Medium', 'Hard'}) do
+        for _, key in ipairs(pool) do
             Toggles[key]:SetValue(false)
         end
-        for _, key in pairs(selected) do
+        for _, key in ipairs(selected) do
             Toggles[key]:SetValue(true)
         end
     end
 })
 
-Example2:AddToggle('Easy', {
-    Text = 'Feature',
-    Default = false,
+Example2:AddDropdown('Examplehj', {
+    Text = 'Select the options to disable.',
+    Values = pool,
+    Default = {},
+    Multi = true,
+    Callback = function(selected)
+        for _, key in ipairs(pool) do
+            Toggles[key]:SetDisabled(false)
+        end
+        for _, key in ipairs(selected) do
+            Toggles[key]:SetDisabled(true)
+        end
+    end
 })
 
-Example2:AddToggle('Medium', {
-    Text = 'Feature',
-    Default = false,
-})
+for _, key in ipairs(pool) do
+    Example2:AddToggle(key, {
+        Text = 'Feature',
+        Default = false
+    })
+end
 
-Example2:AddToggle('Hard', {
-    Text = 'Feature',
-    Default = false,
-})
-
-Example2:AddDivider()
-
-local Button53
+local Button53 
 Button53 = Example2:AddButton({
     Text = tostring(math.random(100, 200)),
     Func = function()
         Button53:SetText(tostring(math.random(0, 200)))
+    end
+})
+
+Example2:AddDivider()
+
+Example2:AddLabel("Example"):AddKeyPicker('ExampleofKey', {
+    Default = 'E',
+    Mode = 'Toggle',
+    Text = 'KeyPicker example'
+})
+
+Example2:AddInput('UsernameInput', {
+    Text = 'Set',
+    Default = 'E',
+    MaxLength = 1,
+    Finished = true,
+    Placeholder = 'Enter Value',
+    Callback = function(value)
+        if #value ~= 1 then return end
+        Options.ExampleofKey:SetValue({value:upper(), 'Toggle'})
     end
 })
 
