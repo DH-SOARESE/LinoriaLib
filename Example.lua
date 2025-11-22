@@ -399,6 +399,16 @@ DropdownGroup:AddDropdown('SingleSelect', {
     end
 })
 
+DropdownGroup:AddDropdown('Disabled', {
+    Text = 'Dropdown Disabled',
+    Values = {'Option A', 'Option B', 'Option C', 'Option D', 'Option E'},
+    Default = 1,
+    Disabled = true,
+    Callback = function(value)
+        print('[Dropdown] Selected:', value)
+    end
+})
+
 DropdownGroup:AddDropdown('SearchDrop', {
     Text = 'Searchable List',
     Values = {'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'},
