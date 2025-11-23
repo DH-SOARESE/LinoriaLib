@@ -8,20 +8,20 @@ local isfolder, isfile, listfiles = isfolder, isfile, listfiles
 
 local function assert(condition, errorMessage)
     if not condition then
-        error(errorMessage or "Assertion failed", 3)
+        error(errorMessage or 'Assertion failed', 3)
     end
 end
 
-if typeof(copyfunction) == "function" then
+if typeof(copyfunction) == 'function' then
     local isfolder_copy = copyfunction(isfolder)
     local isfile_copy = copyfunction(isfile)
     local listfiles_copy = copyfunction(listfiles)
 
     local success, result = pcall(function()
-        return isfolder_copy("test" .. tostring(math.random(1000000, 9999999)))
+        return isfolder_copy('test' .. tostring(math.random(1000000, 9999999)))
     end)
 
-    if not success or typeof(result) ~= "boolean" then
+    if not success or typeof(result) ~= 'boolean' then
         isfolder = function(folder)
             local ok, data = pcall(isfolder_copy, folder)
             return ok and data or false
@@ -70,15 +70,15 @@ end
 
 function SaveManager:IgnoreThemeSettings()
     self:SetIgnoreIndexes({
-        "BackgroundColor", 
-        "MainColor", 
-        "AccentColor", 
-        "OutlineColor", 
-        "FontColor",
-        "ThemeManager_ThemeList", 
-        "ThemeManager_CustomThemeList", 
-        "ThemeManager_CustomThemeName",
-        "VideoLink",
+        'BackgroundColor', 
+        'MainColor', 
+        'AccentColor', 
+        'OutlineColor', 
+        'FontColor',
+        'ThemeManager_ThemeList', 
+        'ThemeManager_CustomThemeList', 
+        'ThemeManager_CustomThemeName',
+        'VideoLink',
     })
 end
 
@@ -90,7 +90,7 @@ end
 
 
 function SaveManager:HasSubFolder()
-    return typeof(self.SubFolder) == "string" and self.SubFolder ~= ""
+    return typeof(self.SubFolder) == 'string' and self.SubFolder ~= ''
 end
 
 function SaveManager:EnsureSubFolder()
@@ -98,7 +98,7 @@ function SaveManager:EnsureSubFolder()
         return false 
     end
     
-    local subPath = self.Folder .. "/settings/" .. self.SubFolder
+    local subPath = self.Folder .. '/settings/' .. self.SubFolder
     if not isfolder(subPath) then
         makefolder(subPath)
     end
@@ -121,7 +121,7 @@ function SaveManager:GetPaths()
     table.insert(paths, self.Folder .. '/settings')
 
     if self:HasSubFolder() then
-        local subFolder = self.Folder .. "/settings/" .. self.SubFolder
+        local subFolder = self.Folder .. '/settings/' .. self.SubFolder
         parts = subFolder:split('/')
         
         for idx = 1, #parts do
@@ -175,7 +175,7 @@ SaveManager.Parser = {
         
         Load = function(idx, data)
             local object = SaveManager.Library.Toggles[idx]
-            if object and object.Value ~= data.value then
+            if object then
                 object:SetValue(data.value)
             end
         end,
@@ -186,13 +186,13 @@ SaveManager.Parser = {
             return { 
                 type = 'Slider', 
                 idx = idx, 
-                value = tostring(object.Value) 
+                value = object.Value 
             }
         end,
         
         Load = function(idx, data)
             local object = SaveManager.Library.Options[idx]
-            if object and object.Value ~= data.value then
+            if object then
                 object:SetValue(data.value)
             end
         end,
@@ -210,7 +210,7 @@ SaveManager.Parser = {
         
         Load = function(idx, data)
             local object = SaveManager.Library.Options[idx]
-            if object and object.Value ~= data.value then
+            if object then
                 object:SetValue(data.value)
             end
         end,
@@ -263,7 +263,7 @@ SaveManager.Parser = {
         
         Load = function(idx, data)
             local object = SaveManager.Library.Options[idx]
-            if object and object.Value ~= data.text and type(data.text) == 'string' then
+            if object and type(data.text) == 'string' then
                 object:SetValue(data.text)
             end
         end,
@@ -276,7 +276,7 @@ function SaveManager:GetConfigPath(name)
     
     if self:HasSubFolder() then
         self:EnsureSubFolder()
-        basePath = self.Folder .. "/settings/" .. self.SubFolder .. "/" .. name .. '.json'
+        basePath = self.Folder .. '/settings/' .. self.SubFolder .. '/' .. name .. '.json'
     end
     
     return basePath
@@ -375,9 +375,9 @@ end
 function SaveManager:RefreshConfigList()
     self:EnsureFolderTree()
 
-    local folder = self.Folder .. "/settings"
+    local folder = self.Folder .. '/settings'
     if self:HasSubFolder() then
-        folder = folder .. "/" .. self.SubFolder
+        folder = folder .. '/' .. self.SubFolder
     end
 
     local success, files = pcall(listfiles, folder)
@@ -393,21 +393,9 @@ function SaveManager:RefreshConfigList()
 
     local configList = {}
     for _, file in ipairs(files or {}) do
-        if file:sub(-5) == '.json' then
-            local pos = file:find('.json', 1, true)
-            local start = pos
-            
-            while pos > 0 do
-                local char = file:sub(pos, pos)
-                if char == '/' or char == '\\' then
-                    break
-                end
-                pos = pos - 1
-            end
-            
-            if pos > 0 then
-                table.insert(configList, file:sub(pos + 1, start - 1))
-            end
+        local name = file:match('([^/\\]+)%.json$')
+        if name then
+            table.insert(configList, name)
         end
     end
 
@@ -416,11 +404,11 @@ end
 
 
 function SaveManager:GetAutoloadPath()
-    local basePath = self.Folder .. "/settings/AutoLoad.txt"
+    local basePath = self.Folder .. '/settings/AutoLoad.txt'
     
     if self:HasSubFolder() then
         self:EnsureSubFolder()
-        basePath = self.Folder .. "/settings/" .. self.SubFolder .. "/AutoLoad.txt"
+        basePath = self.Folder .. '/settings/' .. self.SubFolder .. '/AutoLoad.txt'
     end
     
     return basePath
@@ -431,16 +419,16 @@ function SaveManager:GetAutoloadConfig()
 
     local autoLoadPath = self:GetAutoloadPath()
     if not isfile(autoLoadPath) then
-        return "none"
+        return 'none'
     end
 
     local success, name = pcall(readfile, autoLoadPath)
     if not success then
-        return "none"
+        return 'none'
     end
 
-    name = name:match("^%s*(.-)%s*$")
-    return name ~= "" and name or "none"
+    name = name:match('^%s*(.-)%s*$')
+    return name ~= '' and name or 'none'
 end
 
 function SaveManager:LoadAutoloadConfig()
@@ -739,7 +727,7 @@ function SaveManager:BuildConfigSection(tab)
     end)
 
     self.AutoloadStatusLabel = section:AddLabel(
-        "Autoload configuration: " .. self:GetAutoloadConfig(), 
+        'Autoload configuration: ' .. self:GetAutoloadConfig(), 
         true
     )
 
@@ -764,8 +752,12 @@ function SaveManager:BuildConfigSection(tab)
             self:StopAutoSave()
         end
     end)
+    
+    local DependencyBox = section:AddDependencyBox()
+    DependencyBox:SetupDependencies({ { Toggles.SaveManager_AutoSaveEnabled, true } })
 
-    section:AddSlider('SaveManager_AutoSaveInterval', { 
+    
+    DependencyBox:AddSlider('SaveManager_AutoSaveInterval', { 
         Text = 'Auto Save Interval', 
         Default = 10, 
         Min = 5, 
@@ -774,7 +766,7 @@ function SaveManager:BuildConfigSection(tab)
         Suffix = 's' 
     })
 
-    section:AddSlider('SaveManager_MaxFailures', { 
+    DependencyBox:AddSlider('SaveManager_MaxFailures', { 
         Text = 'Max Auto Save Failures', 
         Default = 3, 
         Min = 1, 
@@ -784,7 +776,7 @@ function SaveManager:BuildConfigSection(tab)
         self.AutoSaveConfig.MaxFailures = value
     end)
 
-    self.AutoSaveLabel = section:AddLabel('Auto save: disabled', true)
+    self.AutoSaveLabel = DependencyBox:AddLabel('Auto save: disabled', true)
 
     self:LoadAutoloadConfig()
     self:SetIgnoreIndexes({ 
