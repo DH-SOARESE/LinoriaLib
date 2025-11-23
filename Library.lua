@@ -3391,6 +3391,10 @@ end
         Parent = Container;
     });
 
+    Library:AddToRegistry(InputLabel, {
+        TextColor3 = 'FontColor';
+    });
+
     Groupbox:AddBlank(1);
 
     local TextBoxOuter = Library:Create('Frame', {
@@ -3415,18 +3419,13 @@ end
         BorderColor3 = 'OutlineColor';
     });
 
-    Library:OnHighlight(TextBoxOuter, TextBoxOuter,
-        { BorderColor3 = 'AccentColor' },
-        { BorderColor3 = 'Black' }
-    );
-
     local TooltipTable;
     if typeof(Info.Tooltip) == 'string' or typeof(Info.DisabledTooltip) == 'string' then
         TooltipTable = Library:AddToolTip(Info.Tooltip, Info.DisabledTooltip, TextBoxOuter)
         TooltipTable.Disabled = Textbox.Disabled;
     end
 
-    Library:Create('UIGradient', {
+    local Gradient = Library:Create('UIGradient', {
         Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
             ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
@@ -3449,21 +3448,23 @@ end
     local Box = Library:Create('TextBox', {
         BackgroundTransparency = 1;
 
-        Position = UDim2.fromOffset(2, 0),
-        Size = UDim2.fromScale(1, 1),
+        Position = UDim2.fromOffset(4, 0),
+        Size = UDim2.new(1, -8, 1, 0),
 
         Font = Library.Font;
         PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
-        PlaceholderText = '';  -- Vazio, vamos usar um Label customizado
+        PlaceholderText = Info.Placeholder or '';
 
-        Text = Info.Default or (if not Textbox.AllowEmpty then Textbox.EmptyReset else '---');
+        Text = Info.Default or (if not Textbox.AllowEmpty then Textbox.EmptyReset else '');
         TextColor3 = Library.FontColor;
         TextSize = 14;
         TextStrokeTransparency = 0;
         TextXAlignment = Enum.TextXAlignment.Left;
+        TextTruncate = Enum.TextTruncate.None;
 
         TextEditable = not Textbox.Disabled;
         ClearTextOnFocus = not Textbox.Disabled and Info.ClearTextOnFocus;
+        Active = not Textbox.Disabled;
 
         ZIndex = 7;
         Parent = Container;
@@ -3474,33 +3475,6 @@ end
     Library:AddToRegistry(Box, {
         TextColor3 = 'FontColor';
     });
-
-    -- Placeholder customizado que respeita o scroll
-    local PlaceholderLabel = Library:Create('TextLabel', {
-        BackgroundTransparency = 1;
-        Position = UDim2.fromOffset(2, 0);
-        Size = UDim2.fromScale(1, 1);
-        
-        Font = Library.Font;
-        Text = Info.Placeholder or '';
-        TextColor3 = Color3.fromRGB(190, 190, 190);
-        TextSize = 14;
-        TextStrokeTransparency = 0;
-        TextXAlignment = Enum.TextXAlignment.Left;
-        
-        Visible = (Box.Text == '' or Box.Text == '---');
-        ZIndex = 6;
-        Parent = Container;
-    });
-    
-    Library:ApplyTextStroke(PlaceholderLabel);
-    
-    -- Atualiza visibilidade do placeholder
-    local function UpdatePlaceholder()
-        PlaceholderLabel.Visible = (Box.Text == '' or Box.Text == '---');
-    end
-    
-    Box:GetPropertyChangedSignal('Text'):Connect(UpdatePlaceholder);
 
     function Textbox:OnChanged(Func)
         Textbox.Changed = Func;
@@ -3513,9 +3487,18 @@ end
     end;
 
     function Textbox:UpdateColors()
-        Box.TextColor3 = Textbox.Disabled and Library.DisabledAccentColor or Library.FontColor;
+        Box.TextColor3 = Textbox.Disabled and Library.DisabledTextColor or Library.FontColor;
+        Library.RegistryMap[Box].Properties.TextColor3 = Textbox.Disabled and 'DisabledTextColor' or 'FontColor';
 
-        Library.RegistryMap[Box].Properties.TextColor3 = Textbox.Disabled and 'DisabledAccentColor' or 'FontColor';
+        InputLabel.TextColor3 = Textbox.Disabled and Library.DisabledTextColor or Library.FontColor;
+        Library.RegistryMap[InputLabel].Properties.TextColor3 = Textbox.Disabled and 'DisabledTextColor' or 'FontColor';
+
+        TextBoxInner.BorderColor3 = Textbox.Disabled and Library.DisabledOutlineColor or Library.OutlineColor;
+        Library.RegistryMap[TextBoxInner].Properties.BorderColor3 = Textbox.Disabled and 'DisabledOutlineColor' or 'OutlineColor';
+
+        Gradient.Enabled = not Textbox.Disabled;
+
+        Box.PlaceholderColor3 = Textbox.Disabled and Library.DisabledTextColor or Color3.fromRGB(190, 190, 190);
     end;
 
     function Textbox:Display()
@@ -3556,73 +3539,49 @@ end
         Textbox:Display();
     end;
 
+    local function UpdateHighlight()
+        if Textbox.HighlightConnections then
+            for _, conn in ipairs(Textbox.HighlightConnections) do
+                conn:Disconnect()
+            end
+            Textbox.HighlightConnections = nil
+        end
+
+        if Textbox.Disabled then
+            TextBoxOuter.BorderColor3 = Color3.new(0, 0, 0)
+            return
+        end
+
+        Textbox.HighlightConnections = {}
+
+        local enter = TextBoxOuter.MouseEnter:Connect(function()
+            if not Textbox.Disabled then
+                TextBoxOuter.BorderColor3 = Library.AccentColor
+            end
+        end)
+
+        local leave = TextBoxOuter.MouseLeave:Connect(function()
+            TextBoxOuter.BorderColor3 = Color3.new(0, 0, 0)
+        end)
+
+        table.insert(Textbox.HighlightConnections, enter)
+        table.insert(Textbox.HighlightConnections, leave)
+    end
+
     function Textbox:SetDisabled(Disabled)
         Textbox.Disabled = Disabled;
 
         Box.TextEditable = not Disabled;
         Box.ClearTextOnFocus = not Disabled and Info.ClearTextOnFocus;
+        Box.Active = not Disabled;
 
         if TooltipTable then
             TooltipTable.Disabled = Disabled;
         end
 
         Textbox:UpdateColors();
+        UpdateHighlight();
     end;
-
-    local updateScheduled = false
-    local isFocused = false
-    
-    local function Update()
-        if updateScheduled then return end
-        updateScheduled = true
-        
-        task.wait()
-        updateScheduled = false
-        
-        local PADDING = 2
-        local reveal = Container.AbsoluteSize.X
-        local textWidth = TextService:GetTextSize(Box.Text, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
-        
-        if textWidth <= reveal - 2 * PADDING then
-            Box.Position = UDim2.fromOffset(PADDING, 0)
-            return
-        end
-        
-        if not isFocused then
-            Box.Position = UDim2.fromOffset(PADDING, 0)
-            return
-        end
-        
-        local cursor = Box.CursorPosition
-        if cursor == -1 then 
-            Box.Position = UDim2.fromOffset(PADDING, 0)
-            return 
-        end
-
-        local subtext = string.sub(Box.Text, 1, cursor - 1)
-        local cursorX = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
-
-        local currentOffset = Box.Position.X.Offset
-        local cursorScreenPos = currentOffset + cursorX
-        
-        local leftMargin = PADDING + 10
-        local rightMargin = reveal - PADDING - 10
-        
-        local newOffset = currentOffset
-        
-        if cursorScreenPos > rightMargin then
-            newOffset = rightMargin - cursorX
-        elseif cursorScreenPos < leftMargin then
-            newOffset = leftMargin - cursorX
-        end
-        
-        local minOffset = -(textWidth - reveal + 2 * PADDING)
-        local maxOffset = PADDING
-        
-        newOffset = math.clamp(newOffset, minOffset, maxOffset)
-        
-        Box.Position = UDim2.fromOffset(newOffset, 0)
-    end
 
     if Textbox.Finished then
         Box.FocusLost:Connect(function(enter)
@@ -3638,17 +3597,9 @@ end
         end);
     end
 
-    Box:GetPropertyChangedSignal('Text'):Connect(Update)
-    Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
-    Box.FocusLost:Connect(function()
-        Box.Position = UDim2.fromOffset(2, 0)
-    end)
-    Box.Focused:Connect(Update)
-
-    task.spawn(Update)
-
     Blank = Groupbox:AddBlank(5, Textbox.Visible);
     task.delay(0.1, Textbox.UpdateColors, Textbox);
+    UpdateHighlight();
     Textbox:Display();
     Groupbox:Resize();
 
