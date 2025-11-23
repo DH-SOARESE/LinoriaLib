@@ -1201,6 +1201,7 @@ do
         ZIndex = 16;
         Parent = PickerFrameInner;
     });
+    TruncateText(DisplayLabel)
     Library:MakeDraggableUsingParent(DisplayLabel, PickerFrameOuter)
 
     local ContextMenu = {}
@@ -1698,6 +1699,7 @@ end;
             ZIndex = 8;
             Parent = PickInner;
         });
+        TruncateText(DisplayLabel)
 
         -- Keybinds Text
         local KeybindsToggle = {}
@@ -1748,6 +1750,7 @@ end;
                 ZIndex = Library.IsMobile and 0 or 111;
                 Parent = KeybindsToggleInner;
             });
+            TruncateText(KeybindsToggleLabel)
 
             Library:Create('UIListLayout', {
                 Padding = UDim.new(0, 4);
@@ -1928,6 +1931,7 @@ end;
                 ZIndex = 16;
                 Parent = UnbindInner;
             });
+            TruncateText(UnbindLabel)
 
             function UnbindButton:UnbindKey()
                 KeyPicker:SetValue({ nil, KeyPicker.Mode })
@@ -2541,6 +2545,7 @@ function BaseAddonsFuncs:AddDropdown(Idx, Info)
                     ZIndex = 25;
                     Parent = Button;
                 });
+                TruncateText(ButtonLabel)
 
                 Library:OnHighlight(Button, Button,
                     { BorderColor3 = IsDisabled and 'DisabledTextColor' or 'AccentColor', ZIndex = 24 },
@@ -3306,7 +3311,7 @@ end;
             BorderColor3 = 'OutlineColor';
         })
     else
-        local Label = Library:Create('TextLabel', {
+        local Label = Library:CreateLabel({  
             BackgroundTransparency = 1;
             Text = tostring(LabelText);
             Font = Enum.Font.Code;
@@ -3316,6 +3321,7 @@ end;
             ZIndex = 7;
             Parent = DividerOuter;
         })
+        TruncateText(Label)
 
         Label.Size = UDim2.new(0, Label.TextBounds.X + 10, 1, 0)
         Label.Position = UDim2.new(0.5, -Label.Size.X.Offset / 2, 0, 0)
@@ -3684,7 +3690,6 @@ end;
         Parent = ToggleLabel;  
     });  
 
-    local TextService = game:GetService('TextService')
     local textBounds = TextService:GetTextSize(ToggleLabel.Text, ToggleLabel.TextSize, ToggleLabel.Font, Vector2.new(math.huge, math.huge)).X
     local gap = 6
 
@@ -6778,10 +6783,11 @@ end
         end;
 
         TabButton.InputBegan:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                Tab:ShowTab();
-            end;
-        end);
+            if Library.AnyPressing then return end
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                    Tab:ShowTab()
+                end
+        end)
 
         TopBar:GetPropertyChangedSignal('Visible'):Connect(function()
             Tab:Resize();
