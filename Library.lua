@@ -881,7 +881,9 @@ end
 function Library:ResetUI()
     for k in pairs(Toggles) do
         local success, err = pcall(function()
-            Toggles[k]:SetValue(Toggles[k].OriginalValue)
+            if Toggles[k].Value ~= Toggles[k].OriginalValue then 
+                Toggles[k]:SetValue(Toggles[k].OriginalValue)
+            end
         end)
         if not success then
             warn(
@@ -897,9 +899,13 @@ function Library:ResetUI()
     for k in pairs(Options) do
         local success, err = pcall(function()
             if Options[k].Type == 'Slider' or Options[k].Type == 'Dropdown' or Options[k].Type == 'Input' then
-                Options[k]:SetValue(Options[k].OriginalValue)
+                if Options[k].Value ~= Options[k].OriginalValue then 
+                    Options[k]:SetValue(Options[k].OriginalValue)
+                end
             elseif Options[k].Type == 'ColorPicker' then
-                Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
+                if Options[k].Value ~= Options[k].OriginalValue or Options[k].OriginalValueTransparency then
+                    Options[k]:SetValueRGB(Options[k].OriginalValue, Options[k].OriginalValueTransparency)
+                end
             end
         end)
         if not success then
@@ -4863,19 +4869,6 @@ end;
             Dropdown:BuildDropdownList()  
         end);  
     end;  
-
-    InputService.InputBegan:Connect(function(Input)  
-        if Dropdown.Disabled then  
-            return;  
-        end;  
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then  
-            local AbsPos, AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize;  
-            if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X  
-                or Mouse.Y < (AbsPos.Y - (20 * DPIScale) - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then  
-                Dropdown:CloseDropdown();  
-            end;  
-        end;  
-    end);  
 
     Dropdown:BuildDropdownList();  
     Dropdown:Display();  
