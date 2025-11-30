@@ -3813,7 +3813,7 @@ end;
     function Toggle:SetVisible(Visibility)  
         Toggle.Visible = Visibility;  
 
-        ToggleOuter.Visible = Toggle.Visible;  
+        ToggleContainer.Visible = Toggle.Visible;  
         if Blank then Blank.Visible = Toggle.Visible end;  
 
         Groupbox:Resize();  
