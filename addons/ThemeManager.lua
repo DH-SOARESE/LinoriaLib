@@ -1,29 +1,14 @@
-local cloneref = (cloneref or clonereference or function(instance) 
+local cloneref = cloneref or clonereference or function(instance) 
     return instance 
-end)
-
-local httpService = cloneref(game:GetService('HttpService'))
-local httprequest = (syn and syn.request) or request or http_request or (http and http.request)
-local getassetfunc = getcustomasset or getsynasset
-local isfolder, isfile, listfiles = isfolder, isfile, listfiles
-
-local assert = function(condition, errorMessage)
-    if not condition then
-        error(errorMessage or "assert failed", 3)
-    end
 end
 
-local function split(str, delimiter)
-    local result = {}
-    local from = 1
-    local delim_from, delim_to = string.find(str, delimiter, from)
-    while delim_from do
-        table.insert(result, string.sub(str, from, delim_from - 1))
-        from = delim_to + 1
-        delim_from, delim_to = string.find(str, delimiter, from)
+local HttpService = cloneref(game:GetService("HttpService"))
+local isfolder, isfile, listfiles = isfolder, isfile, listfiles
+
+local function assert(condition, errorMessage)
+    if not condition then
+        error(errorMessage or "Assertion failed", 3)
     end
-    table.insert(result, string.sub(str, from))
-    return result
 end
 
 if typeof(copyfunction) == "function" then
@@ -31,112 +16,127 @@ if typeof(copyfunction) == "function" then
     local isfile_copy = copyfunction(isfile)
     local listfiles_copy = copyfunction(listfiles)
 
-    local isfolder_success, isfolder_error = pcall(isfolder_copy, "test" .. tostring(math.random(1000000, 9999999)))
+    local success, result = pcall(function()
+        return isfolder_copy("test" .. tostring(math.random(1000000, 9999999)))
+    end)
 
-    if not isfolder_success or typeof(isfolder_error) ~= "boolean" then
+    if not success or typeof(result) ~= "boolean" then
         isfolder = function(folder)
-            local success, data = pcall(isfolder_copy, folder)
-            return success and data or false
+            local ok, data = pcall(isfolder_copy, folder)
+            return ok and data or false
         end
 
         isfile = function(file)
-            local success, data = pcall(isfile_copy, file)
-            return success and data or false
+            local ok, data = pcall(isfile_copy, file)
+            return ok and data or false
         end
 
         listfiles = function(folder)
-            local success, data = pcall(listfiles_copy, folder)
-            return success and data or {}
+            local ok, data = pcall(listfiles_copy, folder)
+            return ok and data or {}
         end
     end
 end
 
-local function ApplyBackgroundVideo(videoLink, library)
-    if typeof(videoLink) ~= "string" or not (getassetfunc and writefile and readfile and isfile) or not library.InnerVideoBackground then
-        return
-    end
 
-    local videoInstance = library.Scheme.InnerVideoBackground
-    local extension = videoLink:match(".*/(.-)$") or ""
-    local filename = string.sub(extension, 1, #extension - 5)
-    local _, domain = videoLink:match("^(https?://)([^/]+)")
-    domain = domain or ""
+local SaveManager = {}
 
-    if videoLink == "" then
-        videoInstance:Pause()
-        videoInstance.Video = ""
-        videoInstance.Visible = false
-        return
-    end
+SaveManager.Folder = "LinoriaLibSettings"
+SaveManager.SubFolder = ""
+SaveManager.SaveVersion = 1
+SaveManager.Library = nil
 
-    if #extension > 5 and string.sub(extension, -5) ~= ".webm" then
-        return
-    end
+SaveManager.Ignore = {}
+SaveManager.AutoSaveName = nil
+SaveManager.AutoSaveTask = nil
+SaveManager.LabelUpdateTask = nil
+SaveManager.AutoloadStatusLabel = nil
+SaveManager.AutoSaveLabel = nil
 
-    local videoFile = library.ThemeManager.Folder .. "/themes/" .. string.sub(domain .. filename, 1, 249) .. ".webm"
-    if not isfile(videoFile) then
-        local success, requestRes = pcall(httprequest, { Url = videoLink, Method = 'GET' })
-        if not (success and typeof(requestRes) == "table" and typeof(requestRes.Body) == "string") then
-            return
-        end
-        writefile(videoFile, requestRes.Body)
-    end
-
-    videoInstance.Video = getassetfunc(videoFile)
-    videoInstance.Visible = true
-    videoInstance:Play()
-end
-
-local ThemeManager = {}
-ThemeManager.Folder = 'LinoriaLibSettings'
-ThemeManager.Library = nil
-
-ThemeManager.BuiltInThemes = {
-    -- Classic Themes
-    ['Default'] = {1, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1e1e","AccentColor":"0021ff","BackgroundColor":"232323","OutlineColor":"141414"}')},
-    ['BBot'] = {2, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1a1a1e","AccentColor":"8b5cf6","BackgroundColor":"0f0f12","OutlineColor":"2d2d35"}')},
-    ['Fatality'] = {3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1538","AccentColor":"e11d48","BackgroundColor":"150f2a","OutlineColor":"2d2554"}')},
-    ['Jester'] = {4, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1f1f23","AccentColor":"f43f5e","BackgroundColor":"18181b","OutlineColor":"3f3f46"}')},
-    ['Mint'] = {5, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1a1f1d","AccentColor":"10b981","BackgroundColor":"111614","OutlineColor":"2d3631"}')},
-    ['Tokyo Night'] = {6, httpService:JSONDecode('{"FontColor":"c0caf5","MainColor":"1a1b26","AccentColor":"7aa2f7","BackgroundColor":"16161e","OutlineColor":"292e42"}')},
-    ['Ubuntu'] = {7, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"2c2c2c","AccentColor":"ff6b35","BackgroundColor":"1e1e1e","OutlineColor":"0e0e0e"}')},
-    ['Quartz'] = {8, httpService:JSONDecode('{"FontColor":"e8e8e8","MainColor":"1e1e2e","AccentColor":"89b4fa","BackgroundColor":"181825","OutlineColor":"313244"}')},
-
-    -- Neon & Cyberpunk Themes
-    ['Cyber Neon'] = {9, httpService:JSONDecode('{"FontColor":"00ffff","MainColor":"0a0a0f","AccentColor":"ff00ff","BackgroundColor":"050508","OutlineColor":"1a1a2e"}')},
-    ['Electric Dream'] = {10, httpService:JSONDecode('{"FontColor":"f0ff00","MainColor":"1a0f2e","AccentColor":"ff006e","BackgroundColor":"120a21","OutlineColor":"2e1f42"}')},
-    ['Neon Pulse'] = {11, httpService:JSONDecode('{"FontColor":"00ffc8","MainColor":"0d0d12","AccentColor":"ff3864","BackgroundColor":"070709","OutlineColor":"1a1a24"}')},
-    ['Synthwave 84'] = {12, httpService:JSONDecode('{"FontColor":"ff71ce","MainColor":"241734","AccentColor":"01cdfe","BackgroundColor":"1a0e2e","OutlineColor":"3d2a52"}')},
-    ['Vapor Wave'] = {13, httpService:JSONDecode('{"FontColor":"ff6ad5","MainColor":"2d1b4e","AccentColor":"00d9ff","BackgroundColor":"1f1238","OutlineColor":"422f6b"}')},
-    ['Neon Tokyo'] = {14, httpService:JSONDecode('{"FontColor":"ff2a6d","MainColor":"05010d","AccentColor":"00fff9","BackgroundColor":"010104","OutlineColor":"0d0221"}')},
-
-    -- Natural & Organic Themes
-    ['Sunset Glow'] = {15, httpService:JSONDecode('{"FontColor":"fff5eb","MainColor":"2b1e13","AccentColor":"fb923c","BackgroundColor":"1c1410","OutlineColor":"3d2d1f"}')},
-    ['Ocean Breeze'] = {16, httpService:JSONDecode('{"FontColor":"e0f2fe","MainColor":"0c1821","AccentColor":"06b6d4","BackgroundColor":"07111a","OutlineColor":"172532"}')},
-    ['Forest Mist'] = {17, httpService:JSONDecode('{"FontColor":"ecfdf5","MainColor":"0f1d14","AccentColor":"34d399","BackgroundColor":"0a140e","OutlineColor":"1a2f21"}')},
-    ['Cherry Blossom'] = {18, httpService:JSONDecode('{"FontColor":"fdf2f8","MainColor":"2d1a24","AccentColor":"f472b6","BackgroundColor":"1f1119","OutlineColor":"3d2531"}')},
-    ['Aurora Borealis'] = {19, httpService:JSONDecode('{"FontColor":"e0f2f1","MainColor":"0d2818","AccentColor":"26a69a","BackgroundColor":"081a12","OutlineColor":"1a3d2e"}')},
-    ['Desert Sand'] = {20, httpService:JSONDecode('{"FontColor":"fef3c7","MainColor":"2d2416","AccentColor":"d97706","BackgroundColor":"1f1a0f","OutlineColor":"3d352a"}')},
-    ['Tropical Paradise'] = {21, httpService:JSONDecode('{"FontColor":"f0fdfa","MainColor":"134e4a","AccentColor":"14b8a6","BackgroundColor":"0f3a38","OutlineColor":"2d6a65"}')},
-
+SaveManager.AutoSaveConfig = {
+    Enabled = false,
+    Interval = 60,
+    LastSaveTime = 0,
+    SavesSinceStart = 0,
+    FailedSaves = 0,
+    MaxFailures = 3,
 }
 
-function ThemeManager:SetLibrary(library)
+
+function SaveManager:SetLibrary(library)
     self.Library = library
 end
 
-function ThemeManager:GetPaths()
-    local paths = {}
-    local parts = split(self.Folder, '/')
-    for idx = 1, #parts do
-        table.insert(paths, table.concat(parts, '/', 1, idx))
+function SaveManager:IgnoreThemeSettings()
+    self:SetIgnoreIndexes({
+        "BackgroundColor", 
+        "MainColor", 
+        "AccentColor", 
+        "OutlineColor", 
+        "FontColor",
+        "ThemeManager_ThemeList", 
+        "ThemeManager_CustomThemeList", 
+        "ThemeManager_CustomThemeName",
+        "VideoLink",
+    })
+end
+
+function SaveManager:SetIgnoreIndexes(list)
+    for _, key in ipairs(list) do
+        self.Ignore[key] = true
     end
-    table.insert(paths, self.Folder .. '/themes')
+end
+
+
+function SaveManager:HasSubFolder()
+    return typeof(self.SubFolder) == "string" and self.SubFolder ~= ""
+end
+
+function SaveManager:EnsureSubFolder()
+    if not self:HasSubFolder() then 
+        return false 
+    end
+    
+    local subPath = self.Folder .. "/settings/" .. self.SubFolder
+    if not isfolder(subPath) then
+        makefolder(subPath)
+    end
+    
+    return true
+end
+
+function SaveManager:GetPaths()
+    local paths = {}
+    
+    local parts = self.Folder:split("/")
+    for idx = 1, #parts do
+        local path = table.concat(parts, "/", 1, idx)
+        if not table.find(paths, path) then
+            table.insert(paths, path)
+        end
+    end
+    
+    table.insert(paths, self.Folder .. "/themes")
+    table.insert(paths, self.Folder .. "/settings")
+
+    if self:HasSubFolder() then
+        local subFolder = self.Folder .. "/settings/" .. self.SubFolder
+        parts = subFolder:split("/")
+        
+        for idx = 1, #parts do
+            local path = table.concat(parts, "/", 1, idx)
+            if not table.find(paths, path) then
+                table.insert(paths, path)
+            end
+        end
+    end
+
     return paths
 end
 
-function ThemeManager:BuildFolderTree()
+function SaveManager:BuildFolderTree()
     local paths = self:GetPaths()
+    
     for _, path in ipairs(paths) do
         if not isfolder(path) then
             makefolder(path)
@@ -144,260 +144,648 @@ function ThemeManager:BuildFolderTree()
     end
 end
 
-function ThemeManager:CheckFolderTree()
+function SaveManager:EnsureFolderTree()
     if not isfolder(self.Folder) then
         self:BuildFolderTree()
         task.wait(0.1)
     end
 end
 
-function ThemeManager:SetFolder(folder)
+function SaveManager:SetFolder(folder)
     self.Folder = folder
     self:BuildFolderTree()
 end
 
-function ThemeManager:ApplyTheme(theme)
-    local customThemeData = self:GetCustomTheme(theme)
-    local data = customThemeData or self.BuiltInThemes[theme]
-    if not data then return end
+function SaveManager:SetSubFolder(folder)
+    self.SubFolder = folder
+    self:BuildFolderTree()
+end
 
-    local scheme = customThemeData or data[2]
-    for idx, col in pairs(scheme) do
-        if idx == "VideoLink" then
-            self.Library[idx] = col
-            if self.Library.Options[idx] then
-                self.Library.Options[idx]:SetValue(col)
+
+SaveManager.Parser = {
+    Toggle = {
+        Save = function(idx, object)
+            return { 
+                type = "Toggle", 
+                idx = idx, 
+                value = object.Value 
+            }
+        end,
+        
+        Load = function(idx, data)
+            local object = SaveManager.Library.Toggles[idx]
+            if object then
+                object:SetValue(data.value)
             end
-            ApplyBackgroundVideo(col, self.Library)
+        end,
+    },
+    
+    Slider = {
+        Save = function(idx, object)
+            return { 
+                type = "Slider", 
+                idx = idx, 
+                value = object.Value 
+            }
+        end,
+        
+        Load = function(idx, data)
+            local object = SaveManager.Library.Options[idx]
+            if object then
+                object:SetValue(data.value)
+            end
+        end,
+    },
+    
+    Dropdown = {
+        Save = function(idx, object)
+            return { 
+                type = "Dropdown", 
+                idx = idx, 
+                value = object.Value, 
+                multi = object.Multi 
+            }
+        end,
+        
+        Load = function(idx, data)
+            local object = SaveManager.Library.Options[idx]
+            if object then
+                object:SetValue(data.value)
+            end
+        end,
+    },
+    
+    ColorPicker = {
+        Save = function(idx, object)
+            return { 
+                type = "ColorPicker", 
+                idx = idx, 
+                value = object.Value:ToHex(), 
+                transparency = object.Transparency 
+            }
+        end,
+        
+        Load = function(idx, data)
+            local object = SaveManager.Library.Options[idx]
+            if object then
+                object:SetValueRGB(Color3.fromHex(data.value), data.transparency)
+            end
+        end,
+    },
+    
+    KeyPicker = {
+        Save = function(idx, object)
+            return { 
+                type = "KeyPicker", 
+                idx = idx, 
+                mode = object.Mode, 
+                key = object.Value 
+            }
+        end,
+        
+        Load = function(idx, data)
+            local object = SaveManager.Library.Options[idx]
+            if object then
+                object:SetValue({ data.key, data.mode })
+            end
+        end,
+    },
+    
+    Input = {
+        Save = function(idx, object)
+            return { 
+                type = "Input", 
+                idx = idx, 
+                text = object.Value 
+            }
+        end,
+        
+        Load = function(idx, data)
+            local object = SaveManager.Library.Options[idx]
+            if object and type(data.text) == "string" then
+                object:SetValue(data.text)
+            end
+        end,
+    },
+}
+
+
+function SaveManager:GetConfigPath(name)
+    local basePath = self.Folder .. "/settings/" .. name .. ".json"
+    
+    if self:HasSubFolder() then
+        self:EnsureSubFolder()
+        basePath = self.Folder .. "/settings/" .. self.SubFolder .. "/" .. name .. ".json"
+    end
+    
+    return basePath
+end
+
+function SaveManager:Save(name)
+    if not name or name == "" then
+        return false, "No config name provided"
+    end
+    
+    self:EnsureFolderTree()
+
+    local fullPath = self:GetConfigPath(name)
+    local data = {
+        version = self.SaveVersion,
+        objects = {}
+    }
+
+    for idx, toggle in pairs(self.Library.Toggles) do
+        if toggle.Type and self.Parser[toggle.Type] and not self.Ignore[idx] then
+            table.insert(data.objects, self.Parser[toggle.Type].Save(idx, toggle))
+        end
+    end
+
+    for idx, option in pairs(self.Library.Options) do
+        if option.Type and self.Parser[option.Type] and not self.Ignore[idx] then
+            table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
+        end
+    end
+
+    if #data.objects == 0 then
+        return false, "No data to save (empty config)"
+    end
+
+    local success, encoded = pcall(HttpService.JSONEncode, HttpService, data)
+    if not success then
+        return false, "Failed to encode data: " .. tostring(encoded)
+    end
+
+    writefile(fullPath, encoded)
+    return true, "Config saved successfully"
+end
+
+function SaveManager:Load(name)
+    if not name or name == "" then
+        return false, "No config name provided"
+    end
+    
+    self:EnsureFolderTree()
+
+    local file = self:GetConfigPath(name)
+    if not isfile(file) then
+        return false, "Config file does not exist"
+    end
+
+    local success, decoded = pcall(HttpService.JSONDecode, HttpService, readfile(file))
+    if not success then
+        return false, "Failed to decode data: " .. tostring(decoded)
+    end
+
+    if decoded.version ~= self.SaveVersion then
+        warn(string.format(
+            "Config version mismatch: %s (expected %s)", 
+            tostring(decoded.version), 
+            self.SaveVersion
+        ))
+    end
+
+    for _, option in ipairs(decoded.objects or {}) do
+        if option.type and self.Parser[option.type] then
+            task.spawn(self.Parser[option.type].Load, option.idx, option)
+        end
+    end
+
+    return true, "Config loaded successfully"
+end
+
+function SaveManager:Delete(name)
+    if not name or name == "" then
+        return false, "No config name provided"
+    end
+
+    local file = self:GetConfigPath(name)
+    if not isfile(file) then
+        return false, "Config file does not exist"
+    end
+
+    local success, err = pcall(delfile, file)
+    if not success then
+        return false, "Failed to delete file: " .. tostring(err)
+    end
+
+    return true, "Config deleted successfully"
+end
+
+function SaveManager:RefreshConfigList()
+    self:EnsureFolderTree()
+
+    local folder = self.Folder .. "/settings"
+    if self:HasSubFolder() then
+        folder = folder .. "/" .. self.SubFolder
+    end
+
+    local success, files = pcall(listfiles, folder)
+    if not success then
+        local errorMsg = "Failed to refresh config list: " .. tostring(files)
+        if self.Library then
+            self.Library:Notify(errorMsg)
         else
-            self.Library[idx] = Color3.fromHex(col)
-            if self.Library.Options[idx] then
-                self.Library.Options[idx]:SetValueRGB(Color3.fromHex(col))
+            warn(errorMsg)
+        end
+        return {}
+    end
+
+    local configList = {}
+    for _, file in ipairs(files or {}) do
+        local name = file:match("([^/\\]+)%.json$")
+        if name then
+            table.insert(configList, name)
+        end
+    end
+
+    return configList
+end
+
+
+function SaveManager:GetAutoloadPath()
+    local basePath = self.Folder .. "/settings/AutoLoad.txt"
+    
+    if self:HasSubFolder() then
+        self:EnsureSubFolder()
+        basePath = self.Folder .. "/settings/" .. self.SubFolder .. "/AutoLoad.txt"
+    end
+    
+    return basePath
+end
+
+function SaveManager:GetAutoloadConfig()
+    self:EnsureFolderTree()
+
+    local autoLoadPath = self:GetAutoloadPath()
+    if not isfile(autoLoadPath) then
+        return "none"
+    end
+
+    local success, name = pcall(readfile, autoLoadPath)
+    if not success then
+        return "none"
+    end
+
+    name = name:match("^%s*(.-)%s*$")
+    return name ~= "" and name or "none"
+end
+
+function SaveManager:LoadAutoloadConfig()
+    self:EnsureFolderTree()
+
+    local autoLoadPath = self:GetAutoloadPath()
+    if not isfile(autoLoadPath) then 
+        return 
+    end
+
+    local successRead, name = pcall(readfile, autoLoadPath)
+    if not successRead then
+        if self.Library then 
+            self.Library:Notify("Failed to read autoload config: " .. tostring(name)) 
+        end
+        return
+    end
+
+    local success, err = self:Load(name)
+    if not success then
+        if self.Library then 
+            self.Library:Notify("Failed to load autoload config: " .. err) 
+        end
+        return
+    end
+
+    if self.Library then
+        self.Library:Notify(string.format("Auto loaded config "%s"", name))
+    end
+end
+
+function SaveManager:SaveAutoloadConfig(name)
+    if not name or name == "" then
+        return false, "No config name provided"
+    end
+    
+    self:EnsureFolderTree()
+
+    local autoLoadPath = self:GetAutoloadPath()
+    local success, err = pcall(writefile, autoLoadPath, name)
+    
+    if not success then
+        return false, "Failed to write autoload file: " .. tostring(err)
+    end
+
+    return true, "Autoload config saved"
+end
+
+function SaveManager:DeleteAutoLoadConfig()
+    self:EnsureFolderTree()
+
+    local autoLoadPath = self:GetAutoloadPath()
+    if not isfile(autoLoadPath) then
+        return true, "No autoload config to delete"
+    end
+
+    local success, err = pcall(delfile, autoLoadPath)
+    if not success then
+        return false, "Failed to delete autoload file: " .. tostring(err)
+    end
+
+    return true, "Autoload config deleted"
+end
+
+
+function SaveManager:StopAutoSave()
+    if self.AutoSaveTask then
+        task.cancel(self.AutoSaveTask)
+        self.AutoSaveTask = nil
+    end
+    
+    if self.LabelUpdateTask then
+        task.cancel(self.LabelUpdateTask)
+        self.LabelUpdateTask = nil
+    end
+    
+    self.AutoSaveConfig.Enabled = false
+    self.AutoSaveConfig.SavesSinceStart = 0
+    self.AutoSaveConfig.FailedSaves = 0
+    
+    if self.AutoSaveLabel then
+        self.AutoSaveLabel:SetText("Auto save: disabled")
+    end
+end
+
+function SaveManager:UpdateAutoSaveLabel()
+    if not self.AutoSaveLabel then 
+        return 
+    end
+    
+    local lastStr = (self.AutoSaveConfig.LastSaveTime > 0) 
+        and string.format("%.1f", tick() - self.AutoSaveConfig.LastSaveTime) .. "s ago" 
+        or "never"
+    
+    self.AutoSaveLabel:SetText(string.format(
+        "Auto save: enabled | Saves: %d | Last: %s",
+        self.AutoSaveConfig.SavesSinceStart,
+        lastStr
+    ))
+end
+
+function SaveManager:ScheduleAutoSave()
+    if not self.AutoSaveConfig.Enabled then 
+        return 
+    end
+
+    if self.AutoSaveTask then
+        task.cancel(self.AutoSaveTask)
+    end
+
+    self.AutoSaveTask = task.delay(self.AutoSaveConfig.Interval, function()
+        self:PerformAutoSave()
+    end)
+end
+
+function SaveManager:PerformAutoSave()
+    self.AutoSaveTask = nil
+
+    local success, msg = self:Save(self.AutoSaveName)
+    
+    if not success then
+        self.AutoSaveConfig.FailedSaves = self.AutoSaveConfig.FailedSaves + 1
+        
+        if self.Library then
+            self.Library:Notify(
+                string.format("Auto save failed (%d): %s", 
+                    self.AutoSaveConfig.FailedSaves, 
+                    msg
+                ), 
+                3
+            )
+        end
+
+        if self.AutoSaveConfig.FailedSaves >= self.AutoSaveConfig.MaxFailures then
+            if self.Library then
+                self.Library:Notify("Auto save disabled due to repeated failures", 4)
             end
+            self:StopAutoSave()
+        else
+            self:ScheduleAutoSave()
         end
-    end
-
-    self:ThemeUpdate()
-end
-
-function ThemeManager:ThemeUpdate()
-    if self.Library.Scheme.InnerVideoBackground then
-        self.Library.Scheme.InnerVideoBackground.Visible = false
-    end
-
-    local options = {"FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor", "VideoLink"}
-    for _, field in ipairs(options) do
-        if self.Library.Options and self.Library.Options[field] then
-            if field == "VideoLink" then
-                self.Library[field] = self.Library.Options[field].Value
-                ApplyBackgroundVideo(self.Library.Options[field].Value, self.Library)
-            else
-                self.Library[field] = self.Library.Options[field].Value
-            end
-        end
-    end
-
-    self.Library.Scheme.AccentColorDark = self.Library:GetDarkerColor(self.Library.Scheme.AccentColor)
-    self.Library:UpdateColorsUsingRegistry()
-end
-
-function ThemeManager:GetCustomTheme(file)
-    local path = self.Folder .. '/themes/' .. file .. '.json'
-    if not isfile(path) then return nil end
-
-    local data = readfile(path)
-    local success, decoded = pcall(httpService.JSONDecode, httpService, data)
-    return success and decoded or nil
-end
-
-function ThemeManager:LoadDefault()
-    local theme = 'Default'
-    local defaultPath = self.Folder .. '/themes/default.txt'
-    local content = isfile(defaultPath) and readfile(defaultPath)
-
-    local isDefault = true
-    if content then
-        if self.BuiltInThemes[content] or self:GetCustomTheme(content) then
-            theme = content
-            isDefault = self.BuiltInThemes[content] ~= nil
-        end
-    elseif self.BuiltInThemes[self.DefaultTheme] then
-        theme = self.DefaultTheme
-    end
-
-    if isDefault then
-        self.Library.Options.ThemeManager_ThemeList:SetValue(theme)
     else
-        self:ApplyTheme(theme)
+        self.AutoSaveConfig.SavesSinceStart = self.AutoSaveConfig.SavesSinceStart + 1
+        self.AutoSaveConfig.FailedSaves = 0
+        self.AutoSaveConfig.LastSaveTime = tick()
+        self:UpdateAutoSaveLabel()
+        self:ScheduleAutoSave()
     end
 end
 
-function ThemeManager:SaveDefault(theme)
-    writefile(self.Folder .. '/themes/default.txt', theme)
-end
-
-function ThemeManager:SaveCustomTheme(file)
-    if file:gsub(' ', '') == '' then
-        return self.Library:Notify('Invalid file name for theme (empty)', 3)
+function SaveManager:SetupChangeListeners()
+    local function onChange()
+        self:ScheduleAutoSave()
     end
 
-    local theme = {}
-    local fields = {"FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor", "VideoLink"}
-
-    for _, field in ipairs(fields) do
-        if field == "VideoLink" then
-            theme[field] = self.Library.Options[field].Value
-        else
-            theme[field] = self.Library.Options[field].Value:ToHex()
+    for idx, toggle in pairs(self.Library.Toggles) do
+        if not self.Ignore[idx] and toggle.OnChanged then
+            toggle:OnChanged(onChange)
         end
     end
 
-    writefile(self.Folder .. '/themes/' .. file .. '.json', httpService:JSONEncode(theme))
-end
-
-function ThemeManager:Delete(name)
-    if not name then return false, 'no config file is selected' end
-
-    local file = self.Folder .. '/themes/' .. name .. '.json'
-    if not isfile(file) then return false, 'invalid file' end
-
-    local success = pcall(delfile, file)
-    return success, success and nil or 'delete file error'
-end
-
-function ThemeManager:ReloadCustomThemes()
-    local list = listfiles(self.Folder .. '/themes') or {}
-    local out = {}
-
-    for _, file in ipairs(list) do
-        if file:match('%.json$') then
-            local pos = file:find('.json', 1, true)
-            if pos then
-                local start = pos
-                local char = file:sub(pos, pos)
-                while char ~= '/' and char ~= '\\' and char ~= '' do
-                    pos = pos - 1
-                    char = file:sub(pos, pos)
-                end
-                if char == '/' or char == '\\' then
-                    table.insert(out, file:sub(pos + 1, start - 6))
-                end
-            end
+    for idx, option in pairs(self.Library.Options) do
+        if not self.Ignore[idx] and option.OnChanged then
+            option:OnChanged(onChange)
         end
     end
-
-    return out
 end
 
-function ThemeManager:CreateThemeManager(groupbox)
-    groupbox:AddLabel('Background color'):AddColorPicker('BackgroundColor', {Default = self.Library.Scheme.BackgroundColor})
-    groupbox:AddLabel('Main color'):AddColorPicker('MainColor', {Default = self.Library.Scheme.MainColor})
-    groupbox:AddLabel('Accent color'):AddColorPicker('AccentColor', {Default = self.Library.Scheme.AccentColor})
-    groupbox:AddLabel('Outline color'):AddColorPicker('OutlineColor', {Default = self.Library.Scheme.OutlineColor})
-    groupbox:AddLabel('Font color'):AddColorPicker('FontColor', {Default = self.Library.Scheme.FontColor})
-
-    local ThemesArray = {}
-    for name in pairs(self.BuiltInThemes) do
-        table.insert(ThemesArray, name)
+function SaveManager:StartAutoSave(configName, interval)
+    if self.AutoSaveConfig.Enabled then
+        self:StopAutoSave()
     end
-    table.sort(ThemesArray, function(a, b) return self.BuiltInThemes[a][1] < self.BuiltInThemes[b][1] end)
 
-    groupbox:AddDivider()
-    groupbox:AddDropdown('ThemeManager_ThemeList', {Text = 'Theme list', Values = ThemesArray, Default = 1})
-    groupbox:AddButton('Set as default', function()
-        self:SaveDefault(self.Library.Options.ThemeManager_ThemeList.Value)
-        self.Library:Notify(string.format('Set default theme to %q', self.Library.Options.ThemeManager_ThemeList.Value))
-    end)
+    self.AutoSaveName = configName
+    self.AutoSaveConfig.Interval = interval
+    self.AutoSaveConfig.Enabled = true
+    self.AutoSaveConfig.LastSaveTime = 0
+    self.AutoSaveConfig.SavesSinceStart = 0
+    self.AutoSaveConfig.FailedSaves = 0
 
-    self.Library.Options.ThemeManager_ThemeList:OnChanged(function()
-        self:ApplyTheme(self.Library.Options.ThemeManager_ThemeList.Value)
-    end)
+    self:SetupChangeListeners()
+    self:ScheduleAutoSave()
 
-    groupbox:AddDivider()
-
-    groupbox:AddInput('ThemeManager_CustomThemeName', {Text = 'Custom theme name'})
-    groupbox:AddButton('Create theme', function()
-        self:SaveCustomTheme(self.Library.Options.ThemeManager_CustomThemeName.Value)
-        self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
-        self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
-    end)
-
-    groupbox:AddDivider()
-
-    groupbox:AddDropdown('ThemeManager_CustomThemeList', {Text = 'Custom themes', Values = self:ReloadCustomThemes(), AllowNull = true, Default = 1})
-    groupbox:AddButton('Load theme', function()
-        local name = self.Library.Options.ThemeManager_CustomThemeList.Value
-        if name then
-            self:ApplyTheme(name)
-            self.Library:Notify(string.format('Loaded theme %q', name))
+    self.LabelUpdateTask = task.spawn(function()
+        while self.AutoSaveConfig.Enabled do
+            self:UpdateAutoSaveLabel()
+            task.wait(1)
         end
     end)
-    groupbox:AddButton('Overwrite theme', function()
-        local name = self.Library.Options.ThemeManager_CustomThemeList.Value
-        if name then
-            self:SaveCustomTheme(name)
-            self.Library:Notify(string.format('Overwrote theme %q', name))
+end
+
+
+function SaveManager:BuildConfigSection(tab)
+    assert(self.Library, "SaveManager:BuildConfigSection -> Must set SaveManager.Library")
+
+    local section = tab:AddRightGroupbox("Configuration")
+
+    section:AddInput("SaveManager_ConfigName", { Text = "Config name" })
+    section:AddButton("Create config", function()
+        local name = self.Library.Options.SaveManager_ConfigName.Value
+        
+        if not name or name:gsub(" ", "") == "" then
+            return self.Library:Notify("Invalid config name (empty)", 2)
         end
-    end)
-    groupbox:AddButton('Delete theme', function()
-        local name = self.Library.Options.ThemeManager_CustomThemeList.Value
-        if name then
-            local success, err = self:Delete(name)
-            if not success then
-                return self.Library:Notify('Failed to delete theme: ' .. (err or 'unknown error'))
-            end
-            self.Library:Notify(string.format('Deleted theme %q', name))
-            self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
-            self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
-        end
-    end)
-    groupbox:AddButton('Refresh list', function()
-        self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
-        self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
-    end)
-    groupbox:AddButton('Set as default', function()
-        local name = self.Library.Options.ThemeManager_CustomThemeList.Value
-        if name and name ~= '' then
-            self:SaveDefault(name)
-            self.Library:Notify(string.format('Set default theme to %q', name))
-        end
-    end)
-    groupbox:AddButton('Reset default', function()
-        local success = pcall(delfile, self.Folder .. '/themes/default.txt')
+
+        local success, msg = self:Save(name)
         if not success then
-            return self.Library:Notify('Failed to reset default: delete file error')
+            return self.Library:Notify("Failed to create config: " .. msg)
         end
-        self.Library:Notify('Reset default theme')
+
+        self.Library:Notify(string.format("Created config "%s"", name))
+        self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+        self.Library.Options.SaveManager_ConfigList:SetValue(nil)
     end)
 
-    self:LoadDefault()
+    section:AddDivider()
 
-    local function UpdateTheme() self:ThemeUpdate() end
-    self.Library.Options.BackgroundColor:OnChanged(UpdateTheme)
-    self.Library.Options.MainColor:OnChanged(UpdateTheme)
-    self.Library.Options.AccentColor:OnChanged(UpdateTheme)
-    self.Library.Options.OutlineColor:OnChanged(UpdateTheme)
-    self.Library.Options.FontColor:OnChanged(UpdateTheme)
+    section:AddDropdown("SaveManager_ConfigList", { 
+        Text = "Config list", 
+        Values = self:RefreshConfigList(), 
+        AllowNull = true 
+    })
+    
+    section:AddButton("Load config", function()
+        local name = self.Library.Options.SaveManager_ConfigList.Value
+        if not name then 
+            return self.Library:Notify("No config selected") 
+        end
+
+        local success, msg = self:Load(name)
+        if not success then
+            return self.Library:Notify("Failed to load config: " .. msg)
+        end
+
+        self.Library:Notify(string.format("Loaded config "%s"", name))
+    end)
+    
+    section:AddButton("Overwrite config", function()
+        local name = self.Library.Options.SaveManager_ConfigList.Value
+        if not name then 
+            return self.Library:Notify("No config selected") 
+        end
+
+        local success, msg = self:Save(name)
+        if not success then
+            return self.Library:Notify("Failed to overwrite config: " .. msg)
+        end
+
+        self.Library:Notify(string.format("Overwrote config "%s"", name))
+    end)
+
+    section:AddButton("Delete config", function()
+        local name = self.Library.Options.SaveManager_ConfigList.Value
+        if not name then 
+            return self.Library:Notify("No config selected") 
+        end
+
+        local success, msg = self:Delete(name)
+        if not success then
+            return self.Library:Notify("Failed to delete config: " .. msg)
+        end
+
+        self.Library:Notify(string.format("Deleted config "%s"", name))
+        self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+        self.Library.Options.SaveManager_ConfigList:SetValue(nil)
+    end)
+
+    section:AddButton("Refresh list", function()
+        self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+        self.Library.Options.SaveManager_ConfigList:SetValue(nil)
+    end)
+
+    section:AddButton("Set as autoload", function()
+        local name = self.Library.Options.SaveManager_ConfigList.Value
+        if not name then 
+            return self.Library:Notify("No config selected") 
+        end
+
+        local success, msg = self:SaveAutoloadConfig(name)
+        if not success then
+            return self.Library:Notify("Failed to set autoload: " .. msg)
+        end
+
+        self.AutoloadStatusLabel:SetText("Current autoload config: " .. name)
+        self.Library:Notify(string.format("Set "%s" to auto load", name))
+    end)
+    
+    section:AddButton("Reset autoload", function()
+        local success, msg = self:DeleteAutoLoadConfig()
+        if not success then
+            return self.Library:Notify("Failed to reset autoload: " .. msg)
+        end
+
+        self.Library:Notify("Autoload set to None")
+        self.AutoloadStatusLabel:SetText("Autoload configuration: None")
+    end)
+
+    self.AutoloadStatusLabel = section:AddLabel(
+        "Autoload configuration: " .. self:GetAutoloadConfig(), 
+        true
+    )
+
+    section:AddDivider("Auto save")
+
+    section:AddToggle("SaveManager_AutoSaveEnabled", { 
+        Text = "Auto Save", 
+        Default = false 
+    }):OnChanged(function(value)
+        if value then
+            local config = self.Library.Options.SaveManager_ConfigList.Value
+            if not config then
+                self.Library:Notify("No config selected for auto save")
+                self.Library.Options.SaveManager_AutoSaveEnabled:SetValue(false)
+                return
+            end
+            
+            local interval = self.Library.Options.SaveManager_AutoSaveInterval.Value
+            self:StartAutoSave(config, interval)
+            self:UpdateAutoSaveLabel()
+        else
+            self:StopAutoSave()
+        end
+    end)
+    
+    local DependencyBox = section:AddDependencyBox()
+    DependencyBox:SetupDependencies({ { Toggles.SaveManager_AutoSaveEnabled, true } })
+
+    
+    DependencyBox:AddSlider("SaveManager_AutoSaveInterval", { 
+        Text = "Auto Save Interval", 
+        Default = 10, 
+        Min = 5, 
+        Max = 300, 
+        Rounding = 0, 
+        Suffix = "s" 
+    })
+
+    DependencyBox:AddSlider("SaveManager_MaxFailures", { 
+        Text = "Max Auto Save Failures", 
+        Default = 3, 
+        Min = 1, 
+        Max = 10, 
+        Rounding = 0 
+    }):OnChanged(function(value)
+        self.AutoSaveConfig.MaxFailures = value
+    end)
+
+    self.AutoSaveLabel = DependencyBox:AddLabel("Auto save: disabled", true)
+
+    self:LoadAutoloadConfig()
+    self:SetIgnoreIndexes({ 
+        "SaveManager_ConfigList", 
+        "SaveManager_ConfigName", 
+        "SaveManager_AutoSaveEnabled", 
+        "SaveManager_AutoSaveInterval", 
+        "SaveManager_MaxFailures" 
+    })
 end
 
-function ThemeManager:CreateGroupBox(tab)
-    assert(self.Library, 'ThemeManager:CreateGroupBox -> Must set ThemeManager.Library first!')
-    return tab:AddLeftGroupbox('Themes')
-end
-
-function ThemeManager:ApplyToTab(tab)
-    assert(self.Library, 'ThemeManager:ApplyToTab -> Must set ThemeManager.Library first!')
-    local groupbox = self:CreateGroupBox(tab)
-    self:CreateThemeManager(groupbox)
-end
-
-function ThemeManager:ApplyToGroupbox(groupbox)
-    assert(self.Library, 'ThemeManager:ApplyToGroupbox -> Must set ThemeManager.Library first!')
-    self:CreateThemeManager(groupbox)
-end
-
-ThemeManager:BuildFolderTree()
-
-getgenv().LinoriaThemeManager = ThemeManager
-
-return ThemeManager
+SaveManager:BuildFolderTree()
+return SaveManager
