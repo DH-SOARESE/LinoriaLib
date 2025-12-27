@@ -855,7 +855,7 @@ MenuControls:AddButton({
 })
 ```
 ## Complete Example  
-[Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/blob/main/Example.lua)
+[Example with all Library options](https://github.com/DH-SOARESE/LinoriaLib/main/Example.lua)
 ```lua
 loadstring(game:HttpGet('https://raw.githubusercontent.com/DH-SOARESE/LinoriaLib/refs/heads/main/Example.lua'))()
 ```
